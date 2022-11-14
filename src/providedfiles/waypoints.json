@@ -1,0 +1,26 @@
+﻿[
+  {
+    "waypoint_id": "gliwice.rynek.neptun",
+    "coordinates": [
+      50.29416,
+      18.66541
+    ],
+    "type": "station",
+    "displayed_name": "Rynek Fontanna Neptuna",
+    "navigation_audio": "",
+    "image": "image.station.gliwice.neptun.icon",
+    "introduction_audio": "audio.introduction.neptun"
+  },
+  {
+    "waypoint_id": "gliwice.rynek.ratusz",
+    "coordinates": [
+      50.29387,
+      18.66577
+    ],
+    "type": "station",
+    "displayed_name": "Rynek Rzeźba Madonny",
+    "navigation_audio": "",
+    "image": "image.station.gliwice.ratusz.icon",
+    "introduction_audio": "audio.introduction.ratusz"
+  }
+]

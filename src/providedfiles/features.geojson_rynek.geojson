@@ -1,0 +1,115 @@
+{
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "7": "gliwice.rynek.plebanska"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66539,
+          50.29466
+        ],
+        "type": "Point"
+      },
+      "id": "2091da5dd33d8b4a7b0bb9c5a71099fb"
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          50.29416,
+          18.66541
+        ],
+        "type": "Point"
+      },
+      "id": "30b771f170f12d31b82527ad4d1daef0"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "2": "gliwice.rynek.ratusz"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66577,
+          50.29387
+        ],
+        "type": "Point"
+      },
+      "id": "40e906532c933068539dce5244f3124a"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "6": "gliwice.rynek.rog"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66565,
+          50.2946
+        ],
+        "type": "Point"
+      },
+      "id": "47e11d430ef5771340466ac5993b5896"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "5": "gliwice.rynek.podcienie"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66583,
+          50.29441
+        ],
+        "type": "Point"
+      },
+      "id": "af0ef280e7b9c1ae59e4b1fb7b5b9cae"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "1": "gliwice.rynek.neptun"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66541,
+          50.29416
+        ],
+        "type": "Point"
+      },
+      "id": "d3b4d35b246fb6e43f82f422adffba38"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "3": "gliwice.rynek.arkady"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66597,
+          50.29395
+        ],
+        "type": "Point"
+      },
+      "id": "da9440d31056b91ec7fc2bf2455bd4a5"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "4": "gliwice.rynek.pilastry"
+      },
+      "geometry": {
+        "coordinates": [
+          18.66592,
+          50.29412
+        ],
+        "type": "Point"
+      },
+      "id": "fec8ac3e53fb352e3f0dc427ea9dada6"
+    }
+  ],
+  "type": "FeatureCollection"
+}
