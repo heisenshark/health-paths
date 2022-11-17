@@ -39,40 +39,7 @@ export default function App() {
       >
       </Stack.Navigator> */}
       <Tab.Navigator
-        screenOptions={
-          {
-            tabBarItemStyle: {
-              backgroundColor: 'yellow',
-              borderRadius: 5,
-              flex: 0,
-              width: 90,
-              height: 90,
-              marginHorizontal: 10,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderWidth: 3,
-              marginVertical: 'auto',
-              alignSelf: 'center'
-            },
-            tabBarStyle: {
-              flexDirection: 'column',
-              height: 110,
-              justifyContent: 'space-around',
-              alignItems: 'center',
-              borderColor: 'yellow',
-              borderWidth: 3,
-              backgroundColor: 'black'
-            },
-            tabBarLabelStyle: {
-              fontSize: 15,
-              color: 'black',
-              textDecorationLine:'underline',
-            },
-            activeTintColor: '#FFFFFF',
-            headerShown: false,
-
-          }
-        }
+        screenOptions={templateScreenOptions}
       >
         <Tab.Screen
           name="Home"
@@ -81,7 +48,6 @@ export default function App() {
             tabBarIcon: ({ color, size }) =>
               (<Icon name="home" size={50} color="black" />),
           }}
-
         />
         <Tab.Screen
           name="Map"
@@ -91,17 +57,24 @@ export default function App() {
             tabBarIcon: ({ color, size }) =>
               (<Icon name="map" size={50} color="black" />),
           }}
-
         />
         <Tab.Screen
-          name="asdasd"
+          name="Maps"
           component={Map}
           options={{
             tabBarIcon: ({ color, size }) =>
               (<Icon name="lock" size={50} color="black" />),
           }}
-
-/>
+        />
+        {/* <Tab.Screen
+          name="Options"
+          component={Map}
+          options={{
+            tabBarIcon: ({ color, size }) =>
+              (<Icon name="lock" size={50} color="black" />),
+          }}
+        /> */}
+        
       </Tab.Navigator>
     </NavigationContainer >
   )
@@ -126,15 +99,49 @@ const style = <xd className="bg-red-200 text-yellow-200" />
 const mainButtonNav = {
   tabBarItemStyle: {
     backgroundColor: 'yellow',
-    marginVertical: 5,
     borderWidth: 3,
     borderRadius: 5,
     flex: 0,
-    width: 100,
-    height: 100,
+    width: 105,
+    height: 105,
+    borderRadius: 30,
   },
   tabBarLabelStyle: {
     fontSize: 20,
     color: 'black'
   },
+}
+
+const templateScreenOptions = {
+  tabBarItemStyle: {
+    backgroundColor: 'yellow',
+    borderRadius: 5,
+    flex: 0,
+    width: 90,
+    height: 90,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    marginVertical: 'auto',
+    alignSelf: 'center',
+    borderRadius: 30,
+  },
+  tabBarStyle: {
+    flexDirection: 'column',
+    height: 110,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderColor: 'yellow',
+    borderWidth: 3,
+    backgroundColor: 'black'
+  },
+  tabBarLabelStyle: {
+    fontSize: 15,
+    color: 'black',
+    textDecorationLine: 'underline',
+  },
+  activeTintColor: '#FFFFFF',
+  headerShown: false,
+
 }
