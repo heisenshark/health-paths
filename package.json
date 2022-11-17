@@ -10,16 +10,24 @@
     "lol": "expo install @rnmapbox/maps"
   },
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.4.0",
+    "@react-navigation/native": "^6.0.13",
+    "@react-navigation/native-stack": "^6.9.1",
     "@rnmapbox/maps": "^10.0.0-beta.56",
     "expo": "~47.0.3",
     "expo-splash-screen": "~0.17.4",
     "expo-status-bar": "~1.4.2",
     "lodash": "^4.17.21",
     "nativewind": "^2.0.11",
+    "pod-install": "^0.1.38",
     "react": "18.1.0",
     "react-native": "0.70.5",
+    "react-native-color-matrix-image-filters": "^6.0.1",
     "react-native-maps": "^1.3.2",
-    "react-native-paper": "^4.12.5"
+    "react-native-paper": "^4.12.5",
+    "react-native-safe-area-context": "4.4.1",
+    "react-native-screens": "~3.18.0",
+    "react-native-vector-icons": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
