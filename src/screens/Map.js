@@ -9,6 +9,10 @@ import { ColorMatrix, concatColorMatrices, saturate, invert, contrast, hueRotate
 const Map = ({
     params,
 }) => {
+    //TODO Dodać przyciski powiększania dodawania itp
+    //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
+    //TODO Rozdzielić na kilka pure komponentów
+    //TODO Dodać możliwość tworzenia waypointów
 
     const [currentSubject, setCurrentSubject] = useState('defaultSuvject')
     const [permissionGranted, setPermissionGranted] = useState(false)
@@ -24,7 +28,7 @@ const Map = ({
         setZoomVals(calcZoomValues())
     }, [])
 
-
+    //TODO uprościć funkcje zooma na początku mapy
     const calcZoomValues = () => {
         const retval = {
             minLat: 1000,
@@ -51,6 +55,7 @@ const Map = ({
         console.log(retval)
         return retval
     }
+    //TODO zmienić to na komponent który generuje markery trasy
     const markers = waypoints.map((n, index) => {
         return <Marker
             key={index}

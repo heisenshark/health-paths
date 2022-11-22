@@ -15,7 +15,7 @@ const HomeScreen = ({
         <Text>HomeScreen</Text>
         <Icon name="rocket" size={30} color="#900" />
         <View className="flex-row flex-wrap">
-
+        //TODO przycisk podłóżny
         <SquareButton label="Gotowe">
             <Icon name="check" size={40} color="black" className="flex-1" />
         </SquareButton>

@@ -31,6 +31,13 @@ const Tab = createBottomTabNavigator()
 export default function App() {
 
   return (
+    //TODO finish settings screen
+    //TODO finish mapselect screen
+    //TODO finish info screen
+    //TODO finish mymaps screen
+    //TODO add tracking position and making tracks by gps
+    //TODO dodać możliwość eksportu mapy
+    //TODO dodać możliwość udostępnienia mapy przez watsapp
 
     <NavigationContainer>
       {/* <Stack.Navigator screenOptions={{
@@ -74,7 +81,7 @@ export default function App() {
               (<Icon name="lock" size={50} color="black" />),
           }}
         /> */}
-        
+
       </Tab.Navigator>
     </NavigationContainer >
   )
