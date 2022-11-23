@@ -1,5 +1,5 @@
 import { Text, View, TouchableOpacity, Image } from 'react-native'
-import { React, useEffect, useState } from 'react'
+import React, {  useEffect, useState } from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import MapView, { Callout, Circle, Marker, Polyline } from 'react-native-maps'
 import { cloneDeep } from 'lodash'
@@ -14,12 +14,19 @@ const Map = ({
     //TODO Rozdzielić na kilka pure komponentów
     //TODO Dodać możliwość tworzenia waypointów
 
+    type zoom ={
+        latitude,
+        longitude,
+        latitudeDelta,
+        longitudeDelta, 
+}
     const [currentSubject, setCurrentSubject] = useState('defaultSuvject')
     const [permissionGranted, setPermissionGranted] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
     const [selectedWaypoint, setSelectedWaypoint] = useState(-1)
     const [waypoints, setWaypoints] = useState(cloneDeep(waypointsApp))
-    const [zoomVals, setZoomVals] = useState({})
+    const [zoomVals, setZoomVals] = useState({} as zoom)
+
     const elo = useEffect(() => {
         MapboxGL.requestAndroidLocationPermissions().then(n => {
             setPermissionGranted(n)
@@ -29,31 +36,31 @@ const Map = ({
     }, [])
 
     //TODO uprościć funkcje zooma na początku mapy
-    const calcZoomValues = () => {
-        const retval = {
-            minLat: 1000,
-            minLon: 1000,
-            maxLat: -1000,
-            maxLon: -1000,
-            centerLat: 0,
-            centerLon: 0,
-            deltaLat: 0,
-            deltaLon: 0,
+    const calcZoomValues = ():zoom => {
+        let minLat= 1000,
+        minLon= 1000,
+        maxLat= -1000,
+        maxLon= -1000;
+        const retval:zoom= {
+            latitude: 0,
+            longitude: 0,
+            latitudeDelta: 0,
+            longitudeDelta: 0,
         }
         waypoints.forEach((n) => {
-            retval.minLat = Math.min(retval.minLat, n.coordinates[0])
-            retval.maxLat = Math.max(retval.maxLat, n.coordinates[0])
-            retval.minLon = Math.min(retval.minLon, n.coordinates[1])
-            retval.maxLon = Math.max(retval.maxLon, n.coordinates[1])
+            minLat = Math.min(minLat, n.coordinates[0])
+            maxLat = Math.max(maxLat, n.coordinates[0])
+            minLon = Math.min(minLon, n.coordinates[1])
+            maxLon = Math.max(maxLon, n.coordinates[1])
             console.log(n)
         })
-        retval.centerLat = (retval.minLat + retval.maxLat) / 2
-        retval.centerLon = (retval.minLon + retval.maxLon) / 2
+        retval.latitude = (minLat + maxLat) / 2
+        retval.longitude = (minLon + maxLon) / 2
 
-        retval.deltaLat = retval.maxLat - retval.minLat + 0.001
-        retval.deltaLon = retval.maxLon - retval.minLon + 0.001
+        retval.latitudeDelta = maxLat - minLat + 0.001
+        retval.longitudeDelta = maxLon - minLon + 0.001
         console.log(retval)
-        return retval
+        return retval as zoom
     }
     //TODO zmienić to na komponent który generuje markery trasy
     const markers = waypoints.map((n, index) => {
@@ -82,16 +89,14 @@ const Map = ({
                 <ColorMatrix className="flex items-center" matrix={concatColorMatrices(brightness(1))}>
                     {index == 0 && <Text>Start</Text>}
                     {index == waypoints.length - 1 && <Text>Koniec</Text>}
-                    <Image source={
+                    <Image 
+                    source={
                         index == 0 ? imageStart : index == waypoints.length - 1 ? imageEnd : marker
                     }
                     resizeMode="center"
                     resizeMethod='resize'
                     className={`flex-1 w-12 h-12 ${selectedWaypoint == index ? '' : ''}`}
-                    >
-
-
-                    </Image>
+                    />
                 </ColorMatrix>
             </View>
             <Callout tooltip={true}>
@@ -125,10 +130,7 @@ const Map = ({
 
                 <MapView className="flex-1"
                     initialRegion={{
-                        latitude: zoomVals.centerLat,
-                        longitude: zoomVals.centerLon,
-                        latitudeDelta: (zoomVals.deltaLat),
-                        longitudeDelta: (zoomVals.deltaLon),
+                        ...zoomVals
                     }}
                     onPress={(e) => {
                         isEdit && addWaypoint(e.nativeEvent.coordinate)

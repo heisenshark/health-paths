@@ -1,12 +1,15 @@
 import React from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 
+type SquareButtonProps = {
+    children: any,
+    label: string,
+    onPress?: () => any
+}
+
 const SquareButton = ({
-    params,
-    children,
-    label,
-    onPress
-}) => (
+    children, label, onPress
+}: SquareButtonProps) => (
     <TouchableOpacity
         className="w-20 h-20 aspect-square flex items-center justify-center rounded-2xl border-4 "
         style={{ backgroundColor: "#FFFF00" }}

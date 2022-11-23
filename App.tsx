@@ -17,7 +17,7 @@ import { featuresRynek, waypointsApp } from './src/providedfiles/Export'
 import Map from './src/screens/Map'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { BottomTabNavigationOptions, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import HomeScreen from './src/screens/HomeScreen'
 import { NativeWindStyleSheet, useColorScheme } from 'nativewind'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
   }
 })
 
-const style = <xd className="bg-red-200 text-yellow-200" />
 const mainButtonNav = {
   tabBarItemStyle: {
     backgroundColor: 'yellow',
@@ -119,7 +118,7 @@ const mainButtonNav = {
   },
 }
 
-const templateScreenOptions = {
+const templateScreenOptions:BottomTabNavigationOptions = {
   tabBarItemStyle: {
     backgroundColor: 'yellow',
     borderRadius: 5,
@@ -132,7 +131,6 @@ const templateScreenOptions = {
     borderWidth: 3,
     marginVertical: 'auto',
     alignSelf: 'center',
-    borderRadius: 30,
   },
   tabBarStyle: {
     flexDirection: 'column',
@@ -148,7 +146,6 @@ const templateScreenOptions = {
     color: 'black',
     textDecorationLine: 'underline',
   },
-  activeTintColor: '#FFFFFF',
   headerShown: false,
-
 }
+
