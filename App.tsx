@@ -7,10 +7,7 @@ import MapView, { Circle, Marker, Polyline } from 'react-native-maps'
 import { enableLatestRenderer } from 'react-native-maps'
 import { cloneDeep } from 'lodash'
 
-import { Countdown } from './src/components/CountDown'
 import { RoundedButton } from './src/components/RoundedButton'
-import Timer from './src/components/Timer'
-import Feature from './src/Feature'
 import { exampleGeojsonFeatureCollection, exampleGeojsonFeatureCollection_Shape } from './src/utils/maps'
 import CircleIcon from './src/utils/Icons'
 import { featuresRynek, waypointsApp } from './src/providedfiles/Export'
@@ -22,8 +19,8 @@ import HomeScreen from './src/screens/HomeScreen'
 import { NativeWindStyleSheet, useColorScheme } from 'nativewind'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
-MapboxGL.setWellKnownTileServer('Mapbox')
-MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
+// MapboxGL.setWellKnownTileServer('Mapbox')
+// MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -38,7 +35,6 @@ export default function App() {
     //TODO add tracking position and making tracks by gps
     //TODO dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
-
     <NavigationContainer>
       {/* <Stack.Navigator screenOptions={{
         headerShown: false
@@ -118,7 +114,7 @@ const mainButtonNav = {
   },
 }
 
-const templateScreenOptions:BottomTabNavigationOptions = {
+const templateScreenOptions: BottomTabNavigationOptions = {
   tabBarItemStyle: {
     backgroundColor: 'yellow',
     borderRadius: 5,
