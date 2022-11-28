@@ -35,7 +35,7 @@ export const exampleGeojsonFeatureCollection_Shape = {
         }
     ],
     "type": "FeatureCollection"
-}
+};
 
 
 export const exampleGeojsonFeatureCollection = {
@@ -164,4 +164,4 @@ export const exampleGeojsonFeatureCollection = {
         }
     ],
     "type": "FeatureCollection"
-}
+};

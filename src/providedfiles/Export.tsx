@@ -124,7 +124,7 @@ export const geojsonFeatures = {
         }
     ],
     "type": "FeatureCollection"
-}
+};
 export const featuresRynek = {
     "features": [
         {
@@ -251,7 +251,7 @@ export const featuresRynek = {
         }
     ],
     "type": "FeatureCollection"
-}
+};
 export const mediaFiles = [
     {
         "media_id": "image.preview.gliwice.rynek",
@@ -271,14 +271,15 @@ export const mediaFiles = [
         "storage_type": "local",
         "path": "videos/test/Test_1"
     }
-]
+];
 export const waypointsApp = [
     {
         "waypoint_id": "gliwice.rynek.neptun",
-        "coordinates": [
-            50.29416,
-            18.66541
-        ],
+        "coordinates": {
+            "latitude": 50.29416,
+            "longitude": 18.66541
+        }
+        ,
         "type": "station",
         "displayed_name": "Rynek Fontanna Neptuna",
         "navigation_audio": "",
@@ -287,17 +288,17 @@ export const waypointsApp = [
     },
     {
         "waypoint_id": "gliwice.rynek.ratusz",
-        "coordinates": [
-            50.29387,
-            18.66577
-        ],
+        "coordinates": {
+            "latitude": 50.29387,
+            "longitude": 18.66577
+        },
         "type": "station",
         "displayed_name": "Rynek Rzeźba Madonny",
         "navigation_audio": "",
         "image": "image.station.gliwice.ratusz.icon",
         "introduction_audio": "audio.introduction.ratusz"
     }
-]
+];
 export const mapStylesJSON = [
     {
         "featureType": "poi",
@@ -378,40 +379,40 @@ export const mapStylesJSON = [
             }
         ]
     }
-]
-export const mapStylenoLandmarks =[
+];
+export const mapStylenoLandmarks = [
     {
-      "featureType": "administrative",
-      "elementType": "geometry",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
+        "featureType": "administrative",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
     },
     {
-      "featureType": "poi",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
+        "featureType": "poi",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
     },
     {
-      "featureType": "road",
-      "elementType": "labels.icon",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
+        "featureType": "road",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
     },
     {
-      "featureType": "transit",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
+        "featureType": "transit",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
     }
-  ]
+];
