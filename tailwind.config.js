@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 /* eslint-disable */
-const plugin = require('tailwindcss/plugin');
+const plugin = require('tailwindcss/plugin')
 
 function wrapUtilities(utilities) {
   // Hack to enable AutoCompletion on VSCode
@@ -27,11 +27,14 @@ module.exports = {
   content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      colors:{
-        main: 'yellow',
-        secondary:{
-          9:'black',
-          1:'#101010',
+      colors: {
+        main: {
+          1: 'yellow',
+          2: '#ffd04f'
+        },
+        secondary: {
+          9: 'black',
+          1: '#101010',
         }
       },
     },
@@ -51,7 +54,7 @@ module.exports = {
         'flex-0': {
           flex: 0
         },
-        bbbb:`px-4 py-1 rounded-full bg-red-800 text-white`,
+        bbbb: `px-4 py-1 rounded-full bg-red-800 text-white`,
         btnn: {
           backgroundColor: "yellow",
           borderWidth: 3,

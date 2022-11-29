@@ -82,7 +82,7 @@ const Map = ({ params }) => {
     };
 
     return (
-        <View className="relative">
+        <View className="relative border-4">
             <View className="w-full h-full bg-red-600">
                 <MapView
                     className="flex-1"
