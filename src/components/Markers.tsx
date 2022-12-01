@@ -15,11 +15,11 @@ export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
     const [selectedWaypoint, setSelectedWaypoint] = useState(1);
 
     useEffect(() => {
-        console.log(
-            "zmiana",
-            waypoints,
-            waypoints.slice(1, -1).map((value) => value.coordinates)
-        );
+    // console.log(
+    //     "zmiana",
+    //     waypoints,
+    //     waypoints.slice(1, -1).map((value) => value.coordinates)
+    // );
     }, [isEdit]);
 
     const addWaypoint = (cords: LatLng) => {
@@ -79,9 +79,8 @@ export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
                             />
                         </View>
                     )}
-
                     <Callout tooltip>
-                        <Text></Text>
+                        <Text>{index + 1}</Text>
                     </Callout>
                 </Marker>
             );

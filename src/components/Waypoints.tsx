@@ -1,17 +1,37 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { Card } from "react-native-paper";
+import tw from "../lib/tailwind";
 import Waypoint from "../utils/interfaces";
 
 export interface WaypointsListProps {
   waypoints: Waypoint[];
+  onDelete: (id: number) => void;
 }
 
-export function WaypointsList({ waypoints }: WaypointsListProps) {
+export function WaypointsList({ waypoints, onDelete }: WaypointsListProps) {
     return (
-        <View>
-            {waypoints.map((waypoint, index) => {
-                return <Text>waypoint.coordinates</Text>;
+        <ScrollView style={tw`absolute flex-1 bg-main-2 w-full h-64 pointer-events-none`}>
+            {waypoints.map((waypoint: Waypoint, index) => {
+                return (
+                    <Card key={index} style={tw`px-3 py-1 m-1 elevation-5`}>
+                        <View style={tw`flex flex-row`}>
+                            <Text style={tw`text-3xl`}>
+                                {index}. 
+                            </Text>
+                            <Text style={tw`text-2xl w-4/6`}>
+                                {waypoint.coordinates.latitude} :: {waypoint.coordinates.longitude}
+                            </Text>
+                            <TouchableOpacity
+                                style={tw`w-2/6 flex-1 flex items-center justify-center`}
+                                onPress={() => onDelete(index)}>
+                                <Text style={tw`h-max text-2xl text-center align-middle`}>X</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Card>
+                );
             })}
-        </View>
+            <View style={tw`h-1`}></View>
+        </ScrollView>
     );
 }

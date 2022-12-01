@@ -3,19 +3,22 @@ import React, { useEffect, useState } from "react";
 import MapboxGL from "@rnmapbox/maps";
 import MapView, { LatLng, Region } from "react-native-maps";
 import { cloneDeep } from "lodash";
+import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON, waypointsApp } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
 import Waypoint from "../utils/interfaces";
-import { NativeWindStyleSheet } from "nativewind"
+import { NativeWindStyleSheet } from "nativewind";
+import SquareButton from "../components/SquareButton";
+import { WaypointsList } from "../components/Waypoints";
 const Map = ({ params }) => {
     //TODO Dodać przyciski powiększania dodawania itp
     //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
     //TODO Rozdzielić na kilka pure komponentów
     //TODO Dodać możliwość tworzenia waypointów
-
+    const [isEdit, toggleEdit] = useToggle(false);
+    const [listOpen, setListOpen] = useState(false);
     const [permissionGranted, setPermissionGranted] = useState(false);
-    const [isEdit, setIsEdit] = useState<boolean>(false as boolean);
     const [waypoints, setWaypoints] = useState<Waypoint[]>(cloneDeep(waypointsApp));
     const [zoomVals, setZoomVals] = useState<Region>({
         latitude: 0,
@@ -65,14 +68,14 @@ const Map = ({ params }) => {
             maxLat = Math.max(maxLat, n.coordinates.latitude);
             minLon = Math.min(minLon, n.coordinates.longitude);
             maxLon = Math.max(maxLon, n.coordinates.longitude);
-            console.log(n);
+            // console.log(n);
         });
         retval.latitude = (minLat + maxLat) / 2;
         retval.longitude = (minLon + maxLon) / 2;
 
         retval.latitudeDelta = maxLat - minLat + 0.001;
         retval.longitudeDelta = maxLon - minLon + 0.001;
-        console.log("siema", retval, waypoints);
+        // console.log("siema", retval, waypoints);
         return retval as Region;
     };
     //TODO zmienić to na komponent który generuje markery trasy
@@ -88,14 +91,13 @@ const Map = ({ params }) => {
                     className="flex-1"
                     initialRegion={calcZoomValues()}
                     onPress={(e) => {
-                        console.log("objectssss");
                         isEdit &&
-                        addWaypoint({
-                            waypoint_id: "asd",
-                            displayed_name: "name",
-                            coordinates: e.nativeEvent.coordinate,
-                            description: "asdsad",
-                        } as Waypoint);
+              addWaypoint({
+                  waypoint_id: "asd",
+                  displayed_name: "name",
+                  coordinates: e.nativeEvent.coordinate,
+                  description: "asdsad",
+              } as Waypoint);
                         // console.log(waypoints.slice(1, -1).map((value) => value.coordinates));
                     }}
                     customMapStyle={isEdit ? mapStylenoLandmarks : mapStylesJSON}>
@@ -108,27 +110,29 @@ const Map = ({ params }) => {
                         strokeWidth={3}
                         strokeColor="red"
                         onReady={(n) => {
-                            console.log(n);
+                            // console.log(n);
                         }}
                     />
 
-                    <Markers waypoints={waypoints} isEdit={isEdit} updateWaypoints={() => {
-                        setWaypoints([...waypoints]);
-                    }} />
+                    <Markers
+                        waypoints={waypoints}
+                        isEdit={isEdit}
+                        updateWaypoints={() => {
+                            setWaypoints([...waypoints]);
+                        }}
+                    />
                 </MapView>
             </View>
-            <View className="absolute  h-full w-full pointer-events-none">
+            <View className="absolute h-full w-full pointer-events-none">
                 <TouchableOpacity
                     className="h-20 w-20 bg-yellow-300 justify-center items-center rounded-full border-2 border-slate-400 self-end m-3 mt-auto"
-                    onPress={() => {
-                        setIsEdit(!isEdit);
-                    }}>
+                    onPress={toggleEdit}>
                     <Text className="text-3xl">{isEdit ? "exit" : "+"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     className="h-20 w-20 bg-yellow-300 justify-center items-center rounded-full border-2 border-slate-400 self-end m-3 mt-auto"
                     onPress={() => {
-                        setIsEdit(!isEdit);
+                        toggleEdit();
                         calcZoomValues();
                     }}></TouchableOpacity>
                 <TouchableOpacity
@@ -145,7 +149,27 @@ const Map = ({ params }) => {
                     }}>
                     <Text>delall</Text>
                 </TouchableOpacity>
+
+                <SquareButton
+                    label="Edytuj"
+                    onPress={() => {
+                        console.log("waypoint list open");
+                        setListOpen(!listOpen);
+                    }}>
+                    <Icon name="edit" size={40} color="black" className="flex-1" />
+                </SquareButton>
             </View>
+            {listOpen && (
+                <WaypointsList
+                    waypoints={waypoints}
+                    onDelete={(n) => {
+                        setWaypoints((w) => {
+                            w.splice(n, 1);
+                            return [...w];
+                        });
+                    }}
+                />
+            )}
         </View>
     );
 };
@@ -154,3 +178,20 @@ export default Map;
 // function undefined({ isEdit, markers }) {
 //     return <View>{isEdit && markers}</View>;
 // }
+
+export function useWaypoints() {
+    return [waypoints, setWaypoints];
+}
+
+function useToggle(initial: boolean): [boolean, () => void] {
+    const [toggle, setToggle] = useState(initial);
+    function toggleFunc(n?: boolean): void {
+        if (typeof n === "undefined") {
+            setToggle(!toggle);
+        } else {
+            setToggle(n);
+        }
+    }
+
+    return [toggle, toggleFunc];
+}

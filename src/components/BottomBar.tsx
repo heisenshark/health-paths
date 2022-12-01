@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
@@ -10,7 +10,6 @@ export interface BottomBarProps {
 }
 
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
-
     return (
         <View style={tw`h-[32] bg-secondary-1 flex-row items-center justify-around border-4`}>
             <SquareButton

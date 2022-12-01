@@ -1,13 +1,6 @@
 // import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 // import { useEffect, useState } from "react";
-import {
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableHighlight,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { StatusBar } from "react-native";
 // import { Button } from "react-native-paper";
 // import MapboxGL from "@rnmapbox/maps";
 // import MapView, { Circle, Marker, Polyline , enableLatestRenderer } from "react-native-maps";
@@ -42,6 +35,7 @@ export default function App() {
     //TODO dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
         <>
+
             <NavigationContainer
                 ref={navigationRef}
                 onStateChange={(key) => {
@@ -57,6 +51,7 @@ export default function App() {
                 </Nor.Navigator>
             </NavigationContainer>
             <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+       
         </>
     );
 }
