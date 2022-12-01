@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { Card } from "react-native-paper";
+import { Card, TextInput } from "react-native-paper";
 import tw from "../lib/tailwind";
 import Waypoint from "../utils/interfaces";
 
@@ -16,17 +16,27 @@ export function WaypointsList({ waypoints, onDelete }: WaypointsListProps) {
                 return (
                     <Card key={index} style={tw`px-3 py-1 m-1 elevation-5`}>
                         <View style={tw`flex flex-row`}>
-                            <Text style={tw`text-3xl`}>
-                                {index}. 
-                            </Text>
-                            <Text style={tw`text-2xl w-4/6`}>
-                                {waypoint.coordinates.latitude} :: {waypoint.coordinates.longitude}
-                            </Text>
+                            <Text style={tw`text-3xl`}>{index}.</Text>
+                            {/* <TextInput
+                                style={tw`w-2/6`}
+                                keyboardType={"numeric"}
+                                value={waypoint.coordinates.latitude + ""}
+                                onChangeText={(text) => {
+                                    waypoint.coordinates.latitude = parseFloat(text);
+                                }}></TextInput>
+                            <TextInput
+                                style={tw`w-2/6`}
+                                keyboardType={"numeric"}
+                                value={waypoint.coordinates.longitude + ""}
+                                onChangeText={(text) => {
+                                    waypoint.coordinates.longitude = parseFloat(text);
+                                }}></TextInput>
+
                             <TouchableOpacity
                                 style={tw`w-2/6 flex-1 flex items-center justify-center`}
                                 onPress={() => onDelete(index)}>
                                 <Text style={tw`h-max text-2xl text-center align-middle`}>X</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                     </Card>
                 );

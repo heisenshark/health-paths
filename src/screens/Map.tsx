@@ -16,9 +16,8 @@ const Map = ({ params }) => {
     //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
     //TODO Rozdzielić na kilka pure komponentów
     //TODO Dodać możliwość tworzenia waypointów
-    const [isEdit, toggleEdit] = useToggle(false);
+    const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
     const [listOpen, setListOpen] = useState(false);
-    const [permissionGranted, setPermissionGranted] = useState(false);
     const [waypoints, setWaypoints] = useState<Waypoint[]>(cloneDeep(waypointsApp));
     const [zoomVals, setZoomVals] = useState<Region>({
         latitude: 0,
@@ -34,11 +33,7 @@ const Map = ({ params }) => {
 
     const elo = useEffect(() => {
         setZoomVals(calcZoomValues());
-        MapboxGL.requestAndroidLocationPermissions().then((n) => {
-            setPermissionGranted(n);
-        });
     }, []);
-
     /**
    * no to ten, markery działają tak że jest edit mode i jak jest edit mode to ten, można je edytować i one istnieją, więc albo renderujemy je warunkowo albo umieszczamy warunkowe renderowanie w komponencie
    */
@@ -91,7 +86,7 @@ const Map = ({ params }) => {
                     className="flex-1"
                     initialRegion={calcZoomValues()}
                     onPress={(e) => {
-                        isEdit &&
+                        editorState == EditorState.EDIT &&
               addWaypoint({
                   waypoint_id: "asd",
                   displayed_name: "name",
@@ -100,7 +95,7 @@ const Map = ({ params }) => {
               } as Waypoint);
                         // console.log(waypoints.slice(1, -1).map((value) => value.coordinates));
                     }}
-                    customMapStyle={isEdit ? mapStylenoLandmarks : mapStylesJSON}>
+                    customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}>
                     <MapViewDirections
                         origin={waypoints[0].coordinates}
                         destination={waypoints[waypoints.length - 1].coordinates}
@@ -116,7 +111,7 @@ const Map = ({ params }) => {
 
                     <Markers
                         waypoints={waypoints}
-                        isEdit={isEdit}
+                        isEdit={editorState === EditorState.EDIT}
                         updateWaypoints={() => {
                             setWaypoints([...waypoints]);
                         }}
@@ -126,13 +121,13 @@ const Map = ({ params }) => {
             <View className="absolute h-full w-full pointer-events-none">
                 <TouchableOpacity
                     className="h-20 w-20 bg-yellow-300 justify-center items-center rounded-full border-2 border-slate-400 self-end m-3 mt-auto"
-                    onPress={toggleEdit}>
-                    <Text className="text-3xl">{isEdit ? "exit" : "+"}</Text>
+                    onPress={() => toggleEditorState(EditorState.EDIT)}>
+                    <Text className="text-3xl">{editorState === EditorState.EDIT ? "exit" : "+"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     className="h-20 w-20 bg-yellow-300 justify-center items-center rounded-full border-2 border-slate-400 self-end m-3 mt-auto"
                     onPress={() => {
-                        toggleEdit();
+                        toggleEditorState(EditorState.EDIT);
                         calcZoomValues();
                     }}></TouchableOpacity>
                 <TouchableOpacity
@@ -183,15 +178,63 @@ export function useWaypoints() {
     return [waypoints, setWaypoints];
 }
 
-function useToggle(initial: boolean): [boolean, () => void] {
-    const [toggle, setToggle] = useState(initial);
-    function toggleFunc(n?: boolean): void {
-        if (typeof n === "undefined") {
-            setToggle(!toggle);
+enum EditorState {
+  EDIT = "EDIT",
+  VIEW = "VIEW",
+  WAYPOINTS = "WAYPOINTS",
+}
+
+function useEditorState(
+    editorState: EditorState
+): [EditorState, (state: EditorState) => void, (edit: EditorState) => void] {
+    const [state, setState] = useState(editorState);
+
+    function toggleEditorState(edit: EditorState) {
+        if (state == edit) {
+            setState(EditorState.VIEW);
         } else {
-            setToggle(n);
+            setState(edit);
         }
     }
+    return [state, setState, toggleEditorState];
+}
 
-    return [toggle, toggleFunc];
+function useZoom(w: Waypoint[]): [Region, (w: Waypoint[]) => void] {
+    const [zoomVals, setZoomVals] = useState<Region>({
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0,
+        longitudeDelta: 0,
+    } as Region);
+
+    useEffect(() => {
+        calcZoomValues(w);
+    }, []);
+
+    const calcZoomValues = (wpoints: Waypoint[]) => {
+        let minLat = 1000,
+            minLon = 1000,
+            maxLat = -1000,
+            maxLon = -1000;
+        const retval: Region = {
+            latitude: 0,
+            longitude: 0,
+            latitudeDelta: 0,
+            longitudeDelta: 0,
+        };
+        wpoints.forEach((n) => {
+            minLat = Math.min(minLat, n.coordinates.latitude);
+            maxLat = Math.max(maxLat, n.coordinates.latitude);
+            minLon = Math.min(minLon, n.coordinates.longitude);
+            maxLon = Math.max(maxLon, n.coordinates.longitude);
+        });
+        retval.latitude = (minLat + maxLat) / 2;
+        retval.longitude = (minLon + maxLon) / 2;
+
+        retval.latitudeDelta = maxLat - minLat + 0.001;
+        retval.longitudeDelta = maxLon - minLon + 0.001;
+        setZoomVals(retval);
+    };
+
+    return [zoomVals, calcZoomValues];
 }
