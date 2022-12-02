@@ -7,17 +7,25 @@ type SquareButtonProps = {
   label: string;
   size?: number;
   uberActive: boolean;
+  addStyle?: string;
   onPress?: () => any;
 };
 
-const SquareButton = ({ children, label, size, uberActive, onPress }: SquareButtonProps) => {
+const SquareButton = ({
+    children,
+    label,
+    size,
+    uberActive,
+    addStyle,
+    onPress,
+}: SquareButtonProps) => {
     const uberplus = uberActive ? 1 : 0;
     return (
         <TouchableOpacity
             style={[
                 tw`w-[${size}] h-[${size}]  aspect-square flex items-center justify-center rounded-2xl border-4 bg-main-${
                     uberActive ? "2" : "1"
-                }`,
+                } ${addStyle}`,
                 { transform: [{ scale: 1 + uberplus / 10 }] },
             ]}
             onPress={() => {

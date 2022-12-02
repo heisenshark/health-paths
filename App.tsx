@@ -17,6 +17,7 @@ import HomeScreen from "./src/screens/HomeScreen";
 import React, { useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
+import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
@@ -35,7 +36,6 @@ export default function App() {
     //TODO dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
         <>
-
             <NavigationContainer
                 ref={navigationRef}
                 onStateChange={(key) => {
@@ -48,10 +48,10 @@ export default function App() {
                     <Nor.Screen name="Trasy" component={HomeScreen} />
                     <Nor.Screen name="Nagraj" component={Map} />
                     <Nor.Screen name="Opcje" component={Map} />
+                    <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
                 </Nor.Navigator>
             </NavigationContainer>
             <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-       
         </>
     );
 }

@@ -7,7 +7,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "tunnel": "expo start --tunnel",
-    "lol": "expo install @rnmapbox/maps",
+    "lol": "expo",
     "lint": "eslint . --ext .tsx",
     "eslint": "eslint"
   },
@@ -21,6 +21,7 @@
     "@types/react-native": "~0.70.6",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "expo": "~47.0.3",
+    "expo-image-picker": "~14.0.2",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "lodash": "^4.17.21",
