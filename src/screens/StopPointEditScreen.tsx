@@ -6,6 +6,8 @@ import tw from "../lib/tailwind";
 import Waypoint from "./../utils/interfaces";
 import { TextInput } from "react-native-paper";
 import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
+
 interface StopPointEditScreenProps {
   editedWaypoint: Waypoint;
 }
@@ -14,6 +16,27 @@ const StopPointEditScreen = ({ navigation, route }) => {
     const { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
     const [name, setName] = useState(editedWaypoint.displayed_name);
     const [description, setDescription] = useState(editedWaypoint.description);
+
+    const [image, setImage] = useState(null);
+
+    const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+
+        editedWaypoint.image = result.assets[0].uri;
+    };
+
     return (
         <ScrollView style={tw`bg-main-2`}>
             <View style={tw`px-4 py-4 flex-col`}>
@@ -21,14 +44,12 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 <View>
                     <Image
                         style={tw`aspect-square w-full h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
-                        source={require("../../assets/adaptive-icon.png")}
+                        source={{ uri: editedWaypoint.image }}
                     />
                     <SquareButton
                         addStyle={"absolute bottom-8 right-4"}
                         label={"Edytuj"}
-                        onPress={() => {
-                            console.log("aaaaaaa");
-                        }}></SquareButton>
+                        onPress={pickImage}></SquareButton>
                 </View>
 
                 <View style={tw`flex-row justify-between items-center my-4 `}>
