@@ -275,6 +275,8 @@ android {
 }
 
 dependencies {
+
+    
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     //noinspection GradleDynamicVersion
@@ -325,6 +327,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+
 }
 
 if (isNewArchitectureEnabled()) {
