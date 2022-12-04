@@ -28,7 +28,7 @@
     "rules": {
         "indent": [
             "error",
-            4
+            2
         ],
         "linebreak-style": [
             "error",
@@ -51,6 +51,6 @@
         "no-unused-vars": 0,
         "@typescript-eslint/no-unused-vars": 2,
         "@typescript-eslint/no-extra-semi": "error",
-        "semi":0
+        "semi": 0
     }
 }

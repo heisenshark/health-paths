@@ -18,16 +18,17 @@ import React, { useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
 import StopPointEditScreen from "./src/screens/StopPointEditScreen";
+import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
 const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 export default function App() {
-    const navigationRef = useNavigationContainerRef();
-    //context api variable
-    const [currentScreen, setCurrentScreen] = useState("");
-    return (
+  const navigationRef = useNavigationContainerRef();
+  //context api variable
+  const [currentScreen, setCurrentScreen] = useState("");
+  return (
     //TODO finish settings screen
     //TODO finish mapselect screen
     //TODO finish info screen
@@ -35,23 +36,24 @@ export default function App() {
     //TODO add tracking position and making tracks by gps
     //TODO dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
-        <>
-            <NavigationContainer
-                ref={navigationRef}
-                onStateChange={(key) => {
-                    setCurrentScreen(key.routes[key.index].name);
-                }}>
-                <Nor.Navigator
-                    screenOptions={{
-                        headerShown: false,
-                    }}>
-                    <Nor.Screen name="Trasy" component={HomeScreen} />
-                    <Nor.Screen name="Nagraj" component={Map} />
-                    <Nor.Screen name="Opcje" component={Map} />
-                    <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
-                </Nor.Navigator>
-            </NavigationContainer>
-            <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-        </>
-    );
+    <>
+      <NavigationContainer
+        ref={navigationRef}
+        onStateChange={(key) => {
+          setCurrentScreen(key.routes[key.index].name);
+        }}>
+        <Nor.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Nor.Screen name="Trasy" component={HomeScreen} />
+          <Nor.Screen name="Nagraj" component={Map} />
+          <Nor.Screen name="Opcje" component={Map} />
+          <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
+          <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+        </Nor.Navigator>
+      </NavigationContainer>
+      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+    </>
+  );
 }
