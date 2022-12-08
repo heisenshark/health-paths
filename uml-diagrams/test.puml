@@ -1,0 +1,11 @@
+@startuml logowanie
+user->aplikacja : włączenie aplikacji
+aplikacja ->user: prompt z logowaniem przez google
+aplikacja -> firebase : logowanie przez google
+firebase -> aplikacja : zwrócenie tokena
+aplikacja -> firebase : wysłanie tokena
+firebase -> aplikacja : zwrócenie danych użytkownika
+aplikacja -> user : pokazanie danych użytkownika
+firebase -> aplikacja : zwrócenie statusu
+
+@enduml

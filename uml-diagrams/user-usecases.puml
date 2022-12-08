@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+actor "Użytkownik" as fc
+rectangle Restaurant {
+ usecase "Tworzenie ścieżek" as UC1
+ usecase "Udostępnianie ścieżek" as UC2
+ usecase "Przeglądanie ścieżek" as UC3
+ usecase "Komentowanie ścieżek" as UC4
+ usecase "Ocenianie" as UC5
+}
+fc --> UC1
+fc --> UC2
+fc --> UC3
+fc --> UC4
+UC5->UC4
+@enduml
