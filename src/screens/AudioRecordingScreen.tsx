@@ -28,7 +28,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove");
-
       stopSound();
       stopRecording();
     });
