@@ -131,102 +131,115 @@ const StopPointEditScreen = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={tw`bg-main-2`}>
-      <ModalChoice
-        visible={audioModalVisible}
-        titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
-        actionLeft={function (): void {
-          DocumentPicker.pickSingle({
-            presentationStyle: "fullScreen",
-            copyTo: "cachesDirectory",
-            type: [types.audio],
-          })
-            .then((res) => {
-              setResult(res);
-              setAudioModalVisible(false);
-              setSoundUri(res.uri);
+    <View>
+      <ScrollView style={tw`bg-main-2`}>
+        <ModalChoice
+          visible={audioModalVisible}
+          titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
+          actionLeft={function (): void {
+            DocumentPicker.pickSingle({
+              presentationStyle: "fullScreen",
+              copyTo: "cachesDirectory",
+              type: [types.audio],
             })
-            .catch(handleError);
-        }}
-        actionRight={function (): void {
-          setAudioModalVisible(false);
-          navigation.navigate("NagrywanieAudio", { ...route.params });
-        }}
-        onRequestClose={function (): void {
-          setAudioModalVisible(false);
-        }}
-      />
-      <ModalChoice
-        visible={imageModalVisible}
-        titles={["wybrać z plików zrobić zdjęcie?", "Zrób Zdjęcie", "Wybierz Zdjęcie"]}
-        actionLeft={() => pickImage({ isCamera: true })}
-        actionRight={() => pickImage({ isCamera: false })}
-        onRequestClose={() => setImageModalVisible(false)}
-      />
-      <View style={tw`px-4 py-4 flex-col`}>
-        <Text style={tw`text-3xl font-bold`}>Edytuj Punkt Zdrowia:</Text>
-        <View>
-          <Image
-            style={tw`aspect-square w-full h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
-            source={{ uri: image }}
-          />
-          <SquareButton
-            style={tw`absolute bottom-8 right-4`}
-            label={"Edytuj"}
-            onPress={() => setImageModalVisible(true)}></SquareButton>
-        </View>
-
-        <View style={tw`flex-row justify-between items-center my-4 `}>
-          <Text style={tw`text-3xl font-bold`}>Opis Audio</Text>
-          <View style={tw`flex-row`}>
+              .then((res) => {
+                setResult(res);
+                setAudioModalVisible(false);
+                setSoundUri(res.uri);
+              })
+              .catch(handleError);
+          }}
+          actionRight={function (): void {
+            setAudioModalVisible(false);
+            navigation.navigate("NagrywanieAudio", { ...route.params });
+          }}
+          onRequestClose={function (): void {
+            setAudioModalVisible(false);
+          }}
+        />
+        <ModalChoice
+          visible={imageModalVisible}
+          titles={["wybrać z plików zrobić zdjęcie?", "Zrób Zdjęcie", "Wybierz Zdjęcie"]}
+          actionLeft={() => pickImage({ isCamera: true })}
+          actionRight={() => pickImage({ isCamera: false })}
+          onRequestClose={() => setImageModalVisible(false)}
+        />
+        <View style={tw`px-4 py-4 flex-col`}>
+          <Text style={tw`text-3xl font-bold`}>Edytuj Punkt Zdrowia:</Text>
+          <View>
+            <Image
+              style={tw`aspect-square w-full h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
+              source={{ uri: image }}
+            />
             <SquareButton
-              style={tw`ml-auto mr-2`}
+              style={tw`absolute bottom-8 right-4`}
               label={"Edytuj"}
-              onPress={() => {
-                setAudioModalVisible(true);
-                console.log("clicked modalshow");
-              }}></SquareButton>
+              onPress={() => setImageModalVisible(true)}></SquareButton>
+          </View>
+
+          <View style={tw`flex-row justify-between items-center my-4 `}>
+            <Text style={tw`text-3xl font-bold`}>Opis Audio</Text>
+            <View style={tw`flex-row`}>
+              <SquareButton
+                style={tw`ml-auto mr-2`}
+                label={"Edytuj"}
+                onPress={() => {
+                  setAudioModalVisible(true);
+                  console.log("clicked modalshow");
+                }}></SquareButton>
+              <SquareButton
+                style={tw`ml-auto`}
+                label={"Odtwórz"}
+                onPress={() => playSound()}></SquareButton>
+            </View>
+          </View>
+          <TextInput
+            style={tw`bg-white text-2xl border-4 border-secondary-1 `}
+            placeholder="Nazwa"
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+            }}
+            label="Nazwa Punktu"></TextInput>
+          <TextInput
+            style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-1 border-4`}
+            placeholder="Opis"
+            value={description}
+            onChangeText={(text) => {
+              setDescription(text);
+            }}
+            label="Opis Punktu"
+            multiline={true}></TextInput>
+          <View style={tw`flex-row justify-around`}>
             <SquareButton
-              style={tw`ml-auto`}
-              label={"Odtwórz"}
-              onPress={() => playSound()}></SquareButton>
+              label="Wstecz"
+              onPress={() => {
+                navigation.goBack();
+              }}></SquareButton>
           </View>
         </View>
-        <TextInput
-          style={tw`bg-white text-2xl border-4 border-secondary-1 `}
-          placeholder="Nazwa"
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-          }}
-          label="Nazwa Punktu"></TextInput>
-        <TextInput
-          style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-1 border-4`}
-          placeholder="Opis"
-          value={description}
-          onChangeText={(text) => {
-            setDescription(text);
-          }}
-          label="Opis Punktu"
-          multiline={true}></TextInput>
-        <View style={tw`flex-row justify-around`}>
-          <SquareButton
-            label="Zapisz"
-            onPress={() => {
-              console.log("clicked save", name, description, soundUri, image);
-              editedWaypoint.displayed_name = name;
-              editedWaypoint.description = description;
-              editedWaypoint.introduction_audio = soundUri;
-              editedWaypoint.image = image;
-            }}></SquareButton>
-          <SquareButton
-            label="Wstecz"
-            onPress={() => {
-              navigation.goBack();
-            }}></SquareButton>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      {/* <SquareButton
+        onPress={() => {
+          navigation.goBack();
+        }}
+        size={20}
+        // icon="left"
+        label="ZAPISZ"
+        style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}
+      /> */}
+      <SquareButton
+        label="Zapisz"
+        onPress={() => {
+          console.log("clicked save", name, description, soundUri, image);
+          editedWaypoint.displayed_name = name;
+          editedWaypoint.description = description;
+          editedWaypoint.introduction_audio = soundUri;
+          editedWaypoint.image = image;
+          navigation.goBack();
+        }}
+        style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>
+    </View>
   );
 };
 
