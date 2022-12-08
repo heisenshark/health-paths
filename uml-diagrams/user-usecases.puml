@@ -1,4 +1,5 @@
 @startuml
+
 left to right direction
 actor "Użytkownik" as fc
 rectangle Restaurant {
@@ -7,10 +8,15 @@ rectangle Restaurant {
  usecase "Przeglądanie ścieżek" as UC3
  usecase "Komentowanie ścieżek" as UC4
  usecase "Ocenianie" as UC5
+ usecase "filtrowanie i sortowanie ścieżek" as UC6
 }
+left to right direction
+
 fc --> UC1
 fc --> UC2
 fc --> UC3
 fc --> UC4
-UC5->UC4
+UC4 <.. UC5 : <<extend>>
+UC2 <.. UC6 : <<extend>>
+fc --> Restaurant
 @enduml
