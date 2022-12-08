@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "hermes",
     "name": "health-pathes",
     "slug": "health-pathes",
     "version": "1.0.0",
@@ -37,7 +38,6 @@
         {
           "RNMapboxMapsImpl": "maplibre",
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ"
-
         }
       ]
     ]
