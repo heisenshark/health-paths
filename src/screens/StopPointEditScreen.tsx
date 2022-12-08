@@ -14,8 +14,7 @@ import SquareButton from "./../components/SquareButton";
 import { Icon } from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
 import Waypoint from "./../utils/interfaces";
-import { TextInput } from "react-native-paper";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import DocumentPicker, {
   DirectoryPickerResponse,
@@ -25,11 +24,14 @@ import DocumentPicker, {
 } from "react-native-document-picker";
 import { Audio } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
+import { ModalChoice } from "../components/ModalChoice";
+import { TextInput } from "react-native-paper";
+
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
 const StopPointEditScreen = ({ navigation, route }) => {
   const { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
-  const [sooundUri, setSooundUri] = useState(route.params.soundUri);
+  const [soundUri, setSoundUri] = useState(route.params.soundUri);
   const [name, setName] = useState(editedWaypoint.displayed_name);
   const [description, setDescription] = useState(editedWaypoint.description);
   const [image, setImage] = useState(null);
@@ -38,38 +40,46 @@ const StopPointEditScreen = ({ navigation, route }) => {
     Array<DocumentPickerResponse> | DirectoryPickerResponse | undefined | null
   >(null);
 
-  const [sound, setSound] = useState();
+  const [audioModalVisible, setAudioModalVisible] = useState(false);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  // const [sound, setSound] = useState();
+  const sound = useRef(new Audio.Sound());
+
+  async function playSound() {
+    if (soundUri === undefined) return;
+    try {
+      let result = await sound.current?.getStatusAsync();
+      if (result.isLoaded) await sound.current.unloadAsync();
+      result = await sound.current.loadAsync({ uri: soundUri });
+      await sound.current.playAsync();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(sound);
+  }
 
   useFocusEffect(
     React.useCallback(() => {
       console.log("StopPointEditScreen focused");
       if (route.params.soundUri !== undefined) {
         console.log("siema", route.params.soundUri);
-        setSooundUri(route.params.soundUri);
+        setSoundUri(route.params.soundUri);
       }
     }, [route.params])
   );
 
-  async function playSound() {
-    if (sooundUri === undefined || sooundUri === "") return;
-    console.log("Loading Sound");
+  useEffect(() => {
+    setSoundUri(editedWaypoint.introduction_audio);
+    setImage(editedWaypoint.image);
+  }, []);
 
-    const { sound } = await Audio.Sound.createAsync({ uri: sooundUri });
-    setSound(sound);
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  React.useEffect(() => {
-    return sound
-      ? () => {
-        console.log("Unloading Sound");
-        sound.unloadAsync();
-      }
-      : undefined;
-  }, [sound]);
+  useEffect(() => {
+    const unsub = navigation.addListener("blur", () => {
+      console.log("beforeRemove");
+      stopSound();
+    });
+  }, [navigation]);
 
   useEffect(() => {
     console.log(JSON.stringify(result, null, 2));
@@ -85,14 +95,32 @@ const StopPointEditScreen = ({ navigation, route }) => {
     }
   };
 
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+  async function stopSound() {
+    if (sound.current === undefined) return;
+    const status = await sound.current?.getStatusAsync();
+    if (status === undefined || !status.isLoaded) return;
+    await sound.current.getStatusAsync().then((status) => {
+      console.log(status);
     });
+    await sound.current.pauseAsync();
+    return;
+  }
+
+  const pickImage = async ({ isCamera }: { isCamera: boolean }) => {
+    // No permissions request is necessary for launching the image library
+    let result = isCamera
+      ? await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.2,
+        aspect: [4, 3],
+      })
+      : await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.2,
+      });
 
     console.log(result);
 
@@ -104,45 +132,37 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   return (
     <ScrollView style={tw`bg-main-2`}>
-      <Modal
-        animationType={"fade"}
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}>
-        <View
-          style={tw`flex items-center justify-center h-full bg-opacity-60 bg-black border-8 border-secondary-1`}>
-          <View style={tw`w-4/5 bg-main-1 p-4 border-4 border-secondary-9`}>
-            <Text style={tw`text-2xl font-bold`}>Chcesz nagrać adudio czy wybrać plik?</Text>
-            <View style={tw`flex flex-row justify-center px-4 py-4 text-3xl`}>
-              <SquareButton
-                style={tw`w-auto px-2 h-10 `}
-                label={"Wybierz Plik"}
-                onPress={() => {
-                  DocumentPicker.pickSingle({
-                    presentationStyle: "fullScreen",
-                    copyTo: "cachesDirectory",
-                    type: [types.audio],
-                  })
-                    .then((res) => {
-                      setResult(res);
-                      setModalVisible(false);
-                      setSooundUri(res.uri);
-                    })
-                    .catch(handleError);
-                }}></SquareButton>
-              <SquareButton
-                style={tw`w-auto px-2 h-10 `}
-                label={"Nagraj Audio"}
-                onPress={() => {
-                  setModalVisible(false);
-                  navigation.navigate("NagrywanieAudio", { ...route.params });
-                }}></SquareButton>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <ModalChoice
+        visible={audioModalVisible}
+        titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
+        actionLeft={function (): void {
+          DocumentPicker.pickSingle({
+            presentationStyle: "fullScreen",
+            copyTo: "cachesDirectory",
+            type: [types.audio],
+          })
+            .then((res) => {
+              setResult(res);
+              setAudioModalVisible(false);
+              setSoundUri(res.uri);
+            })
+            .catch(handleError);
+        }}
+        actionRight={function (): void {
+          setAudioModalVisible(false);
+          navigation.navigate("NagrywanieAudio", { ...route.params });
+        }}
+        onRequestClose={function (): void {
+          setAudioModalVisible(false);
+        }}
+      />
+      <ModalChoice
+        visible={imageModalVisible}
+        titles={["wybrać z plików zrobić zdjęcie?", "Zrób Zdjęcie", "Wybierz Zdjęcie"]}
+        actionLeft={() => pickImage({ isCamera: true })}
+        actionRight={() => pickImage({ isCamera: false })}
+        onRequestClose={() => setImageModalVisible(false)}
+      />
       <View style={tw`px-4 py-4 flex-col`}>
         <Text style={tw`text-3xl font-bold`}>Edytuj Punkt Zdrowia:</Text>
         <View>
@@ -153,7 +173,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
           <SquareButton
             style={tw`absolute bottom-8 right-4`}
             label={"Edytuj"}
-            onPress={pickImage}></SquareButton>
+            onPress={() => setImageModalVisible(true)}></SquareButton>
         </View>
 
         <View style={tw`flex-row justify-between items-center my-4 `}>
@@ -163,7 +183,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
               style={tw`ml-auto mr-2`}
               label={"Edytuj"}
               onPress={() => {
-                setModalVisible(true);
+                setAudioModalVisible(true);
                 console.log("clicked modalshow");
               }}></SquareButton>
             <SquareButton
@@ -190,7 +210,15 @@ const StopPointEditScreen = ({ navigation, route }) => {
           label="Opis Punktu"
           multiline={true}></TextInput>
         <View style={tw`flex-row justify-around`}>
-          <SquareButton label="Zapisz" onPress={() => {}}></SquareButton>
+          <SquareButton
+            label="Zapisz"
+            onPress={() => {
+              console.log("clicked save", name, description, soundUri, image);
+              editedWaypoint.displayed_name = name;
+              editedWaypoint.description = description;
+              editedWaypoint.introduction_audio = soundUri;
+              editedWaypoint.image = image;
+            }}></SquareButton>
           <SquareButton
             label="Wstecz"
             onPress={() => {
