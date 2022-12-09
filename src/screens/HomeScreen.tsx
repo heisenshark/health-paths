@@ -4,11 +4,13 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import PaletteTest from "../components/PaletteTest";
 import SquareButton from "../components/SquareButton";
 import tw from "../lib/tailwind";
+import { useMapStore } from "./../stores/store";
 
 const HomeScreen = ({ navigation }) =>
 //TODO przycisk podłóżny
-
 {
+  const elko = useMapStore((state) => state.riable);
+  const incrase = useMapStore((state) => state.incrementRiable);
   useEffect(() => {
     // navigation.navigate("NagrywanieAudio");
   }, []);
@@ -34,7 +36,14 @@ const HomeScreen = ({ navigation }) =>
         title="Go to AudioRecord"
         onPress={() => navigation.navigate("NagrywanieAudio", { RecordedAudioUri: "" })}
       />
+      <Button title="Go to MapView" onPress={() => navigation.navigate("PodgladMap")} />
+      <Button title="Go to MapExplore" onPress={() => navigation.navigate("PrzegladanieMap")} />
       <Button title="lol" onPress={() => setLol(lol + 1)} />
+
+      <Button title="lol" onPress={incrase} />
+
+      <Text>{elko}</Text>
+
       <Text style={tw`bg-slate-${lol * 100}`}></Text>
       <PaletteTest paletteName={"secondary"} />
     </View>

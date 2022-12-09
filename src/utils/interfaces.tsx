@@ -11,6 +11,16 @@ export default interface Waypoint {
   introduction_audio?: string;
 }
 
+export interface Map {
+  map_id: string;
+  waypoints: Waypoint[];
+  stops: Waypoint[];
+  name: string;
+  description: string;
+  location: string;
+  imageCover?: string;
+}
+
 // {
 //     "waypoint_id": "gliwice.rynek.ratusz",
 //     "coordinates": [
@@ -22,4 +32,4 @@ export default interface Waypoint {
 //     "navigation_audio": "",
 //     "image": "image.station.gliwice.ratusz.icon",
 //     "introduction_audio": "audio.introduction.ratusz"
-// }    
+// }
