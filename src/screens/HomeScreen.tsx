@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, Button } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import PaletteTest from "../components/PaletteTest";
 import SquareButton from "../components/SquareButton";
 import tw from "../lib/tailwind";
 
@@ -18,24 +19,12 @@ const HomeScreen = ({ navigation }) =>
     <View>
       <Icon name="rocket" size={30} color="#900" />
       <View className="flex-row flex-wrap">
-        <SquareButton label="Gotowe">
-          <Icon name="check" size={40} color="black" className="flex-1" />
-        </SquareButton>
-        <SquareButton label="Przybliż">
-          <Icon name="search-plus" size={40} color="black" className="flex-1" />
-        </SquareButton>
-        <SquareButton label="Oddal">
-          <Icon name="search-minus" size={40} color="black" className="flex-1" />
-        </SquareButton>
-        <SquareButton label="Dodaj">
-          <Icon name="plus" size={40} color="black" className="flex-1" />
-        </SquareButton>
-        <SquareButton label="Edytuj">
-          <Icon name="edit" size={40} color="black" className="flex-1" />
-        </SquareButton>
-        <SquareButton label="Zapisz">
-          <Icon name="save" size={40} color="black" className="flex-1" />
-        </SquareButton>
+        <SquareButton label="Gotowe" icon="check"></SquareButton>
+        <SquareButton label="Przybliż" icon="search-plus"></SquareButton>
+        <SquareButton label="Oddal" icon="search-minus"></SquareButton>
+        <SquareButton label="Dodaj" icon="plus"></SquareButton>
+        <SquareButton label="Edytuj" icon="edit"></SquareButton>
+        <SquareButton label="Zapisz" icon="save"></SquareButton>
       </View>
       <Button
         title="Go to map screen"
@@ -47,6 +36,7 @@ const HomeScreen = ({ navigation }) =>
       />
       <Button title="lol" onPress={() => setLol(lol + 1)} />
       <Text style={tw`bg-slate-${lol * 100}`}></Text>
+      <PaletteTest paletteName={"secondary"} />
     </View>
   );
 };

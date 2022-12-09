@@ -11,7 +11,8 @@ export interface BottomBarProps {
 
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   return (
-    <View style={tw`h-[32] bg-secondary-1 flex-row items-center justify-around border-4`}>
+    <View
+      style={tw`h-[32] bg-secondary-5 flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
       <SquareButton
         label={"Trasy"}
         uberActive={currentRoute === "Trasy"}
