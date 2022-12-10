@@ -15,9 +15,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   return (
-    <View>
+    <View style={tw`h-full`}>
       <View style={tw` bg-main-1 flex justify-center shadow-md`}>
-        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALNE ŚCIEŻKI</Text>
+        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALsNE ŚCIEŻKI</Text>
       </View>
       <Searchbar
         placeholder="Wyszukaj ścieżkę"
@@ -42,6 +42,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
                   <View style={tw`flex-1`}>
                     <Text style={tw`text-3xl font-bold pr-2`} numberOfLines={1}>
                       {map.name}
+                    </Text>
+                    <Text style={tw`text-3xl font-bold pr-2`} numberOfLines={1}>
+                      {map.map_id}
                     </Text>
                     <Text style={tw`text-2xl`}>{map.location}</Text>
                   </View>

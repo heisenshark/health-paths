@@ -6,11 +6,12 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON, waypointsApp } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
-import Waypoint from "../utils/interfaces";
+import Waypoint, { HealthPath } from "../utils/interfaces";
 import SquareButton from "../components/SquareButton";
 import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
+import { useMapStore } from "./../stores/store";
 const MapEditScreen = ({ params }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
@@ -28,7 +29,7 @@ const MapEditScreen = ({ params }) => {
   const mapRef = useRef({} as MapView);
   const origin = { latitude: 50.29416, longitude: 18.66541 };
   const destination = { latitude: 50.29387, longitude: 18.66577 };
-
+  const addMap = useMapStore((state) => state.addMap);
   /**
    * no to ten, markery działają tak że jest edit mode i jak jest edit mode to ten, można je edytować i one istnieją, więc albo renderujemy je warunkowo albo umieszczamy warunkowe renderowanie w komponencie
    */
@@ -146,8 +147,16 @@ const MapEditScreen = ({ params }) => {
         </SquareButton>
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
-          label={"center"}
-          onPress={() => setWaypoints([waypoints[0], waypoints[waypoints.length - 1]])}
+          label={"save"}
+          onPress={() =>
+            addMap({
+              name: "kato trasa",
+              description: "trasa krajoznawcza w katowicach",
+              location: "katowice",
+              waypoints: waypoints,
+              stops: stopPoints,
+            } as HealthPath)
+          }
           icon="map"
         />
 

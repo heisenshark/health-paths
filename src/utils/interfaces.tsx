@@ -11,8 +11,8 @@ export default interface Waypoint {
   introduction_audio?: string;
 }
 
-export interface Map {
-  map_id: string;
+export interface HealthPath {
+  map_id?: string;
   name: string;
   description: string;
   location: string;

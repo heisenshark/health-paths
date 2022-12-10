@@ -1,23 +1,25 @@
 import create from "zustand";
-import { Map } from "../utils/interfaces";
+import { HealthPath } from "../utils/interfaces";
+import uuid from "react-native-uuid";
+
 interface MapStore {
   one: () => number;
   riable: number;
   incrementRiable: () => void;
-  currentMap: Map;
+  currentMap: HealthPath;
   maps: MapArray;
-  
+  addMap: (map: HealthPath) => void;
 }
 
 interface MapArray {
-  [key: string]: Map;
+  [key: string]: HealthPath;
 }
 
 export const useMapStore = create<MapStore>((set) => ({
   one: () => 1,
   riable: 0,
   incrementRiable: () => set((state) => ({ riable: state.riable + 1 })),
-  currentMap: {} as Map,
+  currentMap: {} as HealthPath,
   maps: {
     map1: {
       name: "kato trasa",
@@ -26,7 +28,7 @@ export const useMapStore = create<MapStore>((set) => ({
       location: "katowice",
       waypoints: [],
       stops: [],
-    } as Map,
+    } as HealthPath,
     map2: {
       name: "kato trasa",
       map_id: "2",
@@ -34,7 +36,7 @@ export const useMapStore = create<MapStore>((set) => ({
       location: "katowice",
       waypoints: [],
       stops: [],
-    } as Map,
+    } as HealthPath,
     map3: {
       name: "kato trasa",
       map_id: "3",
@@ -42,7 +44,7 @@ export const useMapStore = create<MapStore>((set) => ({
       location: "katowice",
       waypoints: [],
       stops: [],
-    } as Map,
+    } as HealthPath,
     map4: {
       name: "kato trasa",
       map_id: "4",
@@ -50,7 +52,14 @@ export const useMapStore = create<MapStore>((set) => ({
       location: "katowice",
       waypoints: [],
       stops: [],
-    } as Map,
+    } as HealthPath,
   } as MapArray,
-  addMap: (map: Map) => set((state) => ({ maps: [...state.maps, map] })),
+  addMap: (map: HealthPath) => {
+    set((state) => {
+      const map_id = uuid.v4().toString();
+      map.map_id = map_id;
+      state.maps[map_id] = map;
+      return { maps: { ...state.maps } };
+    });
+  },
 }));
