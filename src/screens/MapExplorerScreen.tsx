@@ -25,7 +25,8 @@ const MapExplorerScreen = ({ navigation, route }) => {
         value={searchQuery}
         onChangeText={onChangeSearch}></Searchbar>
       <ScrollView>
-        {maps
+        {Object.keys(maps)
+          .map((value) => maps[value])
           .filter((map) => {
             return (
               map.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
@@ -34,7 +35,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
           })
           .map((map) => {
             return (
-              <Card style={tw`flex flex-row my-1 mx-2`}>
+              <Card key={map.map_id} style={tw`flex flex-row my-1 mx-2`}>
                 <Card.Content style={tw`flex flex-row`}>
                   <Image style={tw`flex-0 h-20 w-20 bg-black mr-2`}></Image>
 

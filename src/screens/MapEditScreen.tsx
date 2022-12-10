@@ -9,9 +9,9 @@ import MapViewDirections from "react-native-maps-directions";
 import Waypoint from "../utils/interfaces";
 import SquareButton from "../components/SquareButton";
 import { WaypointsList } from "../components/Waypoints";
-import tw from "./../lib/tailwind";
-import StopPoints from "./../components/StopPoints";
-const Map = ({ params }) => {
+import tw from "../lib/tailwind";
+import StopPoints from "../components/StopPoints";
+const MapEditScreen = ({ params }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
@@ -38,11 +38,12 @@ const Map = ({ params }) => {
       .reduce((n, m) => n + m);
     console.log(path);
     console.log(waypoints);
+    // mapRef.current.takeSnapshot();
     //fetch(`https://roads.googleapis.com/v1/snapToRoads?path=-35.27801%2C149.12958%7C&key=***REMOVED***`)
   }
   //[x] uprościć funkcje zooma na początku mapy
   //TODO zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
-
+  //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
     waypoints[0].coordinates = cords[0];
@@ -140,18 +141,15 @@ const Map = ({ params }) => {
           onPress={() => mapRef.current.fitToCoordinates(fullPath, { animated: true })}>
           <Icon name="map" size={50} color="black" />
         </SquareButton>
-        <SquareButton
-          style={tw`self-end m-3 mt-auto`}
-          label={"center"}
-          onPress={() => snapPoints()}>
+        <SquareButton style={tw`self-end m-3 mt-auto`} label={"center"} onPress={snapPoints}>
           <Icon name="map" size={50} color="black" />
         </SquareButton>
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"center"}
-          onPress={() => setWaypoints([waypoints[0], waypoints[waypoints.length - 1]])}>
-          <Icon name="map" size={50} color="black" />
-        </SquareButton>
+          onPress={() => setWaypoints([waypoints[0], waypoints[waypoints.length - 1]])}
+          icon="map"
+        />
 
         <SquareButton
           label="lista"
@@ -180,7 +178,7 @@ const Map = ({ params }) => {
   );
 };
 
-export default Map;
+export default MapEditScreen;
 // function undefined({ isEdit, markers }) {
 //     return <View>{isEdit && markers}</View>;
 // }

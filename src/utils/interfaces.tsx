@@ -13,11 +13,13 @@ export default interface Waypoint {
 
 export interface Map {
   map_id: string;
-  waypoints: Waypoint[];
-  stops: Waypoint[];
   name: string;
   description: string;
   location: string;
+  duration?: number;
+  distance?: number;
+  waypoints: Waypoint[];
+  stops: Waypoint[];
   imageCover?: string;
 }
 

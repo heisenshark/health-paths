@@ -45,6 +45,9 @@ const HomeScreen = ({ navigation }) =>
       <Text>{elko}</Text>
 
       <Text style={tw`bg-slate-${lol * 100}`}></Text>
+      <PaletteTest paletteName={"main"} />
+      <PaletteTest paletteName={"secondary"} />
+      <PaletteTest paletteName={"main"} />
       <PaletteTest paletteName={"secondary"} />
     </View>
   );

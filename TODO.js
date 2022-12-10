@@ -1,8 +1,9 @@
-//TODO learn reactquery and try to think about it
+//[x] learn zutshand and try to think about it
 //TODO learn firebase and firestore
 //[x] finish presentation about the project
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
+//TODO make GUI of adding map points so clunky it makes less requests to api
 
 
 <MOTYWACJA>

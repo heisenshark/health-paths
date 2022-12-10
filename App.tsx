@@ -10,7 +10,7 @@ import { StatusBar } from "react-native";
 // import { exampleGeojsonFeatureCollection, exampleGeojsonFeatureCollection_Shape } from "./src/utils/maps";
 // import CircleIcon from "./src/utils/Icons";
 // import { featuresRynek, waypointsApp } from "./src/providedfiles/Export";
-import Map from "./src/screens/Map";
+import MapEditScreen from "./src/screens/MapEditScreen";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
 import HomeScreen from "./src/screens/HomeScreen";
 // import { NativeWindStyleSheet, useColorScheme } from "nativewind";
@@ -27,6 +27,7 @@ import MapExplorerScreen from "./src/screens/MapExplorerScreen";
 const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 export default function App() {
+  const isTunnel = true;
   const navigationRef = useNavigationContainerRef();
   //context api variable
   const [currentScreen, setCurrentScreen] = useState("");
@@ -39,6 +40,7 @@ export default function App() {
     //TODO dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
     <>
+      {isTunnel && <StatusBar style="auto" />}
       <NavigationContainer
         ref={navigationRef}
         onStateChange={(key) => {
@@ -49,8 +51,8 @@ export default function App() {
             headerShown: false,
           }}>
           <Nor.Screen name="Trasy" component={HomeScreen} />
-          <Nor.Screen name="Nagraj" component={Map} />
-          <Nor.Screen name="Opcje" component={Map} />
+          <Nor.Screen name="Nagraj" component={MapEditScreen} />
+          <Nor.Screen name="Opcje" component={MapEditScreen} />
           <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
           <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
           <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
