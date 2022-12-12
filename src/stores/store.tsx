@@ -1,6 +1,7 @@
 import create from "zustand";
 import { HealthPath } from "../utils/interfaces";
 import uuid from "react-native-uuid";
+import { Camera } from "react-native-maps";
 
 interface MapStore {
   one: () => number;
@@ -9,6 +10,10 @@ interface MapStore {
   currentMap: HealthPath;
   maps: MapArray;
   addMap: (map: HealthPath) => void;
+  setCurrentMap: (map: HealthPath) => void;
+  getUUID: () => string;
+  currentCamera: Camera;
+  setCurrentCamera: (camera: Camera) => void;
 }
 
 interface MapArray {
@@ -19,7 +24,14 @@ export const useMapStore = create<MapStore>((set) => ({
   one: () => 1,
   riable: 0,
   incrementRiable: () => set((state) => ({ riable: state.riable + 1 })),
-  currentMap: {} as HealthPath,
+  currentMap: {
+    name: "default_name",
+    map_id: "",
+    description: "default_description",
+    location: "default_location",
+    waypoints: [],
+    stops: [],
+  } as HealthPath,
   maps: {
     map1: {
       name: "kato trasa",
@@ -57,9 +69,20 @@ export const useMapStore = create<MapStore>((set) => ({
   addMap: (map: HealthPath) => {
     set((state) => {
       const map_id = uuid.v4().toString();
-      map.map_id = map_id;
-      state.maps[map_id] = map;
+      if (map.map_id === undefined || map.map_id === "") map.map_id = map_id;
+      state.maps[map.map_id] = map;
+      console.log(state.maps);
+
       return { maps: { ...state.maps } };
     });
   },
+  setCurrentMap: (map: HealthPath) => set(() => ({ currentMap: map })),
+  getUUID: () => uuid.v4().toString(),
+  currentCamera: {
+    center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
+    heading: 0,
+    pitch: 0,
+    zoom: 5.757617473602295,
+  } as Camera,
+  setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
 }));

@@ -16,7 +16,7 @@ export function WaypointsList({ waypoints, onDelete }: WaypointsListProps) {
         return (
           <Card key={index} style={tw`px-3 py-1 m-1 elevation-5`}>
             <View style={tw`flex flex-row`}>
-              <Text style={tw`text-3xl`}>{index}.</Text>
+              <Text style={tw`text-3xl`}>{index+1}.</Text>
               <Text style={tw`w-4/6`}>
                 {waypoint.coordinates.latitude} :: {waypoint.coordinates.longitude}
               </Text>

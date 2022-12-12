@@ -20,6 +20,7 @@ export interface HealthPath {
   distance?: number;
   waypoints: Waypoint[];
   stops: Waypoint[];
+  path?: LatLng[];
   imageCover?: string;
 }
 

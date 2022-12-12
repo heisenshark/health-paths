@@ -52,7 +52,7 @@ export default function App() {
           }}>
           <Nor.Screen name="Trasy" component={HomeScreen} />
           <Nor.Screen name="Nagraj" component={MapEditScreen} />
-          <Nor.Screen name="Opcje" component={MapEditScreen} />
+          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
           <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
           <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
           <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />

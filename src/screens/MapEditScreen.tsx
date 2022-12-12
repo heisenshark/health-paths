@@ -12,7 +12,7 @@ import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useMapStore } from "./../stores/store";
-const MapEditScreen = ({ params }) => {
+const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
@@ -25,11 +25,24 @@ const MapEditScreen = ({ params }) => {
   const [waypoints, setWaypoints] = useState<Waypoint[]>(cloneDeep(waypointsApp));
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [zoomVals, calcZoomValues] = useZoom(waypoints);
+  const [initialRegion, setInitialRegion] = useState({
+    latitude: 52,
+    longitude: 19,
+    latitudeDelta: 5,
+    longitudeDelta: 10,
+  } as Region);
   const [fullPath, setFullPath] = useState({} as LatLng[]);
-  const mapRef = useRef({} as MapView);
-  const origin = { latitude: 50.29416, longitude: 18.66541 };
-  const destination = { latitude: 50.29387, longitude: 18.66577 };
-  const addMap = useMapStore((state) => state.addMap);
+  const mapRef = useRef<MapView>();
+  const [addMap, currentMap, setCurrentMap, getUUID, currentCamera, setCurrentCamera] = useMapStore(
+    (state) => [
+      state.addMap,
+      state.currentMap,
+      state.setCurrentMap,
+      state.getUUID,
+      state.currentCamera,
+      state.setCurrentCamera,
+    ]
+  );
   /**
    * no to ten, markery działają tak że jest edit mode i jak jest edit mode to ten, można je edytować i one istnieją, więc albo renderujemy je warunkowo albo umieszczamy warunkowe renderowanie w komponencie
    */
@@ -78,33 +91,67 @@ const MapEditScreen = ({ params }) => {
       } as Waypoint);
   }
 
+  useEffect(() => {
+    if (route.params === undefined) {
+      console.log("elo");
+
+      setCurrentMap({
+        map_id: getUUID(),
+        name: "kato trasa",
+        description: "trasa krajoznawcza w katowicach",
+        location: "katowice",
+        waypoints: [],
+        stops: [],
+      } as HealthPath);
+      console.log(currentCamera);
+    }
+    console.log("elo2");
+  }, []);
+
+  React.useEffect(() => {
+    const unsub = navigation.addListener("beforeRemove", () => {
+      console.log("beforeRemove_mapEdit");
+      mapRef.current.getMapBoundaries().then((boundaries) => {
+        console.log(boundaries);
+      });
+      mapRef.current.getCamera().then((camera) => {
+        console.log(camera);
+        setCurrentCamera(camera);
+      });
+      console.log(initialRegion);
+    });
+  }, [navigation]);
+
   return (
     <View className="relative border-4">
       <View className="w-full h-full bg-red-600">
         <MapView
           ref={mapRef}
           className="flex-1"
-          initialRegion={zoomVals}
-          region={zoomVals}
+          // initialRegion={initialRegion}
+          // region={zoomVals} //TODO tutaj zmienić na lokacje usera potem
+          camera={currentCamera}
           onPress={(e) => {
             addNewWaypoint(e);
             setCalloutOpen(false);
           }}
           customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}>
-          <MapViewDirections
-            origin={waypoints[0].coordinates}
-            destination={waypoints[waypoints.length - 1].coordinates}
-            waypoints={waypoints.slice(1, -1).map((value) => value.coordinates)}
-            mode={"WALKING"}
-            apikey={API_KEY}
-            strokeWidth={3}
-            strokeColor="red"
-            onReady={(n) => {
-              console.log("path drawn ");
-              snapEnds(n.coordinates);
-              setFullPath(n.coordinates);
-            }}
-          />
+          {waypoints.length > 1 && (
+            <MapViewDirections
+              origin={waypoints[0].coordinates}
+              destination={waypoints[waypoints.length - 1].coordinates}
+              waypoints={waypoints.slice(1, -1).map((value) => value.coordinates)}
+              mode={"WALKING"}
+              apikey={API_KEY}
+              strokeWidth={3}
+              strokeColor="red"
+              onReady={(n) => {
+                console.log("path drawn ");
+                snapEnds(n.coordinates);
+                setFullPath(n.coordinates);
+              }}
+            />
+          )}
 
           <Markers
             waypoints={waypoints}
@@ -148,15 +195,14 @@ const MapEditScreen = ({ params }) => {
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"save"}
-          onPress={() =>
+          onPress={() => {
             addMap({
-              name: "kato trasa",
-              description: "trasa krajoznawcza w katowicach",
-              location: "katowice",
-              waypoints: waypoints,
-              stops: stopPoints,
-            } as HealthPath)
-          }
+              ...currentMap,
+              waypoints: [...waypoints],
+              stops: [...stopPoints],
+              path: [...fullPath],
+            } as HealthPath);
+          }}
           icon="map"
         />
 

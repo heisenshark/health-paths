@@ -54,6 +54,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
                     onPress={() => {
                       navigation.navigate("PodgladMap", { mapToPreview: map });
                     }}></SquareButton>
+                  <SquareButton
+                    label="print"
+                    style={tw`ml-auto`}
+                    onPress={() => {
+                      console.log(map);
+                      console.log(map.waypoints);
+                    }}></SquareButton>
                 </Card.Content>
               </Card>
             );
