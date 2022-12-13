@@ -12,7 +12,7 @@ export interface MarkersProps {
 const SNAPPING_ENABLED = false;
 
 export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
-  const [edittedWaypoint, setEdittedWaypoint] = useState(1);
+  // const [edittedWaypoint, setEdittedWaypoint] = useState(1);
   const [selectedWaypoint, setSelectedWaypoint] = useState(1);
   const API_KEY = "***REMOVED***";
 

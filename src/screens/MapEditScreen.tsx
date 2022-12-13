@@ -76,11 +76,8 @@ const MapEditScreen = ({ navigation, route }) => {
 
     editorState == EditorState.EDIT &&
       addWaypoint({
-        waypoint_id: "asd",
-        displayed_name: "name",
-        coordinates: e.nativeEvent.coordinate,
-        description: "asdsad",
-      } as Waypoint);
+e.nativeEvent.coordinate,
+as Waypoint);
 
     editorState == EditorState.EDIT_STOP &&
       addStop({
