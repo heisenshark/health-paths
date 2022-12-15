@@ -22,7 +22,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [calloutOpen, setCalloutOpen] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [listOpen, setListOpen] = useState(false);
-  const [waypoints, setWaypoints] = useState<Waypoint[]>(cloneDeep(waypointsApp));
+  const [waypoints, setWaypoints] = useState<LatLng[]>(cloneDeep(waypointsApp));
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [zoomVals, calcZoomValues] = useZoom(waypoints);
   const [initialRegion, setInitialRegion] = useState({
@@ -48,7 +48,7 @@ const MapEditScreen = ({ navigation, route }) => {
    */
   async function snapPoints() {
     const path: string = waypoints
-      .map((value) => `${value.coordinates.latitude}%2${value.coordinates.longitude}%7`)
+      .map((value) => `${value.latitude}%2${value.longitude}%7`)
       .reduce((n, m) => n + m);
     console.log(path);
     console.log(waypoints);
@@ -60,13 +60,13 @@ const MapEditScreen = ({ navigation, route }) => {
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
-    waypoints[0].coordinates = cords[0];
-    waypoints[waypoints.length - 1].coordinates = cords[cords.length - 1];
+    waypoints[0] = cords[0];
+    waypoints[waypoints.length - 1] = cords[cords.length - 1];
   }
 
   function addNewWaypoint(e: MapPressEvent) {
     //refactor
-    const addWaypoint = (waypoint: Waypoint) => {
+    const addWaypoint = (waypoint: LatLng) => {
       setWaypoints([...waypoints, waypoint]);
     };
     const addStop = (waypoint: Waypoint) => {
@@ -74,10 +74,7 @@ const MapEditScreen = ({ navigation, route }) => {
       toggleEditorState(EditorState.VIEW);
     };
 
-    editorState == EditorState.EDIT &&
-      addWaypoint({
-e.nativeEvent.coordinate,
-as Waypoint);
+    editorState == EditorState.EDIT && addWaypoint(e.nativeEvent.coordinate);
 
     editorState == EditorState.EDIT_STOP &&
       addStop({

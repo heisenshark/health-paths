@@ -1,8 +1,11 @@
 @startuml
 
+
+title ""
+
 left to right direction
 actor "Użytkownik" as fc
-rectangle Restaurant {
+rectangle Aplikacja {
  usecase "Tworzenie ścieżek" as UC1
  usecase "Udostępnianie ścieżek" as UC2
  usecase "Przeglądanie ścieżek" as UC3
@@ -18,5 +21,4 @@ fc --> UC3
 fc --> UC4
 UC4 <.. UC5 : <<extend>>
 UC2 <.. UC6 : <<extend>>
-fc --> Restaurant
 @enduml

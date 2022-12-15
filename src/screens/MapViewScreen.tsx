@@ -11,19 +11,19 @@ import { useMapStore } from "../stores/store";
 interface MapViewScreenProps {}
 
 const MapViewScreen = ({ navigation, route }) => {
-  const mapRef = useRef<MapView>();
-  const [currentMap] = useMapStore((state) => [state.currentMap]);
-  useEffect(() => {
-    mapRef.current.fitToCoordinates(currentMap.path, {
-      edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-      animated: true,
-    });
-    console.log("uef");
-  }, []);
+  // const mapRef = useRef<MapView>();
+  // const [currentMap] = useMapStore((state) => [state.currentMap]);
+  // useEffect(() => {
+  //   mapRef.current.fitToCoordinates(currentMap.path, {
+  //     edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+  //     animated: true,
+  //   });
+  //   console.log("uef");
+  // }, []);
 
   return (
     <View className="w-full h-full bg-red-600">
-      <MapView
+      {/* <MapView
         ref={mapRef}
         className="flex-1"
         // initialRegion={initialRegion}
@@ -43,7 +43,7 @@ const MapViewScreen = ({ navigation, route }) => {
           updateStopPoints={(w: Waypoint[]) => {
             setStopPoints([...w]);
           }}></StopPoints>
-      </MapView>
+      </MapView> */}
     </View>
   );
 };
