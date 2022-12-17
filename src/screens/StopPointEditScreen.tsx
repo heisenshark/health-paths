@@ -159,7 +159,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
         />
         <ModalChoice
           visible={imageModalVisible}
-          titles={["wybrać z plików zrobić zdjęcie?", "Zrób Zdjęcie", "Wybierz Zdjęcie"]}
+          titles={[
+            "wybrać zdjęcie z plików czy uruchomić kamerę?",
+            "Zrób Zdjęcie",
+            "Wybierz Zdjęcie",
+          ]}
           actionLeft={() => pickImage({ isCamera: true })}
           actionRight={() => pickImage({ isCamera: false })}
           onRequestClose={() => setImageModalVisible(false)}

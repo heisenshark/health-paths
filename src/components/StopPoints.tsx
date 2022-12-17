@@ -16,46 +16,46 @@ interface StopPointsProps {
 //TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
 
 const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) => {
-    const navigationRef = useNavigation();
-    const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
-        let markerRef = useRef<MapMarker>();
+  const navigationRef = useNavigation();
+  const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
+    let markerRef = useRef<MapMarker>();
 
-        const openEdit = () => {
-            console.log("elooooo");
-            console.log(waypoint);
-            markerRef.current.hideCallout();
+    const openEdit = () => {
+      console.log("elooooo");
+      console.log(waypoint);
+      markerRef.current.hideCallout();
 
-            navigationRef.navigate({ name: "EdycjaMap", params: { editedWaypoint: waypoint } });
-        };
-        return (
-            <Marker
-                ref={markerRef}
-                coordinate={waypoint.coordinates}
-                title={waypoint.displayed_name}
-                description={waypoint.type}
-                onPress={() => {
-                    isStop && console.log("stoppoint pressed in stoppoint mode");
-                }}
-                onDragEnd={(e) => {
-                    waypoint.coordinates = e.nativeEvent.coordinate;
-                    updateStopPoints(waypoints);
-                }}
-                draggable={isStop}
-                tappable={false}
-                pinColor={"green"}
-                onCalloutPress={openEdit}>
-                <Callout tooltip>
-                    <SquareButton addStyle={"ml-auto mr-2"} label={"Edytuj"}></SquareButton>
-                </Callout>
-            </Marker>
-        );
+      navigationRef.navigate({ name: "EdycjaMap", params: { editedWaypoint: waypoint } });
     };
+    return (
+      <Marker
+        ref={markerRef}
+        coordinate={waypoint.coordinates}
+        title={waypoint.displayed_name}
+        description={waypoint.type}
+        onPress={() => {
+          isStop && console.log("stoppoint pressed in stoppoint mode");
+        }}
+        onDragEnd={(e) => {
+          waypoint.coordinates = e.nativeEvent.coordinate;
+          updateStopPoints(waypoints);
+        }}
+        draggable={isStop}
+        tappable={false}
+        pinColor={"green"}
+        onCalloutPress={openEdit}>
+        <Callout tooltip>
+          <SquareButton addStyle={"ml-auto mr-2"} label={"Edytuj"}></SquareButton>
+        </Callout>
+      </Marker>
+    );
+  };
 
-    const stops = waypoints.map((n, index) => {
-        return <StopPoint key={index} waypoint={n}></StopPoint>;
-    });
+  const stops = waypoints.map((n, index) => {
+    return <StopPoint key={index} waypoint={n}></StopPoint>;
+  });
 
-    return <>{stops}</>;
+  return <>{stops}</>;
 };
 
 export default StopPoints;

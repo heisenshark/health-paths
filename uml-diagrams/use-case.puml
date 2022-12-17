@@ -1,0 +1,8 @@
+@startuml logowanie
+
+aplikacja -> user : pokazanie mapy 
+user -> aplikacja : kliknięcie w mape
+aplikacja -> user : dodanie znacznika do mapy 
+user -> aplikacja : kliknięcie w znacznik
+
+@enduml

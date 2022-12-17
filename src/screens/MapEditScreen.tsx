@@ -12,6 +12,7 @@ import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useMapStore } from "./../stores/store";
+import { saveMap } from "../utils/FileSystemManager";
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
@@ -24,14 +25,13 @@ const MapEditScreen = ({ navigation, route }) => {
   const [listOpen, setListOpen] = useState(false);
   const [waypoints, setWaypoints] = useState<LatLng[]>(cloneDeep(waypointsApp));
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
-  const [zoomVals, calcZoomValues] = useZoom(waypoints);
   const [initialRegion, setInitialRegion] = useState({
     latitude: 52,
     longitude: 19,
     latitudeDelta: 5,
     longitudeDelta: 10,
   } as Region);
-  const [fullPath, setFullPath] = useState({} as LatLng[]);
+  const [fullPath, setFullPath] = useState([] as LatLng[]);
   const mapRef = useRef<MapView>();
   const [addMap, currentMap, setCurrentMap, getUUID, currentCamera, setCurrentCamera] = useMapStore(
     (state) => [
@@ -78,12 +78,27 @@ const MapEditScreen = ({ navigation, route }) => {
 
     editorState == EditorState.EDIT_STOP &&
       addStop({
-        waypoint_id: "asd",
+        waypoint_id: getUUID(),
         displayed_name: "name",
         coordinates: e.nativeEvent.coordinate,
         description: "asdsad",
       } as Waypoint);
   }
+
+  const saveMapEvent = () => {
+    let xd = {
+      ...currentMap,
+      waypoints: [...waypoints],
+      stops: [...stopPoints],
+      path: [...fullPath],
+    };
+    console.log("log1", currentMap);
+    setCurrentMap(xd);
+    addMap(xd);
+    console.log("log2", currentMap);
+
+    saveMap(xd);
+  };
 
   useEffect(() => {
     if (route.params === undefined) {
@@ -132,14 +147,16 @@ const MapEditScreen = ({ navigation, route }) => {
           customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}>
           {waypoints.length > 1 && (
             <MapViewDirections
-              origin={waypoints[0].coordinates}
-              destination={waypoints[waypoints.length - 1].coordinates}
-              waypoints={waypoints.slice(1, -1).map((value) => value.coordinates)}
+              origin={waypoints[0]}
+              destination={waypoints[waypoints.length - 1]}
+              waypoints={waypoints.slice(1, -1)}
               mode={"WALKING"}
               apikey={API_KEY}
               strokeWidth={3}
               strokeColor="red"
               onReady={(n) => {
+                console.log(n);
+
                 console.log("path drawn ");
                 snapEnds(n.coordinates);
                 setFullPath(n.coordinates);
@@ -189,14 +206,7 @@ const MapEditScreen = ({ navigation, route }) => {
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"save"}
-          onPress={() => {
-            addMap({
-              ...currentMap,
-              waypoints: [...waypoints],
-              stops: [...stopPoints],
-              path: [...fullPath],
-            } as HealthPath);
-          }}
+          onPress={saveMapEvent}
           icon="map"
         />
 

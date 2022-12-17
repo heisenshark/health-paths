@@ -22,6 +22,7 @@
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "expo": "~47.0.3",
     "expo-av": "~13.0.2",
+    "expo-file-system": "^15.1.1",
     "expo-image-picker": "~14.0.2",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",

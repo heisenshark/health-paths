@@ -21,12 +21,16 @@ import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
+import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileSystemManager";
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
 const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 export default function App() {
+  // listAllMaps();
+  // ensureMapDirExists();
+  // createNewMap("testowa_mapa");
   const isTunnel = true;
   const navigationRef = useNavigationContainerRef();
   //context api variable

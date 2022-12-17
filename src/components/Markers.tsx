@@ -45,35 +45,30 @@ export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
 
   //TODO make betrter snapper for
 
-  const addWaypoint = (cords: LatLng) => {
-    let w: Waypoint = {
-      waypoint_id: "gliwice.rynek.ratusz",
-      coordinates: cords,
-      type: "station",
-      displayed_name: "Rynek Rzeźba Madonny",
-      navigation_audio: "",
-      image: "image.station.gliwice.ratusz.icon",
-      introduction_audio: "audio.introduction.ratusz",
-      description: "description",
-    };
-    waypoints = [...waypoints, w];
-    snapPoint(w, cords);
-  };
+  // const addWaypoint = (cords: LatLng) => {
+  //   let w: Waypoint = {
+  //     waypoint_id: "gliwice.rynek.ratusz",
+  //     coordinates: cords,
+  //     type: "station",
+  //     displayed_name: "Rynek Rzeźba Madonny",
+  //     navigation_audio: "",
+  //     image: "image.station.gliwice.ratusz.icon",
+  //     introduction_audio: "audio.introduction.ratusz",
+  //     description: "description",
+  //   };
+  //   waypoints = [...waypoints, w];
+  //   snapPoint(w, cords);
+  // };
 
-  const markers = waypoints.map((n, index) => {
+  const markers = waypoints.map((n: LatLng, index) => {
     if (isEdit || index === waypoints.length - 1 || index === 0)
       return (
         <Marker
           key={index}
-          coordinate={n.coordinates}
-          title={n.displayed_name}
-          description={n.type}
-          onPress={() => {
-            index;
-          }}
+          coordinate={n}
           onDragEnd={(e) => {
-            snapPoint(n, e.nativeEvent.coordinate);
-            n.coordinates = e.nativeEvent.coordinate;
+            // snapPoint(n, e.nativeEvent.coordinate);
+            waypoints[index] = e.nativeEvent.coordinate;
             updateWaypoints();
           }}
           draggable={isEdit}

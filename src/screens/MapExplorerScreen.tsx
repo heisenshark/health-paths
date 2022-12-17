@@ -17,7 +17,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
   return (
     <View style={tw`h-full`}>
       <View style={tw` bg-main-1 flex justify-center shadow-md`}>
-        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALsNE ŚCIEŻKI</Text>
+        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALNE ŚCIEŻKI</Text>
       </View>
       <Searchbar
         placeholder="Wyszukaj ścieżkę"
