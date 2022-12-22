@@ -32,6 +32,7 @@ import { useMapStore } from "../stores/store";
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
 const StopPointEditScreen = ({ navigation, route }) => {
+  const isEdit = route.params.isEdit;
   const [currentMap, getCurrentMediaURI] = useMapStore((state) => [
     state.currentMap,
     state.getCurrentMediaURI,
@@ -96,9 +97,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     console.log("waypoint: ", editedWaypoint);
 
-    // setIntroSoundUri(editedWaypoint.introduction_audio?.path);
-    // setNavigationSoundUri(editedWaypoint.navigation_audio?.path);
-    setImage(editedWaypoint.image?.path);
+    if (editedWaypoint.image) setImage(getCurrentMediaURI(editedWaypoint.image));
     if (editedWaypoint.introduction_audio)
       setIntroSoundUri(getCurrentMediaURI(editedWaypoint?.introduction_audio));
     if (editedWaypoint.navigation_audio)
@@ -218,16 +217,18 @@ const StopPointEditScreen = ({ navigation, route }) => {
           onRequestClose={() => setImageModalVisible(false)}
         />
         <View style={tw`px-4 py-4 flex-col`}>
-          <Text style={tw`text-3xl font-bold`}>Edytuj Punkt Zdrowia:</Text>
+          <Text style={tw`text-3xl font-bold`}>{isEdit && "Edytuj"} Punkt Zdrowia:</Text>
           <View>
             <Image
               style={tw`aspect-square w-full h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
               source={{ uri: image }}
             />
-            <SquareButton
-              style={tw`absolute bottom-8 right-4`}
-              label={"Edytuj"}
-              onPress={() => setImageModalVisible(true)}></SquareButton>
+            {isEdit && (
+              <SquareButton
+                style={tw`absolute bottom-8 right-4`}
+                label={"Edytuj"}
+                onPress={() => setImageModalVisible(true)}></SquareButton>
+            )}
           </View>
 
           <View style={tw`flex-row justify-between items-center my-4 `}>
@@ -235,14 +236,16 @@ const StopPointEditScreen = ({ navigation, route }) => {
               Intro Audio
             </Text>
             <View style={tw`flex-row`}>
-              <SquareButton
-                style={tw`ml-auto mr-2`}
-                label={"Edytuj"}
-                onPress={() => {
-                  setAudioModalVisible(true);
-                  console.log("clicked modalshow");
-                  setSoundType("intro");
-                }}></SquareButton>
+              {isEdit && (
+                <SquareButton
+                  style={tw`ml-auto mr-2`}
+                  label={"Edytuj"}
+                  onPress={() => {
+                    setAudioModalVisible(true);
+                    console.log("clicked modalshow");
+                    setSoundType("intro");
+                  }}></SquareButton>
+              )}
               <SquareButton
                 style={tw`ml-auto`}
                 label={"Odtwórz"}
@@ -258,14 +261,16 @@ const StopPointEditScreen = ({ navigation, route }) => {
               Nav Audio
             </Text>
             <View style={tw`flex-row`}>
-              <SquareButton
-                style={tw`ml-auto mr-2`}
-                label={"Edytuj"}
-                onPress={() => {
-                  setAudioModalVisible(true);
-                  console.log("clicked modalshow");
-                  setSoundType("navigation");
-                }}></SquareButton>
+              {isEdit && (
+                <SquareButton
+                  style={tw`ml-auto mr-2`}
+                  label={"Edytuj"}
+                  onPress={() => {
+                    setAudioModalVisible(true);
+                    console.log("clicked modalshow");
+                    setSoundType("navigation");
+                  }}></SquareButton>
+              )}
               <SquareButton
                 style={tw`ml-auto`}
                 label={"Odtwórz"}
@@ -276,23 +281,35 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 }}></SquareButton>
             </View>
           </View>
-          <TextInput
-            style={tw`bg-white text-2xl border-4 border-secondary-1 `}
-            placeholder="Nazwa"
-            value={name}
-            onChangeText={(text) => {
-              setName(text);
-            }}
-            label="Nazwa Punktu"></TextInput>
-          <TextInput
-            style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-1 border-4`}
-            placeholder="Opis"
-            value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-            }}
-            label="Opis Punktu"
-            multiline={true}></TextInput>
+          {isEdit && (
+            <>
+              <TextInput
+                style={tw`bg-white text-2xl border-4 border-secondary-1 `}
+                placeholder="Nazwa"
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                }}
+                label="Nazwa Punktu"></TextInput>
+              <TextInput
+                style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-1 border-4`}
+                placeholder="Opis"
+                value={description}
+                onChangeText={(text) => {
+                  setDescription(text);
+                }}
+                label="Opis Punktu"
+                multiline={true}></TextInput>
+            </>
+          )}
+          {!isEdit && (
+            <>
+              <Text style={tw`text-2xl font-bold`}>Nazwa:</Text>
+              <Text style={tw`text-2xl`}>{name}</Text>
+              <Text style={tw`text-2xl font-bold`}>Opis:</Text>
+              <Text style={tw`text-2xl`}>{description}</Text>
+            </>
+          )}
           <View style={tw`flex-row justify-around`}>
             <SquareButton
               label="Wstecz"
@@ -311,52 +328,20 @@ const StopPointEditScreen = ({ navigation, route }) => {
         label="ZAPISZ"
         style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}
       /> */}
-      <SquareButton
-        label="Zapisz"
-        onPress={() => {
-          console.log("clicked save", name, description, introsoundUri, image);
-          editedWaypoint.displayed_name = name;
-          editedWaypoint.description = description;
-          // if (
-          //   introsoundUri !== undefined &&
-          //   (editedWaypoint.introduction_audio === undefined ||
-          //     editedWaypoint.introduction_audio !== introsoundUri)
-          // )
-          //   editedWaypoint.introduction_audio = {
-          //     media_id: uuid.v4(),
-          //     path: introsoundUri,
-          //     type: "audio",
-          //     storage_type: "cache",
-          //   } as MediaFile;
-          // if (
-          //   navigationSoundUri !== undefined &&
-          //   (editedWaypoint.navigation_audio === undefined ||
-          //     editedWaypoint.navigation_audio !== introsoundUri)
-          // )
-          //   editedWaypoint.navigation_audio = {
-          //     media_id: uuid.v4(),
-          //     path: navigationSoundUri,
-          //     type: "audio",
-          //     storage_type: "cache",
-          //   } as MediaFile;
+      {isEdit && (
+        <SquareButton
+          label="Zapisz"
+          onPress={() => {
+            console.log("clicked save", name, description, introsoundUri, image);
+            editedWaypoint.displayed_name = name;
+            editedWaypoint.description = description;
 
-          // if (
-          //   image !== undefined &&
-          //   (editedWaypoint.image === undefined || editedWaypoint.image !== image)
-          // )
-          //   editedWaypoint.image = {
-          //     media_id: uuid.v4(),
-          //     path: image,
-          //     type: "image",
-          //     storage_type: "cache",
-          //   } as MediaFile;
-
-          Object.assign(editedWaypoint, waypointDiff);
-          console.log(editedWaypoint);
-
-          navigation.goBack();
-        }}
-        style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>
+            Object.assign(editedWaypoint, waypointDiff);
+            console.log(editedWaypoint);
+            navigation.goBack();
+          }}
+          style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>
+      )}
     </View>
   );
 };

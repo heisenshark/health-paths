@@ -174,7 +174,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
           <StopPoints
             waypoints={stopPoints}
-            isStop={editorState === EditorState.EDIT_STOP}
+            isStop={true}
             updateStopPoints={(w: Waypoint[]) => {
               setStopPoints([...w]);
             }}></StopPoints>

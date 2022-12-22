@@ -48,14 +48,9 @@ const MapViewScreen = ({ navigation, route }) => {
           updateWaypoints={() => {
             setWaypoints([...waypoints]);
           }}
-        />
+        /> */}
 
-        <StopPoints
-          waypoints={stopPoints}
-          isStop={editorState === EditorState.EDIT_STOP}
-          updateStopPoints={(w: Waypoint[]) => {
-            setStopPoints([...w]);
-          }}></StopPoints> */}
+        <StopPoints waypoints={currentMap.stops} isStop={false}></StopPoints>
         <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />
       </MapView>
     </View>

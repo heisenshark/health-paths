@@ -25,7 +25,10 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) =>
       console.log(waypoint);
       markerRef.current.hideCallout();
 
-      navigationRef.navigate({ name: "EdycjaMap", params: { editedWaypoint: waypoint } });
+      navigationRef.navigate({
+        name: "EdycjaMap",
+        params: { editedWaypoint: waypoint, isEdit: isStop },
+      });
     };
     return (
       <Marker
@@ -45,7 +48,9 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) =>
         pinColor={"green"}
         onCalloutPress={openEdit}>
         <Callout tooltip>
-          <SquareButton addStyle={"ml-auto mr-2"} label={"Edytuj"}></SquareButton>
+          <SquareButton
+            addStyle={"ml-auto mr-2"}
+            label={isStop ? "Edytuj" : "Pokaż"}></SquareButton>
         </Callout>
       </Marker>
     );

@@ -222,6 +222,25 @@ async function loadMap(name: string, id: string): Promise<HealthPath> {
   const waypoints = await fs.readAsStringAsync(mapNameDir + "waypoints.json");
   console.log(waypoints);
   map.stops = JSON.parse(waypoints);
+  map.stops.forEach((x) => {
+    x.coordinates = { latitude: x.coordinates[1], longitude: x.coordinates[0] };
+  });
+  const mediaFiles = await fs.readAsStringAsync(mapNameDir + "media_files.json");
+  let mf = JSON.parse(mediaFiles);
+  console.log("media dilsdf:  " + mf);
+  console.log(mediaFiles);
+  let mediaMap = new Map();
+  mf.map((n) => {
+    mediaMap.set(n.media_id, n);
+  });
+
+  console.log(mediaMap);
+  map.stops.forEach((x) => {
+    x.image = mediaMap.get(x.image);
+    x.introduction_audio = mediaMap.get(x.introduction_audio);
+    x.navigation_audio = mediaMap.get(x.navigation_audio);
+  });
+  console.log(map);
   return map;
 }
 
