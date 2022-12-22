@@ -4,6 +4,7 @@ import { Text, View, StyleSheet } from "react-native";
 import MapView, { Polyline } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { Markers } from "../components/Markers";
+import SelectNameModal from "../components/SelectNameModal";
 import StopPoints from "../components/StopPoints";
 import { mapStylesJSON } from "../providedfiles/Export";
 import { useMapStore } from "../stores/store";
@@ -27,6 +28,7 @@ const MapViewScreen = ({ navigation, route }) => {
 
   return (
     <View className="w-full h-full bg-red-600">
+
       <MapView
         ref={mapRef}
         className="flex-1"
@@ -42,13 +44,7 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: true,
           });
         }}>
-        {/* <Markers
-          waypoints={waypoints}
-          isEdit={editorState === EditorState.EDIT}
-          updateWaypoints={() => {
-            setWaypoints([...waypoints]);
-          }}
-        /> */}
+        <Markers waypoints={currentMap.waypoints} isEdit={false} />
 
         <StopPoints waypoints={currentMap.stops} isStop={false}></StopPoints>
         <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />

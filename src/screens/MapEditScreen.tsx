@@ -13,13 +13,15 @@ import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useMapStore } from "./../stores/store";
 import { saveMap } from "../utils/FileSystemManager";
+import { ModalChoice } from "../components/ModalChoice";
+import SelectNameModal from "../components/SelectNameModal";
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
   //TODO Dodać możliwość tworzenia waypointów
   const API_KEY = "***REMOVED***";
-
+  const [saveMapModalVisible, setSaveMapModalVisible] = useState(false);
   const [calloutOpen, setCalloutOpen] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [listOpen, setListOpen] = useState(false);
@@ -58,6 +60,8 @@ const MapEditScreen = ({ navigation, route }) => {
   //[x] uprościć funkcje zooma na początku mapy
   //TODO zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
+
+  //TODO dodać automatyczne robienie cover photo dla mapy
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
     waypoints[0] = cords[0];
@@ -85,9 +89,10 @@ const MapEditScreen = ({ navigation, route }) => {
       } as Waypoint);
   }
 
-  const saveMapEvent = () => {
+  const saveMapEvent = (name: string) => {
     let xd = {
       ...currentMap,
+      name: name,
       waypoints: [...waypoints],
       stops: [...stopPoints],
       path: [...fullPath],
@@ -133,6 +138,19 @@ const MapEditScreen = ({ navigation, route }) => {
 
   return (
     <View className="relative border-4">
+      <SelectNameModal
+        visible={saveMapModalVisible}
+        onRequestClose={() => {
+          setSaveMapModalVisible(false);
+        }}
+        actionLeft={() => {
+          setSaveMapModalVisible(false);
+        }}
+        actionRight={(name: string) => {
+          saveMapEvent(name);
+          setSaveMapModalVisible(false);
+        }}></SelectNameModal>
+
       <View className="w-full h-full bg-red-600">
         <MapView
           ref={mapRef}
@@ -206,7 +224,7 @@ const MapEditScreen = ({ navigation, route }) => {
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"save"}
-          onPress={saveMapEvent}
+          onPress={() => setSaveMapModalVisible(true)}
           icon="map"
         />
         <Text>{currentMap?.map_id}</Text>
