@@ -1,22 +1,35 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View, Image, ScrollView } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import SquareButton from "../components/SquareButton";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
+import { listAllMaps, loadMap } from "../utils/FileSystemManager";
 
 interface MapExplorerScreenProps {}
 
 const MapExplorerScreen = ({ navigation, route }) => {
-  const maps = useMapStore((state) => state.maps);
+  const [currentMap, setCurrentMap] = useMapStore((state) => [
+    state.currentMap,
+    state.setCurrentMap,
+  ]);
+  const [maps, setMaps] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
+  useEffect(() => {
+    console.log("elo");
+    listAllMaps();
+    listAllMaps().then((m) => {
+      setMaps(m);
+    });
+  }, []);
+
   return (
     <View style={tw`h-full`}>
-      <View style={tw` bg-main-1 flex justify-center shadow-md`}>
+      <View style={tw`bg-main-1 flex justify-center shadow-md`}>
         <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALNE ŚCIEŻKI</Text>
       </View>
       <Searchbar
@@ -25,8 +38,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         value={searchQuery}
         onChangeText={onChangeSearch}></Searchbar>
       <ScrollView>
-        {Object.keys(maps)
-          .map((value) => maps[value])
+        {maps
           .filter((map) => {
             return (
               map.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
@@ -52,14 +64,20 @@ const MapExplorerScreen = ({ navigation, route }) => {
                     label="Pokaż"
                     style={tw`ml-auto`}
                     onPress={() => {
-                      navigation.navigate("PodgladMap", { mapToPreview: map });
+                      loadMap(map.name, map.map_id).then((m) => {
+                        setCurrentMap(m);
+                        navigation.navigate("PodgladMap");
+                      });
                     }}></SquareButton>
                   <SquareButton
                     label="print"
                     style={tw`ml-auto`}
                     onPress={() => {
-                      console.log(map);
-                      console.log(map.waypoints);
+                      loadMap(map.name, map.map_id).then((m) => {
+                        console.log(m.path);
+                      });
+                      // console.log(map);
+                      // console.log(map.waypoints);
                     }}></SquareButton>
                 </Card.Content>
               </Card>

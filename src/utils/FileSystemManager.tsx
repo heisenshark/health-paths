@@ -18,7 +18,7 @@ Map "testmap"
   features."testmap".geojson
   features_"testmap"_lines.geojson
 */
-export { ensureMapDirExists, saveMap, listAllMaps };
+export { ensureMapDirExists, saveMap, listAllMaps, loadMap };
 
 const getNameFromUri = (uri: string) => {
   return uri.substring(uri.lastIndexOf("/") + 1, uri.length);
@@ -205,32 +205,36 @@ async function saveMap(map: HealthPath) {
   await writeToFile(mapNameDir + "waypoints.json", JSON.stringify(waypoints));
   await writeToFile(mapNameDir + "media_files.json", JSON.stringify(medias));
 
-  // map.stops.forEach((stop) => {
-  //   if (stop.image) {
-  //     writeToFile(mapNameDir + "images/" + stop.image);
-  //   }
-  //   if (stop.introduction_audio) {
-  //     writeToFile(mapNameDir + "audios/" + stop.audio);
-  //   }
-  // });
-
-  // writeToFile(mapNameDir + "media_files.json");
-  // let elo = "";
-  // try {
-  //   const aaaa = fs.writeAsStringAsync(
-  //     mapNameDir + "mapInfo.json",
-  //     JSON.stringify({ name: map.name, waypoints: [] })
-  //   );
-  //   console.log(aaaa);
-  // } catch (error) {
-  //   console.log("error: " + error);
-  // }
+  //TODO write code that clears the rest of files in mapdir, to stop local storage from leaking
 
   return mapNameDir;
+}
+
+async function loadMap(name: string, id: string): Promise<HealthPath> {
+  const mapNameDir = `${mapDir}${name}_${id}/`;
+  const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
+  console.log(mapInfo);
+  const map = JSON.parse(mapInfo) as HealthPath;
+  const lines = await fs.readAsStringAsync(mapNameDir + "features_" + map.name + "_lines.geojson");
+  console.log(lines);
+  map.path = JSON.parse(lines).features[0].geometry.coordinates;
+  map.path = map.path.map((x) => ({ latitude: x[1], longitude: x[0] }));
+  const waypoints = await fs.readAsStringAsync(mapNameDir + "waypoints.json");
+  console.log(waypoints);
+  map.stops = JSON.parse(waypoints);
+  return map;
 }
 
 async function listAllMaps(): Promise<string[]> {
   const files = await fs.readDirectoryAsync(mapDir);
   console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
-  return files;
+  let maps = [];
+  for (const file of files) {
+    const mapInfo = await fs.readAsStringAsync(mapDir + file + "/mapInfo.json");
+    console.log(mapInfo);
+    maps.push(JSON.parse(mapInfo) as HealthPath);
+  }
+  console.log(maps);
+
+  return maps;
 }
