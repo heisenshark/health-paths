@@ -36,7 +36,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
     state.currentMap,
     state.getCurrentMediaURI,
   ]);
-  const { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
+  let { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
   const [introsoundUri, setIntroSoundUri] = useState();
   const [navigationSoundUri, setNavigationSoundUri] = useState();
   const [name, setName] = useState(editedWaypoint.displayed_name);
@@ -50,7 +50,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [soundType, setSoundType] = useState("");
-
+  const [waypointDiff, setWaypointDiff] = useState({} as Waypoint);
   // const [sound, setSound] = useState();
   const sound = useRef(new Audio.Sound());
 
@@ -75,19 +75,34 @@ const StopPointEditScreen = ({ navigation, route }) => {
       //tutaj ustawqiamy sound uri, trzeba wybrać czy intro czy navigation
       if (route.params.soundUri === undefined) return;
       console.log("siema", route.params.soundUri);
-      if (route.params.soundType === "intro") setIntroSoundUri(route.params.soundUri);
-      if (route.params.soundType === "navigation") setNavigationSoundUri(route.params.soundUri);
+      let soundObject = {
+        media_id: uuid.v4(),
+        path: route.params.soundUri,
+        type: "audio",
+        storage_type: "cache",
+      } as MediaFile;
+
+      if (route.params.soundType === "intro") {
+        setIntroSoundUri(route.params.soundUri);
+        waypointDiff.introduction_audio = soundObject;
+      }
+      if (route.params.soundType === "navigation") {
+        setNavigationSoundUri(route.params.soundUri);
+        waypointDiff.navigation_audio = soundObject;
+      }
     }, [route.params])
   );
 
   useEffect(() => {
     console.log("waypoint: ", editedWaypoint);
 
-    setIntroSoundUri(editedWaypoint.introduction_audio?.path);
-    setNavigationSoundUri(editedWaypoint.navigation_audio?.path);
+    // setIntroSoundUri(editedWaypoint.introduction_audio?.path);
+    // setNavigationSoundUri(editedWaypoint.navigation_audio?.path);
     setImage(editedWaypoint.image?.path);
-    if (editedWaypoint.introduction_audio) getCurrentMediaURI(editedWaypoint?.introduction_audio);
-    if (editedWaypoint.navigation_audio) getCurrentMediaURI(editedWaypoint?.navigation_audio);
+    if (editedWaypoint.introduction_audio)
+      setIntroSoundUri(getCurrentMediaURI(editedWaypoint?.introduction_audio));
+    if (editedWaypoint.navigation_audio)
+      setNavigationSoundUri(getCurrentMediaURI(editedWaypoint?.navigation_audio));
   }, []);
 
   useEffect(() => {
@@ -142,6 +157,13 @@ const StopPointEditScreen = ({ navigation, route }) => {
     if (result.canceled) return;
 
     setImage(result.assets[0].uri);
+
+    waypointDiff.image = {
+      media_id: uuid.v4(),
+      path: result.assets[0].uri,
+      type: "image",
+      storage_type: "cache",
+    } as MediaFile;
   };
 
   return (
@@ -159,8 +181,20 @@ const StopPointEditScreen = ({ navigation, route }) => {
               .then((res) => {
                 setResult(res);
                 setAudioModalVisible(false);
-                if (soundType === "intro") setIntroSoundUri(res.uri);
-                if (soundType === "navigation") setNavigationSoundUri(res.uri);
+                let soundObj = {
+                  media_id: uuid.v4(),
+                  path: res.uri,
+                  type: "audio",
+                  storage_type: "cache",
+                } as MediaFile;
+                if (soundType === "intro") {
+                  waypointDiff.introduction_audio = soundObj;
+                  setIntroSoundUri(res.uri);
+                }
+                if (soundType === "navigation") {
+                  setNavigationSoundUri(res.uri);
+                  waypointDiff.navigation_audio = soundObj;
+                }
               })
               .catch(handleError);
           }}
@@ -283,39 +317,42 @@ const StopPointEditScreen = ({ navigation, route }) => {
           console.log("clicked save", name, description, introsoundUri, image);
           editedWaypoint.displayed_name = name;
           editedWaypoint.description = description;
-          if (
-            introsoundUri !== undefined &&
-            (editedWaypoint.introduction_audio === undefined ||
-              editedWaypoint.introduction_audio !== introsoundUri)
-          )
-            editedWaypoint.introduction_audio = {
-              media_id: uuid.v4(),
-              path: introsoundUri,
-              type: "audio",
-              storage_type: "cache",
-            } as MediaFile;
-          if (
-            navigationSoundUri !== undefined &&
-            (editedWaypoint.navigation_audio === undefined ||
-              editedWaypoint.navigation_audio !== introsoundUri)
-          )
-            editedWaypoint.navigation_audio = {
-              media_id: uuid.v4(),
-              path: navigationSoundUri,
-              type: "audio",
-              storage_type: "cache",
-            } as MediaFile;
+          // if (
+          //   introsoundUri !== undefined &&
+          //   (editedWaypoint.introduction_audio === undefined ||
+          //     editedWaypoint.introduction_audio !== introsoundUri)
+          // )
+          //   editedWaypoint.introduction_audio = {
+          //     media_id: uuid.v4(),
+          //     path: introsoundUri,
+          //     type: "audio",
+          //     storage_type: "cache",
+          //   } as MediaFile;
+          // if (
+          //   navigationSoundUri !== undefined &&
+          //   (editedWaypoint.navigation_audio === undefined ||
+          //     editedWaypoint.navigation_audio !== introsoundUri)
+          // )
+          //   editedWaypoint.navigation_audio = {
+          //     media_id: uuid.v4(),
+          //     path: navigationSoundUri,
+          //     type: "audio",
+          //     storage_type: "cache",
+          //   } as MediaFile;
 
-          if (
-            image !== undefined &&
-            (editedWaypoint.image === undefined || editedWaypoint.image !== image)
-          )
-            editedWaypoint.image = {
-              media_id: uuid.v4(),
-              path: image,
-              type: "image",
-              storage_type: "cache",
-            } as MediaFile;
+          // if (
+          //   image !== undefined &&
+          //   (editedWaypoint.image === undefined || editedWaypoint.image !== image)
+          // )
+          //   editedWaypoint.image = {
+          //     media_id: uuid.v4(),
+          //     path: image,
+          //     type: "image",
+          //     storage_type: "cache",
+          //   } as MediaFile;
+
+          Object.assign(editedWaypoint, waypointDiff);
+          console.log(editedWaypoint);
 
           navigation.goBack();
         }}

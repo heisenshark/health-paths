@@ -25,6 +25,7 @@ const getNameFromUri = (uri: string) => {
 };
 
 export function getURI(map: HealthPath, media: MediaFile) {
+  if (media.storage_type === "cache") return media.path;
   return `${mapDir}${map.name}_${map.map_id}/${media.path}`;
 }
 async function ensureMapDirExists() {

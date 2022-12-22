@@ -90,5 +90,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
   getCurrentMediaURI: (mediaId: MediaFile) => {
     const state = get();
     console.log("mediauri:::" + getURI(state.currentMap, mediaId));
+    return getURI(state.currentMap, mediaId);
   },
 }));
