@@ -176,7 +176,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
           />
           <SquareButton onPress={stopRecording} size={size} icon="stop" label="Stop recording" />
         </>
-      );
+      ); 
     case RecordingStatus.RECORDED:
       return (
         <>

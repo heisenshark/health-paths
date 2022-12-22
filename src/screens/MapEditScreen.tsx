@@ -93,8 +93,8 @@ const MapEditScreen = ({ navigation, route }) => {
       path: [...fullPath],
     };
     console.log("log1", currentMap);
-    setCurrentMap(xd);
     addMap(xd);
+    setCurrentMap(xd);
     console.log("log2", currentMap);
 
     saveMap(xd);
@@ -103,15 +103,15 @@ const MapEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params === undefined) {
       console.log("elo");
-
-      setCurrentMap({
-        map_id: getUUID(),
-        name: "kato trasa",
-        description: "trasa krajoznawcza w katowicach",
-        location: "katowice",
-        waypoints: [],
-        stops: [],
-      } as HealthPath);
+      if (!currentMap || currentMap.map_id === "")
+        setCurrentMap({
+          map_id: getUUID(),
+          name: "kato trasa",
+          description: "trasa krajoznawcza w katowicach",
+          location: "katowice",
+          waypoints: [],
+          stops: [],
+        } as HealthPath);
       console.log(currentCamera);
     }
     console.log("elo2");
@@ -209,7 +209,7 @@ const MapEditScreen = ({ navigation, route }) => {
           onPress={saveMapEvent}
           icon="map"
         />
-
+        <Text>{currentMap?.map_id}</Text>
         <SquareButton
           label="lista"
           onPress={() => {

@@ -13,7 +13,7 @@ import {
 import SquareButton from "./../components/SquareButton";
 import { Icon } from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
-import Waypoint from "./../utils/interfaces";
+import Waypoint, { MediaFile } from "./../utils/interfaces";
 import { useEffect, useRef, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import DocumentPicker, {
@@ -26,12 +26,19 @@ import { Audio } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
 import { ModalChoice } from "../components/ModalChoice";
 import { TextInput } from "react-native-paper";
+import uuid from "react-native-uuid";
+import { useMapStore } from "../stores/store";
 
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
 const StopPointEditScreen = ({ navigation, route }) => {
+  const [currentMap, getCurrentMediaURI] = useMapStore((state) => [
+    state.currentMap,
+    state.getCurrentMediaURI,
+  ]);
   const { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
-  const [soundUri, setSoundUri] = useState(route.params.soundUri);
+  const [introsoundUri, setIntroSoundUri] = useState();
+  const [navigationSoundUri, setNavigationSoundUri] = useState();
   const [name, setName] = useState(editedWaypoint.displayed_name);
   const [description, setDescription] = useState(editedWaypoint.description);
   const [image, setImage] = useState(null);
@@ -42,16 +49,17 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [soundType, setSoundType] = useState("");
 
   // const [sound, setSound] = useState();
   const sound = useRef(new Audio.Sound());
 
-  async function playSound() {
-    if (soundUri === undefined) return;
+  async function playSound(uri: string) {
+    if (uri === undefined) return;
     try {
       let result = await sound.current?.getStatusAsync();
       if (result.isLoaded) await sound.current.unloadAsync();
-      result = await sound.current.loadAsync({ uri: soundUri });
+      result = await sound.current.loadAsync({ uri: uri });
       await sound.current.playAsync();
     } catch (error) {
       console.log(error);
@@ -62,16 +70,24 @@ const StopPointEditScreen = ({ navigation, route }) => {
   useFocusEffect(
     React.useCallback(() => {
       console.log("StopPointEditScreen focused");
-      if (route.params.soundUri !== undefined) {
-        console.log("siema", route.params.soundUri);
-        setSoundUri(route.params.soundUri);
-      }
+      console.log(route.params);
+
+      //tutaj ustawqiamy sound uri, trzeba wybrać czy intro czy navigation
+      if (route.params.soundUri === undefined) return;
+      console.log("siema", route.params.soundUri);
+      if (route.params.soundType === "intro") setIntroSoundUri(route.params.soundUri);
+      if (route.params.soundType === "navigation") setNavigationSoundUri(route.params.soundUri);
     }, [route.params])
   );
 
   useEffect(() => {
-    setSoundUri(editedWaypoint.introduction_audio);
-    setImage(editedWaypoint.image);
+    console.log("waypoint: ", editedWaypoint);
+
+    setIntroSoundUri(editedWaypoint.introduction_audio?.path);
+    setNavigationSoundUri(editedWaypoint.navigation_audio?.path);
+    setImage(editedWaypoint.image?.path);
+    if (editedWaypoint.introduction_audio) getCurrentMediaURI(editedWaypoint?.introduction_audio);
+    if (editedWaypoint.navigation_audio) getCurrentMediaURI(editedWaypoint?.navigation_audio);
   }, []);
 
   useEffect(() => {
@@ -112,22 +128,20 @@ const StopPointEditScreen = ({ navigation, route }) => {
       ? await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        quality: 0.2,
+        quality: 0.1,
         aspect: [4, 3],
       })
       : await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.2,
+        quality: 0.1,
       });
-
     console.log(result);
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      editedWaypoint.image = result.assets[0].uri;
-    }
+    if (result.canceled) return;
+
+    setImage(result.assets[0].uri);
   };
 
   return (
@@ -145,13 +159,14 @@ const StopPointEditScreen = ({ navigation, route }) => {
               .then((res) => {
                 setResult(res);
                 setAudioModalVisible(false);
-                setSoundUri(res.uri);
+                if (soundType === "intro") setIntroSoundUri(res.uri);
+                if (soundType === "navigation") setNavigationSoundUri(res.uri);
               })
               .catch(handleError);
           }}
           actionRight={function (): void {
             setAudioModalVisible(false);
-            navigation.navigate("NagrywanieAudio", { ...route.params });
+            navigation.navigate("NagrywanieAudio", { ...route.params, soundType: soundType });
           }}
           onRequestClose={function (): void {
             setAudioModalVisible(false);
@@ -182,7 +197,9 @@ const StopPointEditScreen = ({ navigation, route }) => {
           </View>
 
           <View style={tw`flex-row justify-between items-center my-4 `}>
-            <Text style={tw`text-3xl font-bold`}>Opis Audio</Text>
+            <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
+              Intro Audio
+            </Text>
             <View style={tw`flex-row`}>
               <SquareButton
                 style={tw`ml-auto mr-2`}
@@ -190,11 +207,39 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 onPress={() => {
                   setAudioModalVisible(true);
                   console.log("clicked modalshow");
+                  setSoundType("intro");
                 }}></SquareButton>
               <SquareButton
                 style={tw`ml-auto`}
                 label={"Odtwórz"}
-                onPress={() => playSound()}></SquareButton>
+                onPress={() => {
+                  console.log(introsoundUri);
+                  console.log(soundType);
+                  playSound(introsoundUri);
+                }}></SquareButton>
+            </View>
+          </View>
+          <View style={tw`flex-row justify-between items-center my-4 `}>
+            <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
+              Nav Audio
+            </Text>
+            <View style={tw`flex-row`}>
+              <SquareButton
+                style={tw`ml-auto mr-2`}
+                label={"Edytuj"}
+                onPress={() => {
+                  setAudioModalVisible(true);
+                  console.log("clicked modalshow");
+                  setSoundType("navigation");
+                }}></SquareButton>
+              <SquareButton
+                style={tw`ml-auto`}
+                label={"Odtwórz"}
+                onPress={() => {
+                  console.log(navigationSoundUri);
+                  console.log(soundType);
+                  playSound(navigationSoundUri);
+                }}></SquareButton>
             </View>
           </View>
           <TextInput
@@ -235,11 +280,43 @@ const StopPointEditScreen = ({ navigation, route }) => {
       <SquareButton
         label="Zapisz"
         onPress={() => {
-          console.log("clicked save", name, description, soundUri, image);
+          console.log("clicked save", name, description, introsoundUri, image);
           editedWaypoint.displayed_name = name;
           editedWaypoint.description = description;
-          editedWaypoint.introduction_audio = soundUri;
-          editedWaypoint.image = image;
+          if (
+            introsoundUri !== undefined &&
+            (editedWaypoint.introduction_audio === undefined ||
+              editedWaypoint.introduction_audio !== introsoundUri)
+          )
+            editedWaypoint.introduction_audio = {
+              media_id: uuid.v4(),
+              path: introsoundUri,
+              type: "audio",
+              storage_type: "cache",
+            } as MediaFile;
+          if (
+            navigationSoundUri !== undefined &&
+            (editedWaypoint.navigation_audio === undefined ||
+              editedWaypoint.navigation_audio !== introsoundUri)
+          )
+            editedWaypoint.navigation_audio = {
+              media_id: uuid.v4(),
+              path: navigationSoundUri,
+              type: "audio",
+              storage_type: "cache",
+            } as MediaFile;
+
+          if (
+            image !== undefined &&
+            (editedWaypoint.image === undefined || editedWaypoint.image !== image)
+          )
+            editedWaypoint.image = {
+              media_id: uuid.v4(),
+              path: image,
+              type: "image",
+              storage_type: "cache",
+            } as MediaFile;
+
           navigation.goBack();
         }}
         style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>

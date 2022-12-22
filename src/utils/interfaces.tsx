@@ -5,10 +5,10 @@ export default interface Waypoint {
   coordinates: LatLng;
   displayed_name: string;
   description: string;
-  image?: string;
-  navigation_audio?: string;
+  image?: MediaFile;
+  navigation_audio?: MediaFile;
   type?: string;
-  introduction_audio?: string;
+  introduction_audio?: MediaFile;
 }
 
 export interface HealthPath {
@@ -24,6 +24,12 @@ export interface HealthPath {
   imageCover?: string;
 }
 
+export interface MediaFile {
+  media_id: string;
+  type: string;
+  storage_type: "cache" | "local";
+  path: string;
+}
 // {
 //     "waypoint_id": "gliwice.rynek.ratusz",
 //     "coordinates": [

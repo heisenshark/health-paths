@@ -2,6 +2,7 @@ import create from "zustand";
 import { HealthPath } from "../utils/interfaces";
 import uuid from "react-native-uuid";
 import { Camera } from "react-native-maps";
+import { getURI } from "../utils/FileSystemManager";
 
 interface MapStore {
   one: () => number;
@@ -14,13 +15,14 @@ interface MapStore {
   getUUID: () => string;
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
+  getCurrentMediaURI: (mediaId: string) => void;
 }
 
 interface MapArray {
   [key: string]: HealthPath;
 }
 
-export const useMapStore = create<MapStore>((set) => ({
+export const useMapStore = create<MapStore>((set, get) => ({
   one: () => 1,
   riable: 0,
   incrementRiable: () => set((state) => ({ riable: state.riable + 1 })),
@@ -85,4 +87,8 @@ export const useMapStore = create<MapStore>((set) => ({
     zoom: 5.757617473602295,
   } as Camera,
   setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
+  getCurrentMediaURI: (mediaId: MediaFile) => {
+    const state = get();
+    console.log("mediauri:::" + getURI(state.currentMap, mediaId));
+  },
 }));
