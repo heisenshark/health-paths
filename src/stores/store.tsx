@@ -27,10 +27,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
   riable: 0,
   incrementRiable: () => set((state) => ({ riable: state.riable + 1 })),
   currentMap: {
-    name: "default_name",
+    name: "",
     map_id: "",
-    description: "default_description",
-    location: "default_location",
+    description: "",
+    location: "",
     waypoints: [],
     stops: [],
   } as HealthPath,

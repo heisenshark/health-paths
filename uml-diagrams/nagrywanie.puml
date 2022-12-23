@@ -1,0 +1,11 @@
+@startuml logowanie
+
+user -> aplikacja :przejście do zkładki nagrywanie
+user -> aplikacja : rpozpoczęcie nagrywania
+aplikacja -> aplikacja : przełączenie na tryb nagrywania
+user -> aplikacja : edycja waypointów w czasie nagrywania
+user -> aplikacja : zakończenie nagrywania
+aplikacja -> user : zapytanie czy na pewno chce zakończyć nagrywanie i że trasy nie będzie można później edytować
+user -> aplikacja : potwierdzenie zakończenia nagrywania
+aplikacja -> aplikacja : zapisanie ścieżki
+@enduml

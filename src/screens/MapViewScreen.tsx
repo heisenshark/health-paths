@@ -28,17 +28,12 @@ const MapViewScreen = ({ navigation, route }) => {
 
   return (
     <View className="w-full h-full bg-red-600">
-
       <MapView
         ref={mapRef}
         className="flex-1"
         initialRegion={initialRegion}
-        // camera={currentCamera}
         customMapStyle={mapStylesJSON}
         onMapReady={() => {
-          // mapRef.current.fitToCoordinates(currentMap.path, {
-          //   edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-          //   animated: true,
           mapRef.current.fitToCoordinates(currentMap.path, {
             edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
             animated: true,
