@@ -16,6 +16,10 @@ interface MapStore {
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (mediaId: string) => void;
+
+  locations: LatLng[];
+  addLocation: (location: LatLng) => void;
+  clearLocations: () => void;
 }
 
 interface MapArray {
@@ -91,5 +95,19 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const state = get();
     console.log("mediauri:::" + getURI(state.currentMap, mediaId));
     return getURI(state.currentMap, mediaId);
+  },
+  locations: [],
+  addLocation: (location: LatLng) => {
+    set((state) => {
+      state.locations
+        ? state.locations.push(location as LatLng)
+        : (state.locations = [location as LatLng]);
+      return { locations: [...state.locations] };
+    });
+  },
+  clearLocations: () => {
+    set((state) => {
+      return { locations: [] };
+    });
   },
 }));

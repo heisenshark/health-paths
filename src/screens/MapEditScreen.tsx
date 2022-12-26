@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import MapView, { LatLng, MapPressEvent, Region } from "react-native-maps";
+import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
@@ -15,29 +15,53 @@ import { saveMap } from "../utils/FileSystemManager";
 import SelectNameModal from "../components/SelectNameModal";
 
 import * as Location from "expo-location";
+import * as TaskManager from "expo-task-manager";
 
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
   //TODO Dodać możliwość tworzenia waypointów
+
+  const locations = useMapStore.getState().locations;
+  const startLocationTracking = async () => {
+    await Location.startLocationUpdatesAsync("location_tracking", {
+      accuracy: Location.Accuracy.Highest,
+      timeInterval: 5000,
+      distanceInterval: 0,
+    });
+    const hasStarted = await Location.hasStartedLocationUpdatesAsync("location_tracking");
+    console.log("tracking started?", hasStarted);
+  };
+
   let isPathEditable = false;
   const API_KEY = "***REMOVED***";
   const [saveMapModalVisible, setSaveMapModalVisible] = useState(false);
   const [calloutOpen, setCalloutOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
+  const [isInRecordingState, setIsInRecordingState] = useState(true);
+  const [isWatchingposition, setIsWatchingposition] = useState(false);
 
-  const [addMap, currentMap, setCurrentMap, getUUID, currentCamera, setCurrentCamera] = useMapStore(
-    (state) => [
-      state.addMap,
-      state.currentMap,
-      state.setCurrentMap,
-      state.getUUID,
-      state.currentCamera,
-      state.setCurrentCamera,
-    ]
-  );
+  const [isRecording, setIsRecording] = useState(false);
+
+  const [
+    addMap,
+    currentMap,
+    setCurrentMap,
+    getUUID,
+    currentCamera,
+    setCurrentCamera,
+    clearLocations,
+  ] = useMapStore((state) => [
+    state.addMap,
+    state.currentMap,
+    state.setCurrentMap,
+    state.getUUID,
+    state.currentCamera,
+    state.setCurrentCamera,
+    state.clearLocations,
+  ]);
   const mapRef = useRef<MapView>();
   const initialRegion = {
     latitude: 52,
@@ -51,6 +75,9 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const [location, setLocation] = useState();
   const [errorMessage, setErrorMessage] = useState("");
+
+  const unsub = useRef(null);
+
   /**
    * no to ten, markery działają tak że jest edit mode i jak jest edit mode to ten, można je edytować i one istnieją, więc albo renderujemy je warunkowo albo umieszczamy warunkowe renderowanie w komponencie
    */
@@ -112,8 +139,22 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    Location.startLocationUpdatesAsync("location_tracking", {
+      // The following notification options will help keep tracking consistent
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Location",
+        notificationBody: "Location tracking in background",
+        notificationColor: "#fff",
+      },
+    });
+
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
+      console.log(status);
+      let ss = await Location.requestBackgroundPermissionsAsync();
+      console.log(ss.status);
+
       if (status !== "granted") {
         setErrorMessage("Permission to access location was denied");
         console.log("error");
@@ -121,26 +162,17 @@ const MapEditScreen = ({ navigation, route }) => {
         return;
       }
       console.log("aaaaa");
-      // console.log(await Location.hasServicesEnabledAsync());
-      // console.log(await Location.isBackgroundLocationAvailableAsync());
-
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: 5,
-        mayShowUserSettingsDialog: true,
-      });
-
-      // await Location.watchPositionAsync(
-      //   {
-      //     accuracy: 5,
-      //     timeInterval: 1000,
-      //     distanceInterval: 1,
-      //   },
-      //   (loc) => {
-      //     setLocation(loc);
-      //     console.log(loc);
-      //   }
-      // );
     })();
+
+    Location.startLocationUpdatesAsync("location_tracking", {
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 1000,
+      distanceInterval: 5,
+    }).then(() => console.log("started"));
+
+    return () => {
+      Location.stopLocationUpdatesAsync("location_tracking");
+    };
   }, []);
 
   useEffect(() => {
@@ -167,6 +199,7 @@ const MapEditScreen = ({ navigation, route }) => {
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove_mapEdit");
+      unsub.current?.remove();
       mapRef.current.getMapBoundaries().then((boundaries) => {
         console.log(boundaries);
       });
@@ -197,11 +230,31 @@ const MapEditScreen = ({ navigation, route }) => {
           ref={mapRef}
           className="flex-1"
           camera={currentCamera}
+          showsMyLocationButton={true}
+          toolbarEnabled={true}
+          minZoomLevel={7}
           onPress={(e) => {
             addNewWaypoint(e);
             setCalloutOpen(false);
           }}
-          customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}>
+          customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}
+          onRegionChange={(e, { isGesture }) => {
+            if (isGesture) setIsWatchingposition(false);
+          }}
+          onUserLocationChange={(coordinate) => {
+            console.log("user location change", coordinate);
+            if (isWatchingposition) {
+              console.log("watching position");
+              // const cam = await mapRef.current.getCamera()
+              mapRef.current.animateCamera({
+                center: {
+                  latitude: coordinate.nativeEvent.coordinate.latitude,
+                  longitude: coordinate.nativeEvent.coordinate.longitude,
+                },
+              });
+            }
+          }}
+          showsUserLocation={true}>
           {waypoints.length > 1 && (
             <MapViewDirections
               origin={waypoints[0]}
@@ -220,7 +273,16 @@ const MapEditScreen = ({ navigation, route }) => {
               }}
             />
           )}
-
+          {isInRecordingState && (
+            <>
+              <Polyline
+                coordinates={locations}
+                strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+                strokeWidth={6}
+              />
+              {/* <Marker></Marker> */}
+            </>
+          )}
           <Markers
             waypoints={waypoints}
             isEdit={editorState === EditorState.EDIT}
@@ -238,17 +300,19 @@ const MapEditScreen = ({ navigation, route }) => {
       </View>
 
       <View className="absolute h-full w-full pointer-events-none">
-        <SquareButton
-          style={tw`self-end m-3 mt-auto`}
-          label={editorState === EditorState.EDIT ? "Zakończ edycję" : "Edytuj ścieżkę"}
-          onPress={() => toggleEditorState(EditorState.EDIT)}
-          icon="plus"
-        />
+        {!isInRecordingState && (
+          <SquareButton
+            style={tw`self-end m-3 mt-auto`}
+            label={editorState === EditorState.EDIT ? "Zakończ edycję" : "Edytuj ścieżkę"}
+            onPress={() => toggleEditorState(EditorState.EDIT)}
+            icon="edit"
+          />
+        )}
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={editorState === EditorState.EDIT_STOP ? "Zakończ edycję" : "Edytuj STOPY"}
           onPress={() => toggleEditorState(EditorState.EDIT_STOP)}
-          icon="map"
+          icon="marker"
         />
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
@@ -257,8 +321,28 @@ const MapEditScreen = ({ navigation, route }) => {
             if (currentMap.name === "") setSaveMapModalVisible(true);
             else saveMapEvent(currentMap.name);
           }}
+          icon="save"
+        />
+
+        <SquareButton
+          style={tw`self-end m-3 mt-auto`}
+          label={"zatrzymaj nagrywanie"}
+          onPress={() => {
+            toggleEditorState(EditorState.VIEW);
+            Location.stopLocationUpdatesAsync("location_tracking");
+            clearLocations();
+          }}
+          icon="plus"
+        />
+        <SquareButton
+          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
+          label={"centruj lokacje"}
+          onPress={() => {
+            setIsWatchingposition((p) => !p);
+          }}
           icon="map"
         />
+
         <Text>{currentMap?.map_id}</Text>
         <SquareButton
           label="lista"
@@ -266,7 +350,7 @@ const MapEditScreen = ({ navigation, route }) => {
             console.log("waypoint list open");
             setListOpen(!listOpen);
           }}>
-          <Icon name="edit" size={40} color="black" className="flex-1" />
+          <Icon name="list" size={40} color="black" className="flex-1" />
         </SquareButton>
         <Text>{editorState}</Text>
         <Text>{calloutOpen ? "open" : "closed"}</Text>

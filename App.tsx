@@ -22,11 +22,40 @@ import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
 import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileSystemManager";
+
+import * as TaskManager from "expo-task-manager";
+import { useMapStore } from "./src/stores/store";
+import { LatLng } from "react-native-maps";
+
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
 const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
+
+TaskManager.defineTask("location_tracking", async ({ data, error }) => {
+  const addLocation = useMapStore.getState().addLocation;
+  const locationss = useMapStore.getState().locations;
+  if (error) {
+    console.log("LOCATION_TRACKING task ERROR:", error);
+    return;
+  }
+  if (data) {
+    const { locations } = data;
+    let lat = locations[0].coords.latitude;
+    let long = locations[0].coords.longitude;
+    const newLocation = { latitude: lat, longitude: long } as LatLng;
+
+    useMapStore.setState({ locations: [...locationss, { latitude: lat, longitude: long }] });
+    // addLocation({ latitude: lat, longitude: long });
+
+    console.log(locationss);
+
+    // console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${long}`);
+    console.log("Received new locations", locations);
+  }
+});
+
 export default function App() {
   // listAllMaps();
   // ensureMapDirExists();
