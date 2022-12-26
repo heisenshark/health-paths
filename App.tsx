@@ -34,8 +34,12 @@ const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
-  const addLocation = useMapStore.getState().addLocation;
-  const locationss = useMapStore.getState().locations;
+  const addLocations = useMapStore.getState().addLocations;
+  let locationss = useMapStore.getState().locations;
+  // let test = useMapStore.getState().testobject;
+  // test.test.push("test");
+  // console.log("test", test);
+
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
     return;
@@ -45,14 +49,35 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
     let lat = locations[0].coords.latitude;
     let long = locations[0].coords.longitude;
     const newLocation = { latitude: lat, longitude: long } as LatLng;
+    /**
+     * Załatwimy upraszcznie mapy w ten sposób że będziemy trzymać
+     * kierunek użytkownika(kierunek rucho, względem poprzedniej lokacji
+     * będziemy liczyć kąt od ostatniego puntku, oraz ostatiego początku linii
+     * jeśli kąt lokalny przekroczy 5 stopni to zaczniemy nową linię tak samo z kątem
+     * do ostatniego począku linii
+     * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
+     */
+    // locations.forEach((n) => locationss.push(n.coords));
 
-    useMapStore.setState({ locations: [...locationss, { latitude: lat, longitude: long }] });
+    addLocations(locations.map((n) => ({latitude : n.coords.latitude, longitude : n.coords.longitude})));
+    // console.log(locationss);
+    console.log("len: ",locationss.coords.length);
+    
+    // useMapStore.setState({
+    //   locations: [...locationss],
+    // });
+
+    // { latitude: lat, longitude: long }] });
     // addLocation({ latitude: lat, longitude: long });
 
-    console.log(locationss);
+    // console.log(useMapStore.getState().locations);
+    // console.log("test", useMapStore.getState().testobject);
 
     // console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${long}`);
-    console.log("Received new locations", locations);
+    console.log(
+      "Received new locations",
+      locations.map((l) => l.coords)
+    );
   }
 });
 

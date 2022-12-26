@@ -1,13 +1,10 @@
 import create from "zustand";
 import { HealthPath } from "../utils/interfaces";
 import uuid from "react-native-uuid";
-import { Camera } from "react-native-maps";
+import { Camera, LatLng } from "react-native-maps";
 import { getURI } from "../utils/FileSystemManager";
 
 interface MapStore {
-  one: () => number;
-  riable: number;
-  incrementRiable: () => void;
   currentMap: HealthPath;
   maps: MapArray;
   addMap: (map: HealthPath) => void;
@@ -17,9 +14,11 @@ interface MapStore {
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (mediaId: string) => void;
 
-  locations: LatLng[];
-  addLocation: (location: LatLng) => void;
+  locations: { coords: LatLng[] };
+  addLocations: (location: LatLng[]) => void;
   clearLocations: () => void;
+  outputLocations: LatLng[];
+  testobject: { test: string[] };
 }
 
 interface MapArray {
@@ -27,9 +26,6 @@ interface MapArray {
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
-  one: () => 1,
-  riable: 0,
-  incrementRiable: () => set((state) => ({ riable: state.riable + 1 })),
   currentMap: {
     name: "",
     map_id: "",
@@ -42,30 +38,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
     map1: {
       name: "kato trasa",
       map_id: "1",
-      description: "trasa krajoznawcza w katowicach",
-      location: "katowice",
-      waypoints: [],
-      stops: [],
-    } as HealthPath,
-    map2: {
-      name: "kato trasa",
-      map_id: "2",
-      description: "trasa krajoznawcza w katowicach",
-      location: "katowice",
-      waypoints: [],
-      stops: [],
-    } as HealthPath,
-    map3: {
-      name: "kato trasa",
-      map_id: "3",
-      description: "trasa krajoznawcza w katowicach",
-      location: "katowice",
-      waypoints: [],
-      stops: [],
-    } as HealthPath,
-    map4: {
-      name: "kato trasa",
-      map_id: "4",
       description: "trasa krajoznawcza w katowicach",
       location: "katowice",
       waypoints: [],
@@ -96,18 +68,22 @@ export const useMapStore = create<MapStore>((set, get) => ({
     console.log("mediauri:::" + getURI(state.currentMap, mediaId));
     return getURI(state.currentMap, mediaId);
   },
-  locations: [],
-  addLocation: (location: LatLng) => {
+  locations: { coords: [] },
+  addLocations: (location: LatLng[]) => {
     set((state) => {
-      state.locations
-        ? state.locations.push(location as LatLng)
-        : (state.locations = [location as LatLng]);
-      return { locations: [...state.locations] };
+      // state.testobject.test.push("test3");
+      state.locations.coords.push(...location);
+      // state.locations
+      //   ? state.locations.push(location as LatLng)
+      //   : (state.locations = [location as LatLng]);
+      return { locations: { coords: state.locations.coords}, outputLocations: [...state.locations.coords]};
     });
   },
   clearLocations: () => {
-    set((state) => {
-      return { locations: [] };
+    set(() => {
+      return { locations: { coords: [] }};
     });
   },
+  testobject: { test: ["test1", "test2"] },
+  outputLocations: [],
 }));

@@ -31,7 +31,7 @@ const SquareButton = ({
     <TouchableOpacity
       style={[
         [
-          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg border-4 bg-main-${
+          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg  bg-main-${
             uberActive ? "2" : "1"
           }`,
           style,

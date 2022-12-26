@@ -23,7 +23,7 @@ const MapEditScreen = ({ navigation, route }) => {
   //TODO Rozdzielić na kilka pure komponentów
   //TODO Dodać możliwość tworzenia waypointów
 
-  const locations = useMapStore.getState().locations;
+  const locations = useMapStore.getState().outputLocations;
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync("location_tracking", {
       accuracy: Location.Accuracy.Highest,
@@ -141,6 +141,8 @@ const MapEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     Location.startLocationUpdatesAsync("location_tracking", {
       // The following notification options will help keep tracking consistent
+      accuracy: Location.Accuracy.BestForNavigation,
+      timeInterval: 1000,
       showsBackgroundLocationIndicator: true,
       foregroundService: {
         notificationTitle: "Location",
@@ -163,12 +165,6 @@ const MapEditScreen = ({ navigation, route }) => {
       }
       console.log("aaaaa");
     })();
-
-    Location.startLocationUpdatesAsync("location_tracking", {
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 1000,
-      distanceInterval: 5,
-    }).then(() => console.log("started"));
 
     return () => {
       Location.stopLocationUpdatesAsync("location_tracking");
@@ -242,16 +238,16 @@ const MapEditScreen = ({ navigation, route }) => {
             if (isGesture) setIsWatchingposition(false);
           }}
           onUserLocationChange={(coordinate) => {
-            console.log("user location change", coordinate);
+            // console.log("user location change", coordinate);
             if (isWatchingposition) {
               console.log("watching position");
               // const cam = await mapRef.current.getCamera()
-              mapRef.current.animateCamera({
-                center: {
-                  latitude: coordinate.nativeEvent.coordinate.latitude,
-                  longitude: coordinate.nativeEvent.coordinate.longitude,
-                },
-              });
+              // mapRef.current.animateCamera({
+              //   center: {
+              //     latitude: coordinate.nativeEvent.coordinate.latitude,
+              //     longitude: coordinate.nativeEvent.coordinate.longitude,
+              //   },
+              // });
             }
           }}
           showsUserLocation={true}>
