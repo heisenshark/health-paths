@@ -49,20 +49,21 @@ const MapExplorerScreen = ({ navigation, route }) => {
             return (
               <Card key={map.map_id} style={tw`flex flex-row my-1 mx-2`}>
                 <Card.Content style={tw`flex flex-row`}>
-                  <Image style={tw`flex-0 h-20 w-20 bg-black mr-2`}></Image>
+                  {/* <Image style={tw`flex-0 h-20 w-20 bg-black mr-2`}></Image> */}
 
                   <View style={tw`flex-1`}>
-                    <Text style={tw`text-3xl font-bold pr-2`} numberOfLines={1}>
+                    <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
                       {map.name}
                     </Text>
-                    <Text style={tw`text-3xl font-bold pr-2`} numberOfLines={1}>
+                    <Text style={tw`font-bold pr-2`} numberOfLines={1}>
                       {map.map_id}
                     </Text>
-                    <Text style={tw`text-2xl`}>{map.location}</Text>
+                    <Text style={tw`text-xl`}>{map.location}</Text>
                   </View>
                   <SquareButton
                     label="Pokaż"
                     style={tw`ml-auto`}
+                    size={10}
                     onPress={() => {
                       loadMap(map.name, map.map_id).then((m) => {
                         setCurrentMap(m);
@@ -72,6 +73,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                   <SquareButton
                     label="print"
                     style={tw`ml-auto`}
+                    size={10}
                     onPress={() => {
                       loadMap(map.name, map.map_id).then((m) => {
                         console.log(m.path);

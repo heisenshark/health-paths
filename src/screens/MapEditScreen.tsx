@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
@@ -10,13 +10,16 @@ import SquareButton from "../components/SquareButton";
 import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
-import { useMapStore } from "./../stores/store";
+import { useLocationTrackingStore, useMapStore } from "./../stores/store";
 import { saveMap } from "../utils/FileSystemManager";
 import SelectNameModal from "../components/SelectNameModal";
 
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
+import TrackLine from "../components/TrackLine";
+import { useFocusEffect } from "@react-navigation/native";
 
+//TODO make option to fill the path with google directions if the path was stopped and resumed
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
@@ -53,7 +56,6 @@ const MapEditScreen = ({ navigation, route }) => {
     currentCamera,
     setCurrentCamera,
     clearLocations,
-    outputLocations,
   ] = useMapStore((state) => [
     state.addMap,
     state.currentMap,
@@ -61,8 +63,6 @@ const MapEditScreen = ({ navigation, route }) => {
     state.getUUID,
     state.currentCamera,
     state.setCurrentCamera,
-    state.clearLocations,
-    state.outputLocations,
   ]);
   const mapRef = useRef<MapView>();
   const initialRegion = {
@@ -111,7 +111,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const saveMapEvent = (name: string) => {
     console.log(currentMap);
-    let p = isInRecordingState ? outputLocations : fullPath;
+    let p = isInRecordingState ? useLocationTrackingStore.getState().outputLocations : fullPath;
     let xd = {
       ...currentMap,
       name: name,
@@ -134,6 +134,7 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   const startBackgroundTracking = async () => {
+    setIsRecording(true);
     const perms = await getPermissions();
     if (!perms) return;
     const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
@@ -149,7 +150,6 @@ const MapEditScreen = ({ navigation, route }) => {
         notificationColor: "#fff",
       },
     });
-    setIsRecording(true);
   };
 
   const stopBackgroundTracking = async () => {
@@ -161,16 +161,10 @@ const MapEditScreen = ({ navigation, route }) => {
     });
   };
 
-  ////Use to display renders
-  // useEffect(() => {
-  //   console.log("render");
-  // });
+  //Use to display renders
   useEffect(() => {
-    return () => {
-      stopBackgroundTracking();
-    };
-  }, []);
-
+    console.log("render");
+  });
   useEffect(() => {
     if (route.params === undefined && currentMap.map_id === "") {
       console.log("elo");
@@ -192,7 +186,7 @@ const MapEditScreen = ({ navigation, route }) => {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove_mapEdit");
       unsub.current?.remove();
@@ -208,6 +202,18 @@ const MapEditScreen = ({ navigation, route }) => {
 
     return unsub;
   }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+        setIsRecording(res);
+      });
+      console.log("onFocus");
+      return () => {
+        console.log("onBlur");
+      };
+    }, [navigation])
+  );
 
   const hideModal = () => setSaveMapModalVisible(false);
   return (
@@ -269,16 +275,7 @@ const MapEditScreen = ({ navigation, route }) => {
               }}
             />
           )}
-          {isInRecordingState && (
-            <>
-              <Polyline
-                coordinates={outputLocations}
-                strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
-                strokeWidth={6}
-              />
-              {/* <Marker></Marker> */}
-            </>
-          )}
+          {isInRecordingState && true && <TrackLine />}
           <Markers
             waypoints={waypoints}
             isEdit={editorState === EditorState.EDIT}
@@ -321,19 +318,26 @@ const MapEditScreen = ({ navigation, route }) => {
         />
 
         {isInRecordingState && (
-          <SquareButton
-            style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
-            label={isRecording ? "stop" : "start"}
-            onPress={() => {
-              isRecording
-                ? (() => {
-                  stopBackgroundTracking();
-                  clearLocations();
-                })()
-                : startBackgroundTracking();
-            }}
-            icon={isRecording ? "stop" : "record-vinyl"}
-          />
+          <>
+            <SquareButton
+              style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
+              label={isRecording ? "stop" : "start"}
+              onPress={() => {
+                isRecording
+                  ? (() => {
+                    stopBackgroundTracking();
+                  })()
+                  : startBackgroundTracking();
+              }}
+              icon={isRecording ? "stop" : "record-vinyl"}
+            />
+            <SquareButton
+              style={tw`self-end m-3 mt-auto border-0`}
+              label={"delete"}
+              onPress={() => useLocationTrackingStore.getState().clearLocations()}
+              icon="trash"
+            />
+          </>
         )}
         <SquareButton
           style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}

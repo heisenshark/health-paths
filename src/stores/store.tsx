@@ -14,9 +14,15 @@ interface MapStore {
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (mediaId: string) => void;
+}
 
+interface MapArray {
+  [key: string]: HealthPath;
+}
+
+interface LocationTrackingStore {
   locations: { coords: LatLng[] };
-  addLocations: (location: LatLng[]) => void;
+  addLocations: (location: LatLng[], timestamp: number) => void;
   clearLocations: () => void;
   outputLocations: LatLng[];
   testobject: { test: string[] };
@@ -32,10 +38,7 @@ interface MapStore {
   };
   highestTimestamp: number;
   setHighestTimestamp: (timestamp: number) => void;
-}
-
-interface MapArray {
-  [key: string]: HealthPath;
+  getOutputLocations: () => LatLng[];
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
@@ -85,8 +88,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
     console.log("mediauri:::" + getURI(state.currentMap, mediaId));
     return getURI(state.currentMap, mediaId);
   },
+}));
+
+export const useLocationTrackingStore = create<LocationTrackingStore>((set, get) => ({
   locations: { coords: [] },
-  addLocations: (location: LatLng[]) => {
+  addLocations: (location: LatLng[], timestamp: number) => {
     //function is optimizing the path generation by removing points that are in a straight line
     //or are close to each other
     set((state) => {
@@ -152,6 +158,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
         currentRecording: {
           distance: state.currentRecording.distance + recDistance,
         },
+        highestTimestamp: timestamp,
       };
     });
   },
@@ -175,6 +182,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
   testobject: { test: ["test1", "test2"] },
   outputLocations: [],
+  getOutputLocations: () => {
+    const state = get();
+    return state.outputLocations;
+  },
   currentLine: {
     start: undefined,
     end: undefined,

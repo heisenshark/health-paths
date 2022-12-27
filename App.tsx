@@ -24,7 +24,7 @@ import MapExplorerScreen from "./src/screens/MapExplorerScreen";
 import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileSystemManager";
 
 import * as TaskManager from "expo-task-manager";
-import { useMapStore } from "./src/stores/store";
+import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
@@ -34,11 +34,10 @@ const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
-  const addLocations = useMapStore.getState().addLocations;
-  const locationss = useMapStore.getState().locations;
-  const rec = useMapStore.getState().currentRecording;
-  const stamp = useMapStore.getState().highestTimestamp;
-  const setStamp = useMapStore.getState().setHighestTimestamp;
+  const addLocations = useLocationTrackingStore.getState().addLocations;
+  const locationss = useLocationTrackingStore.getState().locations;
+  const rec = useLocationTrackingStore.getState().currentRecording;
+  const stamp = useLocationTrackingStore.getState().highestTimestamp;
 
   // let test = useMapStore.getState().testobject;
   // test.test.push("test");
@@ -68,10 +67,10 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
 
     addLocations(
       locations
-        // .filter((n) => n.timestamp > stamp)
-        .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude }))
+        .filter((n) => n.timestamp > stamp)
+        .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
+      Math.max(locations.map((n) => n.timestamp))
     );
-    setStamp(Math.max(locations.map((n) => n.timestamp)));
     // console.log("len: ", locationss.coords.length);
 
     // useMapStore.setState({
