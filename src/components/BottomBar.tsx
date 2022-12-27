@@ -25,7 +25,20 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         label={"Nagraj"}
         uberActive={currentRoute === "Nagraj"}
         onPress={() => {
-          navigationRef.navigate("Nagraj");
+          navigationRef.navigate("Nagraj", {
+            isRecording: true,
+          });
+        }}
+        size={28}>
+        <Icon name="map" size={75} color={"black"} />
+      </SquareButton>
+      <SquareButton
+        label={"Planuj"}
+        uberActive={currentRoute === "Nagraj"}
+        onPress={() => {
+          navigationRef.navigate("Nagraj", {
+            isRecording: false,
+          });
         }}
         size={28}>
         <Icon name="map" size={75} color={"black"} />

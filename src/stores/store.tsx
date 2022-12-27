@@ -67,7 +67,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
       return { maps: { ...state.maps } };
     });
   },
-  setCurrentMap: (map: HealthPath) => set(() => ({ currentMap: map })),
+  setCurrentMap: (map: HealthPath) =>
+    set(() => {
+      if (map.map_id === undefined || map.map_id === "") map.map_id = uuid.v4().toString();
+      return { currentMap: map };
+    }),
   getUUID: () => uuid.v4().toString(),
   currentCamera: {
     center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
@@ -83,48 +87,35 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
   locations: { coords: [] },
   addLocations: (location: LatLng[]) => {
+    //function is optimizing the path generation by removing points that are in a straight line
+    //or are close to each other
     set((state) => {
-      // console.log(state);
-
       const line = state.currentLine;
       let recDistance = 0;
-      console.log("one pieceee");
       if (location.length === 0) return;
       if (line.start === undefined) {
-        line.start = location[0];
-        line.end = location[0];
+        line.start = line.end = location[0];
+        line.distance = line.headingDelta = 0;
         line.headingLast = undefined;
-        line.distance = 0;
-        line.headingDelta = 0;
-
         console.log(line);
       }
-      let headingL = 0;
-      let hdt = undefined;
-
-      if (state.locations.coords.length > 0) {
-        // const elo = state.locations.coords[state.locations.coords.length - 1];
-      }
-
-      // if (!hdt || hdt.distance > 0.0001) state.locations.coords.push(location[0]);
 
       for (let i = 0; i < location.length; i++) {
-        hdt = headingDistanceTo(line.end, location[i]);
-        headingL = hdt.heading;
+        let hdt = headingDistanceTo(line.end, location[i]);
         if (hdt.distance <= 1) {
           continue;
         }
         if (line.headingLast === undefined) {
           //when the line does have only one point
-          line.headingLast = headingL;
+          line.headingLast = hdt.heading;
           line.headingDelta = 0;
           line.end = location[i];
           continue;
         }
-        line.headingDelta += headingL - line.headingLast;
+        line.headingDelta += hdt.heading - line.headingLast;
         if (
           Math.abs(line.headingDelta) > 5 ||
-          Math.abs(line.headingLast - headingL) > 2.5 ||
+          Math.abs(line.headingLast - hdt.heading) > 2.5 ||
           // line.distance > 100
           false
         ) {
@@ -134,10 +125,9 @@ export const useMapStore = create<MapStore>((set, get) => ({
           state.locations.coords.push(line.start);
           line.start = line.end;
           line.end = location[i];
-          line.headingDelta = 0;
-          line.distance = 0;
+          line.distance = line.headingDelta = 0;
         }
-        line.headingLast = headingL;
+        line.headingLast = hdt.heading;
 
         console.log("hdt    ", hdt, line.distance);
         line.distance += hdt.distance;

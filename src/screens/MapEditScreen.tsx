@@ -34,15 +34,16 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   let isPathEditable = false;
+  const isInRecordingState = route.params.isRecording as boolean;
   const API_KEY = "***REMOVED***";
   const [saveMapModalVisible, setSaveMapModalVisible] = useState(false);
   const [calloutOpen, setCalloutOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
-  const [isInRecordingState, setIsInRecordingState] = useState(true);
   const [isWatchingposition, setIsWatchingposition] = useState(false);
 
   const [isRecording, setIsRecording] = useState(false);
+  const [isRecordingDone, setIsRecordingDone] = useState(false);
 
   const [
     addMap,
@@ -74,24 +75,6 @@ const MapEditScreen = ({ navigation, route }) => {
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [fullPath, setFullPath] = useState([] as LatLng[]);
 
-  const [location, setLocation] = useState();
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const unsub = useRef(null);
-
-  /**
-   * no to ten, markery działają tak że jest edit mode i jak jest edit mode to ten, można je edytować i one istnieją, więc albo renderujemy je warunkowo albo umieszczamy warunkowe renderowanie w komponencie
-   */
-  async function snapPoints() {
-    //TODO dodać tutaj snapshota z mapy
-    const path: string = waypoints
-      .map((value) => `${value.latitude}%2${value.longitude}%7`)
-      .reduce((n, m) => n + m);
-    console.log(path);
-    console.log(waypoints);
-    // mapRef.current.takeSnapshot();
-    //fetch(`https://roads.googleapis.com/v1/snapToRoads?path=-35.27801%2C149.12958%7C&key=***REMOVED***`)
-  }
   //[x] uprościć funkcje zooma na początku mapy
   //TODO zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
@@ -128,58 +111,63 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const saveMapEvent = (name: string) => {
     console.log(currentMap);
+    let p = isInRecordingState ? outputLocations : fullPath;
     let xd = {
       ...currentMap,
       name: name,
       waypoints: [...waypoints],
       stops: [...stopPoints],
-      path: [...fullPath],
+      path: [...p],
     };
     setCurrentMap(xd);
     saveMap(xd);
   };
+  const getPermissions = async (): Promise<boolean> => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    console.log(status);
+    let ss = await Location.requestBackgroundPermissionsAsync();
+    console.log(ss.status);
+    if (status !== "granted" || ss.status !== "granted") {
+      return false;
+    }
+    return true;
+  };
 
-  useEffect(() => {
-    console.log("render");
-  });
-  useEffect(() => {
-    Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
-      if (!res) console.log("starting tracking");
-
-      Location.startLocationUpdatesAsync("location_tracking", {
-        // The following notification options will help keep tracking consistent
-        accuracy: Location.Accuracy.BestForNavigation,
-        timeInterval: 1000,
-        showsBackgroundLocationIndicator: true,
-        foregroundService: {
-          notificationTitle: "Location",
-          notificationBody: "Location tracking in background",
-          notificationColor: "#fff",
-        },
-      });
+  const startBackgroundTracking = async () => {
+    const perms = await getPermissions();
+    if (!perms) return;
+    const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
+    if (!startedTracking) console.log("starting tracking");
+    Location.startLocationUpdatesAsync("location_tracking", {
+      // The following notification options will help keep tracking consistent
+      accuracy: Location.Accuracy.BestForNavigation,
+      timeInterval: 1000,
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Ścieżki Zdrowia",
+        notificationBody: "Trasa ścieżki zdrowia nagrywa się w tle",
+        notificationColor: "#fff",
+      },
     });
+    setIsRecording(true);
+  };
 
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      console.log(status);
-      let ss = await Location.requestBackgroundPermissionsAsync();
-      console.log(ss.status);
+  const stopBackgroundTracking = async () => {
+    Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+      if (!res) return;
+      console.log("stopping tracking");
+      Location.stopLocationUpdatesAsync("location_tracking");
+      setIsRecording(false);
+    });
+  };
 
-      if (status !== "granted") {
-        setErrorMessage("Permission to access location was denied");
-        console.log("error");
-
-        return;
-      }
-      console.log("aaaaa");
-    })();
-
+  ////Use to display renders
+  // useEffect(() => {
+  //   console.log("render");
+  // });
+  useEffect(() => {
     return () => {
-      Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
-        if (!res) return;
-        console.log("stopping tracking");
-        Location.stopLocationUpdatesAsync("location_tracking");
-      });
+      stopBackgroundTracking();
     };
   }, []);
 
@@ -332,23 +320,24 @@ const MapEditScreen = ({ navigation, route }) => {
           icon="save"
         />
 
-        <SquareButton
-          style={tw`self-end m-3 mt-auto`}
-          label={"zatrzymaj nagrywanie"}
-          onPress={() => {
-            toggleEditorState(EditorState.VIEW);
-            Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
-              if (!res) return;
-              console.log("stopping tracking");
-              Location.stopLocationUpdatesAsync("location_tracking");
-            });
-            clearLocations();
-          }}
-          icon="plus"
-        />
+        {isInRecordingState && (
+          <SquareButton
+            style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
+            label={isRecording ? "stop" : "start"}
+            onPress={() => {
+              isRecording
+                ? (() => {
+                  stopBackgroundTracking();
+                  clearLocations();
+                })()
+                : startBackgroundTracking();
+            }}
+            icon={isRecording ? "stop" : "record-vinyl"}
+          />
+        )}
         <SquareButton
           style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
-          label={"centruj lokacje"}
+          label={"centruj"}
           onPress={() => {
             setIsWatchingposition((p) => !p);
           }}
@@ -356,14 +345,17 @@ const MapEditScreen = ({ navigation, route }) => {
         />
 
         <Text>{currentMap?.map_id}</Text>
-        <SquareButton
-          label="lista"
-          onPress={() => {
-            console.log("waypoint list open");
-            setListOpen(!listOpen);
-          }}>
-          <Icon name="list" size={40} color="black" className="flex-1" />
-        </SquareButton>
+
+        {!isInRecordingState && (
+          <SquareButton
+            label="lista"
+            onPress={() => {
+              console.log("waypoint list open");
+              setListOpen(!listOpen);
+            }}>
+            <Icon name="list" size={40} color="black" className="flex-1" />
+          </SquareButton>
+        )}
         <Text>{editorState}</Text>
         <Text>{calloutOpen ? "open" : "closed"}</Text>
       </View>
