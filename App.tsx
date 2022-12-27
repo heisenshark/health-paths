@@ -14,7 +14,7 @@ import MapEditScreen from "./src/screens/MapEditScreen";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
 import HomeScreen from "./src/screens/HomeScreen";
 // import { NativeWindStyleSheet, useColorScheme } from "nativewind";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
 import StopPointEditScreen from "./src/screens/StopPointEditScreen";
@@ -35,7 +35,11 @@ console.log(StatusBar.currentHeight);
 
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useMapStore.getState().addLocations;
-  let locationss = useMapStore.getState().locations;
+  const locationss = useMapStore.getState().locations;
+  const rec = useMapStore.getState().currentRecording;
+  const stamp = useMapStore.getState().highestTimestamp;
+  const setStamp = useMapStore.getState().setHighestTimestamp;
+
   // let test = useMapStore.getState().testobject;
   // test.test.push("test");
   // console.log("test", test);
@@ -58,11 +62,18 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
     // locations.forEach((n) => locationss.push(n.coords));
+    console.log(stamp);
 
-    addLocations(locations.map((n) => ({latitude : n.coords.latitude, longitude : n.coords.longitude})));
-    // console.log(locationss);
-    console.log("len: ",locationss.coords.length);
-    
+    console.log(locationss.coords.length, rec);
+
+    addLocations(
+      locations
+        // .filter((n) => n.timestamp > stamp)
+        .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude }))
+    );
+    setStamp(Math.max(locations.map((n) => n.timestamp)));
+    // console.log("len: ", locationss.coords.length);
+
     // useMapStore.setState({
     //   locations: [...locationss],
     // });
@@ -74,10 +85,11 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
     // console.log("test", useMapStore.getState().testobject);
 
     // console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${long}`);
-    console.log(
-      "Received new locations",
-      locations.map((l) => l.coords)
-    );
+    if (locations.length > 1)
+      console.log(
+        "Received new locations",
+        locations.map((l) => [l.coords.longitude, l.coords.latitude])
+      );
   }
 });
 
@@ -89,6 +101,11 @@ export default function App() {
   const navigationRef = useNavigationContainerRef();
   //context api variable
   const [currentScreen, setCurrentScreen] = useState("");
+
+  useEffect(() => {
+    TaskManager.unregisterAllTasksAsync();
+  }, []);
+
   return (
     //TODO finish settings screen
     //TODO finish mapselect screen

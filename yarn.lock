@@ -5178,6 +5178,13 @@ geojson-rbush@3.x:
     "@types/geojson" "7946.0.8"
     rbush "^3.0.1"
 
+geolocation-utils@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/geolocation-utils/-/geolocation-utils-1.2.5.tgz#3c99e94d9c131c1d0bf2de6c535dbda0bbc20037"
+  integrity sha512-ts7KTV7dSs0nrBh6q9M6Z7+tpponHMHKQ39ieloQizUjIOO8ZT7mAmQX+M313Y+2J0ifiS3Culjq3Eu1s0YYHw==
+  dependencies:
+    point-in-polygon "1.0.1"
+
 get-caller-file@^2.0.1, get-caller-file@^2.0.5:
   version "2.0.5"
   resolved "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz"
@@ -7390,6 +7397,11 @@ pod-install@^0.1.38:
   version "0.1.38"
   resolved "https://registry.npmjs.org/pod-install/-/pod-install-0.1.38.tgz"
   integrity sha512-NeDWGigjJRriOIKBOvpW2/tK2tYLfyUT7ia6C6L+oarCAhBNP+IGODWdU+GEAqvfsseqOApcFclpXAJTL0UPzA==
+
+point-in-polygon@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/point-in-polygon/-/point-in-polygon-1.0.1.tgz#d59b64e8fee41c49458aac82b56718c5957b2af7"
+  integrity sha512-7xblajMJtE9xOfDXkZrq98kjnoazmNPfNXqu9XCKk0uhtjImNdTRjkckIWKirtlyUocWU9XyzTyE2y5/E45v5A==
 
 posix-character-classes@^0.1.0:
   version "0.1.1"

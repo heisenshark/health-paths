@@ -3,6 +3,7 @@ import { HealthPath } from "../utils/interfaces";
 import uuid from "react-native-uuid";
 import { Camera, LatLng } from "react-native-maps";
 import { getURI } from "../utils/FileSystemManager";
+import { headingDistanceTo } from "geolocation-utils";
 
 interface MapStore {
   currentMap: HealthPath;
@@ -19,6 +20,18 @@ interface MapStore {
   clearLocations: () => void;
   outputLocations: LatLng[];
   testobject: { test: string[] };
+  currentLine: {
+    start: LatLng;
+    end: LatLng;
+    distance: number;
+    headingDelta: number;
+    headingLast: number;
+  };
+  currentRecording: {
+    distance: number;
+  };
+  highestTimestamp: number;
+  setHighestTimestamp: (timestamp: number) => void;
 }
 
 interface MapArray {
@@ -71,19 +84,121 @@ export const useMapStore = create<MapStore>((set, get) => ({
   locations: { coords: [] },
   addLocations: (location: LatLng[]) => {
     set((state) => {
-      // state.testobject.test.push("test3");
-      state.locations.coords.push(...location);
+      // console.log(state);
+
+      const line = state.currentLine;
+      let recDistance = 0;
+      console.log("one pieceee");
+      if (location.length === 0) return;
+      if (line.start === undefined) {
+        line.start = location[0];
+        line.end = location[0];
+        line.headingLast = undefined;
+        line.distance = 0;
+        line.headingDelta = 0;
+
+        console.log(line);
+      }
+      let headingL = 0;
+      let hdt = undefined;
+
+      if (state.locations.coords.length > 0) {
+        // const elo = state.locations.coords[state.locations.coords.length - 1];
+      }
+
+      // if (!hdt || hdt.distance > 0.0001) state.locations.coords.push(location[0]);
+
+      for (let i = 0; i < location.length; i++) {
+        hdt = headingDistanceTo(line.end, location[i]);
+        headingL = hdt.heading;
+        if (hdt.distance <= 1) {
+          continue;
+        }
+        if (line.headingLast === undefined) {
+          //when the line does have only one point
+          line.headingLast = headingL;
+          line.headingDelta = 0;
+          line.end = location[i];
+          continue;
+        }
+        line.headingDelta += headingL - line.headingLast;
+        if (
+          Math.abs(line.headingDelta) > 5 ||
+          Math.abs(line.headingLast - headingL) > 2.5 ||
+          // line.distance > 100
+          false
+        ) {
+          //end line and start new one
+          recDistance += line.distance;
+          console.log(line, "new line");
+          state.locations.coords.push(line.start);
+          line.start = line.end;
+          line.end = location[i];
+          line.headingDelta = 0;
+          line.distance = 0;
+        }
+        line.headingLast = headingL;
+
+        console.log("hdt    ", hdt, line.distance);
+        line.distance += hdt.distance;
+        recDistance += hdt.distance;
+        line.end = location[i];
+      }
+
+      // state.locations.coords.push(...location);
       // state.locations
       //   ? state.locations.push(location as LatLng)
       //   : (state.locations = [location as LatLng]);
-      return { locations: { coords: state.locations.coords}, outputLocations: [...state.locations.coords]};
+      return {
+        locations: { coords: state.locations.coords },
+        outputLocations: [...state.locations.coords, line.start, line.end],
+        currentLine: {
+          start: line.start,
+          end: line.end,
+          distance: line.distance,
+          headingDelta: line.headingDelta,
+          headingLast: line.headingLast,
+        },
+        currentRecording: {
+          distance: state.currentRecording.distance + recDistance,
+        },
+      };
     });
   },
   clearLocations: () => {
     set(() => {
-      return { locations: { coords: [] }};
+      return {
+        locations: { coords: [] },
+        outputLocations: [],
+        currentLine: {
+          start: undefined,
+          end: undefined,
+          distance: 0,
+          headingDelta: undefined,
+          headingLast: undefined,
+        },
+        currentRecording: {
+          distance: 0,
+        },
+      };
     });
   },
   testobject: { test: ["test1", "test2"] },
   outputLocations: [],
+  currentLine: {
+    start: undefined,
+    end: undefined,
+    distance: 0,
+    headingDelta: undefined,
+    headingLast: undefined,
+  },
+  currentRecording: {
+    distance: 0,
+  },
+  highestTimestamp: 0,
+  setHighestTimestamp: (timestamp: number) => {
+    set((state) => {
+      return { highestTimestamp: timestamp };
+    });
+  },
 }));

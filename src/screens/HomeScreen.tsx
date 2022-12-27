@@ -9,8 +9,6 @@ import { useMapStore } from "./../stores/store";
 const HomeScreen = ({ navigation }) =>
 //TODO przycisk podłóżny
 {
-  const elko = useMapStore((state) => state.riable);
-  const incrase = useMapStore((state) => state.incrementRiable);
   useEffect(() => {
     // navigation.navigate("NagrywanieAudio");
   }, []);
@@ -39,10 +37,6 @@ const HomeScreen = ({ navigation }) =>
       <Button title="Go to MapView" onPress={() => navigation.navigate("PodgladMap")} />
       <Button title="Go to MapExplore" onPress={() => navigation.navigate("PrzegladanieMap")} />
       <Button title="lol" onPress={() => setLol(lol + 1)} />
-
-      <Button title="lol" onPress={incrase} />
-
-      <Text>{elko}</Text>
 
       <Text style={tw`bg-slate-${lol * 100}`}></Text>
       <PaletteTest paletteName={"main"} />

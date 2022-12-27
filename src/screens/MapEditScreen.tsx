@@ -23,7 +23,6 @@ const MapEditScreen = ({ navigation, route }) => {
   //TODO Rozdzielić na kilka pure komponentów
   //TODO Dodać możliwość tworzenia waypointów
 
-  const locations = useMapStore.getState().outputLocations;
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync("location_tracking", {
       accuracy: Location.Accuracy.Highest,
@@ -53,6 +52,7 @@ const MapEditScreen = ({ navigation, route }) => {
     currentCamera,
     setCurrentCamera,
     clearLocations,
+    outputLocations,
   ] = useMapStore((state) => [
     state.addMap,
     state.currentMap,
@@ -61,6 +61,7 @@ const MapEditScreen = ({ navigation, route }) => {
     state.currentCamera,
     state.setCurrentCamera,
     state.clearLocations,
+    state.outputLocations,
   ]);
   const mapRef = useRef<MapView>();
   const initialRegion = {
@@ -139,16 +140,23 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    Location.startLocationUpdatesAsync("location_tracking", {
-      // The following notification options will help keep tracking consistent
-      accuracy: Location.Accuracy.BestForNavigation,
-      timeInterval: 1000,
-      showsBackgroundLocationIndicator: true,
-      foregroundService: {
-        notificationTitle: "Location",
-        notificationBody: "Location tracking in background",
-        notificationColor: "#fff",
-      },
+    console.log("render");
+  });
+  useEffect(() => {
+    Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+      if (!res) console.log("starting tracking");
+
+      Location.startLocationUpdatesAsync("location_tracking", {
+        // The following notification options will help keep tracking consistent
+        accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 1000,
+        showsBackgroundLocationIndicator: true,
+        foregroundService: {
+          notificationTitle: "Location",
+          notificationBody: "Location tracking in background",
+          notificationColor: "#fff",
+        },
+      });
     });
 
     (async () => {
@@ -167,7 +175,11 @@ const MapEditScreen = ({ navigation, route }) => {
     })();
 
     return () => {
-      Location.stopLocationUpdatesAsync("location_tracking");
+      Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+        if (!res) return;
+        console.log("stopping tracking");
+        Location.stopLocationUpdatesAsync("location_tracking");
+      });
     };
   }, []);
 
@@ -234,20 +246,20 @@ const MapEditScreen = ({ navigation, route }) => {
             setCalloutOpen(false);
           }}
           customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}
-          onRegionChange={(e, { isGesture }) => {
+          onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
           }}
           onUserLocationChange={(coordinate) => {
             // console.log("user location change", coordinate);
             if (isWatchingposition) {
               console.log("watching position");
-              // const cam = await mapRef.current.getCamera()
-              // mapRef.current.animateCamera({
-              //   center: {
-              //     latitude: coordinate.nativeEvent.coordinate.latitude,
-              //     longitude: coordinate.nativeEvent.coordinate.longitude,
-              //   },
-              // });
+              mapRef.current.animateCamera({
+                center: {
+                  latitude: coordinate.nativeEvent.coordinate.latitude,
+                  longitude: coordinate.nativeEvent.coordinate.longitude,
+                },
+                zoom: 15,
+              });
             }
           }}
           showsUserLocation={true}>
@@ -272,7 +284,7 @@ const MapEditScreen = ({ navigation, route }) => {
           {isInRecordingState && (
             <>
               <Polyline
-                coordinates={locations}
+                coordinates={outputLocations}
                 strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
                 strokeWidth={6}
               />
@@ -325,7 +337,11 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"zatrzymaj nagrywanie"}
           onPress={() => {
             toggleEditorState(EditorState.VIEW);
-            Location.stopLocationUpdatesAsync("location_tracking");
+            Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+              if (!res) return;
+              console.log("stopping tracking");
+              Location.stopLocationUpdatesAsync("location_tracking");
+            });
             clearLocations();
           }}
           icon="plus"

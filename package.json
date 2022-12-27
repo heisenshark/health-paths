@@ -31,6 +31,7 @@
     "expo-status-bar": "~1.4.2",
     "expo-task-manager": "~11.0.1",
     "firebase": "^9.15.0",
+    "geolocation-utils": "^1.2.5",
     "lodash": "^4.17.21",
     "nativewind": "^2.0.11",
     "pod-install": "^0.1.38",
