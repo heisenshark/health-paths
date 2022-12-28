@@ -18,8 +18,10 @@ import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import TrackLine from "../components/TrackLine";
 import { useFocusEffect } from "@react-navigation/native";
+import MapInfoModal from "./../components/MapInfoModal";
 
 //TODO make option to fill the path with google directions if the path was stopped and resumed
+//TODO make waypoint edit screen basically a modal with a form
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
@@ -42,6 +44,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [saveMapModalVisible, setSaveMapModalVisible] = useState(false);
   const [calloutOpen, setCalloutOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [mapInfoModalVisible, setMapInfoModalVisible] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [isWatchingposition, setIsWatchingposition] = useState(false);
 
@@ -109,12 +112,13 @@ const MapEditScreen = ({ navigation, route }) => {
     }
   }
 
-  const saveMapEvent = (name: string) => {
+  const saveMapEvent = (name: string, description: string) => {
     console.log(currentMap);
     let p = isInRecordingState ? useLocationTrackingStore.getState().outputLocations : fullPath;
     let xd = {
       ...currentMap,
       name: name,
+      description: description,
       waypoints: [...waypoints],
       stops: [...stopPoints],
       path: [...p],
@@ -218,15 +222,24 @@ const MapEditScreen = ({ navigation, route }) => {
   const hideModal = () => setSaveMapModalVisible(false);
   return (
     <View className="relative border-4">
-      <SelectNameModal
+      {/* <SelectNameModal
         visible={saveMapModalVisible}
         onRequestClose={hideModal}
         actionLeft={hideModal}
         actionRight={(name: string) => {
           saveMapEvent(name);
           setSaveMapModalVisible(false);
-        }}></SelectNameModal>
-
+        }}></SelectNameModal> */}
+      <MapInfoModal
+        visible={mapInfoModalVisible}
+        onRequestClose={() => {
+          setMapInfoModalVisible(false);
+        }}
+        onSave={(name: string, description: string) => {
+          saveMapEvent(name, description);
+          setSaveMapModalVisible(false);
+        }}
+      />
       <View className="w-full h-full bg-red-600">
         <MapView
           ref={mapRef}
@@ -311,8 +324,7 @@ const MapEditScreen = ({ navigation, route }) => {
           style={tw`self-end m-3 mt-auto`}
           label={"save"}
           onPress={() => {
-            if (currentMap.name === "") setSaveMapModalVisible(true);
-            else saveMapEvent(currentMap.name);
+            setMapInfoModalVisible(true);
           }}
           icon="save"
         />

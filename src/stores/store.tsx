@@ -10,6 +10,7 @@ interface MapStore {
   maps: MapArray;
   addMap: (map: HealthPath) => void;
   setCurrentMap: (map: HealthPath) => void;
+  clearMap: () => void;
   getUUID: () => string;
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
@@ -88,6 +89,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
     console.log("mediauri:::" + getURI(state.currentMap, mediaId));
     return getURI(state.currentMap, mediaId);
   },
+  clearMap: () =>
+    set(() => ({
+      currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
+    })),
 }));
 
 export const useLocationTrackingStore = create<LocationTrackingStore>((set, get) => ({

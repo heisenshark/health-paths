@@ -1,5 +1,5 @@
 //[x] learn zutshand and try to think about it
-//TODO learn firebase and firestore
+//TODO learn supabase and firestore
 //[x] finish presentation about the project
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta

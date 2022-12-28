@@ -10,9 +10,12 @@ export interface BottomBarProps {
 }
 
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
+  // console.log();
+  
+  if (navigationRef?.getCurrentRoute()?.name === "LogIn") return <></>;
   return (
     <View
-      style={tw`h-[32] bg-secondary-5 flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
+      style={tw`h-[32] bg-white flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
       <SquareButton
         label={"Trasy"}
         uberActive={currentRoute === "Trasy"}
@@ -29,9 +32,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
             isRecording: true,
           });
         }}
-        size={28}>
-        <Icon name="map" size={75} color={"black"} />
-      </SquareButton>
+        icon={"record-vinyl"}></SquareButton>
       <SquareButton
         label={"Planuj"}
         uberActive={currentRoute === "Nagraj"}
@@ -40,9 +41,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
             isRecording: false,
           });
         }}
-        size={28}>
-        <Icon name="map" size={75} color={"black"} />
-      </SquareButton>
+        icon={"map"}></SquareButton>
       <SquareButton
         label={"Opcje"}
         uberActive={currentRoute === "Opcje"}

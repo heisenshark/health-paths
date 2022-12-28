@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "***REMOVED***",
+    "project_id": "***REMOVED***",
+    "storage_bucket": "***REMOVED***.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:***REMOVED***:android:f2f30663b5b5d1c4150467",
+        "android_client_info": {
+          "package_name": "com.heisenshark.healthpaths"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "***REMOVED***-6rcevkinc56ncpgrcn4i3vupu9743d14.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.heisenshark.healthpaths",
+            "certificate_hash": "6c8ce9f062161d364fb49b8d9794407f90725c64"
+          }
+        },
+        {
+          "client_id": "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7DS_HvkiZuJRynsRkjBLFk7gTbMqzXt0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

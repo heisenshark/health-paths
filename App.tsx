@@ -26,6 +26,7 @@ import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileS
 import * as TaskManager from "expo-task-manager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
+import LogInScreen from "./src/screens/LogInScreen";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
@@ -33,6 +34,55 @@ import { LatLng } from "react-native-maps";
 const Nor = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 
+export default function App() {
+  // listAllMaps();
+  // ensureMapDirExists();
+  // createNewMap("testowa_mapa");
+  const isTunnel = true;
+  const navigationRef = useNavigationContainerRef();
+  //context api variable
+  const [currentScreen, setCurrentScreen] = useState("");
+
+  useEffect(() => {
+    TaskManager.unregisterAllTasksAsync();
+  }, []);
+
+  return (
+    //TODO finish settings screen
+    //TODO finish mapselect screen
+    //TODO finish info screen
+    //TODO finish mymaps screen
+    //TODO add tracking position and making tracks by gps
+    //TODO dodać możliwość eksportu mapy
+    //TODO dodać możliwość udostępnienia mapy przez watsapp
+    <>
+      {isTunnel && <StatusBar style="auto" />}
+      <NavigationContainer
+        ref={navigationRef}
+        onStateChange={(key) => {
+          setCurrentScreen(key.routes[key.index].name);
+        }}>
+        <Nor.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Nor.Screen name="LogIn" component={LogInScreen} />
+          <Nor.Screen name="Trasy" component={HomeScreen} />
+          <Nor.Screen name="Nagraj" component={MapEditScreen} />
+          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
+          <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
+          <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+          <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+          <Nor.Screen name="PodgladMap" component={MapViewScreen} />
+        </Nor.Navigator>
+      </NavigationContainer>
+
+      {navigationRef.isReady() && (
+        <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+      )}
+    </>
+  );
+}
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useLocationTrackingStore.getState().addLocations;
   const locationss = useLocationTrackingStore.getState().locations;
@@ -91,49 +141,3 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
       );
   }
 });
-
-export default function App() {
-  // listAllMaps();
-  // ensureMapDirExists();
-  // createNewMap("testowa_mapa");
-  const isTunnel = true;
-  const navigationRef = useNavigationContainerRef();
-  //context api variable
-  const [currentScreen, setCurrentScreen] = useState("");
-
-  useEffect(() => {
-    TaskManager.unregisterAllTasksAsync();
-  }, []);
-
-  return (
-    //TODO finish settings screen
-    //TODO finish mapselect screen
-    //TODO finish info screen
-    //TODO finish mymaps screen
-    //TODO add tracking position and making tracks by gps
-    //TODO dodać możliwość eksportu mapy
-    //TODO dodać możliwość udostępnienia mapy przez watsapp
-    <>
-      {isTunnel && <StatusBar style="auto" />}
-      <NavigationContainer
-        ref={navigationRef}
-        onStateChange={(key) => {
-          setCurrentScreen(key.routes[key.index].name);
-        }}>
-        <Nor.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Nor.Screen name="Trasy" component={HomeScreen} />
-          <Nor.Screen name="Nagraj" component={MapEditScreen} />
-          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
-          <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
-          <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
-          <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
-          <Nor.Screen name="PodgladMap" component={MapViewScreen} />
-        </Nor.Navigator>
-      </NavigationContainer>
-      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-    </>
-  );
-}

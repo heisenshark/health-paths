@@ -130,7 +130,7 @@ async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<Medi
   return medias;
 }
 async function saveMap(map: HealthPath) {
-  const foldername = `${map.name}_${map.map_id}`;
+  const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;
   const dirInfo = await fs.getInfoAsync(mapNameDir);
   console.log(dirInfo);
@@ -211,7 +211,7 @@ async function saveMap(map: HealthPath) {
 }
 
 async function loadMap(name: string, id: string): Promise<HealthPath> {
-  const mapNameDir = `${mapDir}${name}_${id}/`;
+  const mapNameDir = `${mapDir}_${id}/`;
   const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
   console.log(mapInfo);
   const map = JSON.parse(mapInfo) as HealthPath;
