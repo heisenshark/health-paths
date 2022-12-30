@@ -20,6 +20,8 @@ Map "testmap"
 */
 export { ensureMapDirExists, saveMap, listAllMaps, loadMap };
 
+//TODO upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
+
 const getNameFromUri = (uri: string) => {
   return uri.substring(uri.lastIndexOf("/") + 1, uri.length);
 };

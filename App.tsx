@@ -27,18 +27,19 @@ import * as TaskManager from "expo-task-manager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
 import LogInScreen from "./src/screens/LogInScreen";
+import OptionsScreen from "./src/screens/OptionsScreen";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
-const Nor = createNativeStackNavigator();
+const Navigator = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 
 export default function App() {
   // listAllMaps();
   // ensureMapDirExists();
   // createNewMap("testowa_mapa");
-  const isTunnel = true;
+  const isTunnel = false;
   const navigationRef = useNavigationContainerRef();
   //context api variable
   const [currentScreen, setCurrentScreen] = useState("");
@@ -62,24 +63,23 @@ export default function App() {
         onStateChange={(key) => {
           setCurrentScreen(key.routes[key.index].name);
         }}>
-        <Nor.Navigator
+        <Navigator.Navigator
           screenOptions={{
             headerShown: false,
           }}>
-          <Nor.Screen name="LogIn" component={LogInScreen} />
-          <Nor.Screen name="Trasy" component={HomeScreen} />
-          <Nor.Screen name="Nagraj" component={MapEditScreen} />
+          <Navigator.Screen name="Trasy" component={HomeScreen} />
+          <Navigator.Screen name="Nagraj" component={MapEditScreen} />
           {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
-          <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
-          <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
-          <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
-          <Nor.Screen name="PodgladMap" component={MapViewScreen} />
-        </Nor.Navigator>
+          <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
+          <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+          <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+          <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
+          <Navigator.Screen name="LogIn" component={LogInScreen} />
+          <Navigator.Screen name="Opcje" component={OptionsScreen} />
+        </Navigator.Navigator>
       </NavigationContainer>
 
-      {navigationRef.isReady() && (
-        <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-      )}
+      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
     </>
   );
 }

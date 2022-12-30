@@ -4,6 +4,8 @@ import uuid from "react-native-uuid";
 import { Camera, LatLng } from "react-native-maps";
 import { getURI } from "../utils/FileSystemManager";
 import { headingDistanceTo } from "geolocation-utils";
+import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
+import auth from "@react-native-firebase/auth";
 
 interface MapStore {
   currentMap: HealthPath;
@@ -42,6 +44,12 @@ interface LocationTrackingStore {
   getOutputLocations: () => LatLng[];
 }
 
+interface UserStore {
+  user: User | undefined;
+  logIn: () => Promise<void>;
+  logOut: () => Promise<void>;
+  checkLogged: () => Promise<boolean>;
+}
 export const useMapStore = create<MapStore>((set, get) => ({
   currentMap: {
     name: "",
@@ -206,5 +214,37 @@ export const useLocationTrackingStore = create<LocationTrackingStore>((set, get)
     set((state) => {
       return { highestTimestamp: timestamp };
     });
+  },
+}));
+
+export const useUserStore = create<UserStore>((set, get) => ({
+  user: undefined,
+  logIn: async () => {
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      // Get the users ID token
+      const { idToken } = await GoogleSignin.signIn();
+      console.log(idToken);
+      // Create a Google credential with the token
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Sign-in the user with the credential
+      await auth().signInWithCredential(googleCredential);
+      const usr = await GoogleSignin.getCurrentUser();
+      set(() => ({ user: usr }));
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  },
+  logOut: () =>
+    set(() => {
+      GoogleSignin.signOut();
+      return { user: undefined };
+    }),
+  checkLogged: async () => {
+    const usr = await GoogleSignin.isSignedIn();
+    if (!usr) set(() => ({ user: undefined }));
+    return usr;
   },
 }));

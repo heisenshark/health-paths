@@ -22,12 +22,13 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.anonymous.healthpathes"
+      "package": "com.heisenshark.healthpaths"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -39,7 +40,9 @@
           "RNMapboxMapsImpl": "maplibre",
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ"
         }
-      ]
+      ],
+      "expo-build-properties",
+      "@react-native-google-signin/google-signin"
     ]
   }
 }

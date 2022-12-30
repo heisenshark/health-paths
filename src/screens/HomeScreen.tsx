@@ -38,6 +38,7 @@ const HomeScreen = ({ navigation }) =>
       />
       <Button title="Go to MapView" onPress={() => navigation.navigate("PodgladMap")} />
       <Button title="Go to MapExplore" onPress={() => navigation.navigate("PrzegladanieMap")} />
+      <Button title="Go to LogIn" onPress={() => navigation.navigate("LogIn")} />
       <Button
         title="clearCurrentMap"
         onPress={() => {

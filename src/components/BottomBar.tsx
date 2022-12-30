@@ -11,8 +11,8 @@ export interface BottomBarProps {
 
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   // console.log();
-  
-  if (navigationRef?.getCurrentRoute()?.name === "LogIn") return <></>;
+  if (navigationRef.isReady()&&navigationRef?.getCurrentRoute()?.name === "LogIn")
+    return <></>;
   return (
     <View
       style={tw`h-[32] bg-white flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
