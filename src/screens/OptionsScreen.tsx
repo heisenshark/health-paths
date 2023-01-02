@@ -6,7 +6,7 @@ import { Button } from "react-native-elements";
 import tw from "../lib/tailwind";
 import { useUserStore } from "../stores/store";
 import firestore from "@react-native-firebase/firestore";
-import { db, deleteQueryBatch, Pathes } from "./../config/firebase";
+import { db, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
@@ -17,14 +17,22 @@ const OptionsScreen = ({ navigation, route }) => {
     state.checkLogged,
   ]);
   const [pathes, setPathes] = useState([]);
-  const fetchPatches = async () => {
-    Pathes.add({
+  const addPath = async () => {
+    const data = {
+      ownerId: user.user.id,
+      description: "opis",
       name: "mapka",
       age: 12,
+      rating: 0,
+      ratingCount: 0,
+      distance: 2137,
+      visibility: "public",
       createdAt: firestore.FieldValue.serverTimestamp(),
-    });
+    };
+    console.log(data);
+    Pathes.add(data);
   };
-  const logUsers = async () => {
+  const logPaths = async () => {
     const users = await Pathes.get();
     users.forEach((n) => console.log(n));
     return users;
@@ -37,8 +45,7 @@ const OptionsScreen = ({ navigation, route }) => {
         const { name, age } = doc.data();
         list.push({
           id: doc.id,
-          name,
-          age,
+          ...doc.data(),
         });
       });
       setPathes(list);
@@ -64,13 +71,13 @@ const OptionsScreen = ({ navigation, route }) => {
       <Button
         title="test firestore"
         onPress={() => {
-          fetchPatches();
+          logPaths();
         }}
       />
       <Button
-        title="test firestore"
+        title="add path"
         onPress={() => {
-          logUsers();
+          addPath();
         }}
       />
       {pathes.map((n) => (
@@ -82,11 +89,23 @@ const OptionsScreen = ({ navigation, route }) => {
             <Button
               title={"dodaj Rating"}
               onPress={() => {
-                db.collection("Ratings").add({
+                console.log("adding Rating", n);
+                const ratingNumber = 5;
+                const data = {
                   pathRef: n.id,
+                  pathOwnerId: n.ownerId,
                   rating: 5,
                   comment: "super",
                   createdAt: firestore.FieldValue.serverTimestamp(),
+                  userId: user.user.id,
+                  userName: user.user.name,
+                } as RatingDocument;
+                console.log(data);
+
+                db.collection("Ratings").add(data);
+                Pathes.doc(n.id).update({
+                  rating: firestore.FieldValue.increment(ratingNumber),
+                  ratingsCount: firestore.FieldValue.increment(1),
                 });
               }}></Button>
             <Button
@@ -105,7 +124,7 @@ const OptionsScreen = ({ navigation, route }) => {
             <Button
               title={"remove path"}
               onPress={() => {
-                console.log("printing Ratings");
+                console.log("deleting Path");
                 const id = n.id;
                 const query = db.collection("Ratings").where("pathRef", "==", n.id);
                 deleteQueryBatch(query, () => {});
@@ -117,7 +136,7 @@ const OptionsScreen = ({ navigation, route }) => {
       <Button
         title="test firestore"
         onPress={() => {
-          logUsers();
+          logPaths();
         }}
       />
     </ScrollView>

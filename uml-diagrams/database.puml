@@ -1,0 +1,58 @@
+@startuml
+
+title "Zarządzanie kontem"
+' skinparam nodesep 100
+' skinparam linetype polyline
+left to right direction
+package Użytkownicy {
+ actor "Niezalogowany Użytkownik" as uu
+ actor "Użytkownik" as u
+ actor "Administrator" as admin
+ admin -|> u
+ u -|> uu
+}
+
+Użytkownicy --[hidden]r--> Aplikacja
+
+' actor "Firebase" as fb
+' Aplikacja --[hidden]l--> fb
+package Aplikacja {
+ together {
+  together {
+   usecase "Logowanie przez konto google" as u1
+   usecase "Rejestracja przez konto google" as u2
+  }
+  usecase "Ocenianie/komentowanie ścieżek" as u3
+  usecase "Tworzenie ścieżek" as u4
+  usecase "Przeglądanie ścieżek" as u5
+  usecase "Zarządzanie lokalnymi ścieżkami" as u8
+ }
+ usecase "Komentowanie/ocenianie ścieżek" as u7
+ usecase "Zarządzanie ścieżkami konta" as u6
+ usecase "Usuwanie/Moderowanie ścieżek" as u10
+ together {
+  usecase "edycja trasy" as u12
+  usecase "poprzez stawianie znaczników" as u13
+  usecase "poprzez nagrywanie lokalizacji" as u14
+ }
+
+ usecase "filtrowanie i sortowanie ścieżek" as u9
+ usecase "edycja punktów stopu" as u15
+ usecase "edycja opisu" as u16
+ usecase "ustawianie prywatności ścieżki" as u17
+ usecase "usuwanie" as u18
+}
+' layout
+' u <|-- admin
+' uu <|-- u
+
+' u --u-|>uu
+' admin--u-|>u
+
+uu --> u1
+
+u --> ścieżki: create read update delete
+u --> komantarze: create read update delete
+
+
+@enduml

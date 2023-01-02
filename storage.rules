@@ -1,8 +1,17 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    // match /{allPaths=**} {
+    //   allow read, write: if
+    //       request.time < timestamp.date(2023, 1, 29);
+    // }
+
+    match /Maps/{userId}/{mapId} {
+      allow read, write: if
+          // debug(resource.metadata.visibility) == "public"||
+          debug(request.auth.uid) == debug(userId);
     }
+
+    
   }
 }

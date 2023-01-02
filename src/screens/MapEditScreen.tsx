@@ -281,10 +281,14 @@ const MapEditScreen = ({ navigation, route }) => {
               strokeColor="red"
               onReady={(n) => {
                 console.log(n);
-
+                console.log(n.legs[0].start_address);
+                const adress = n.legs[0].start_address;
+                console.log(adress.split(", "));
                 console.log("path drawn ");
                 snapEnds(n.coordinates);
                 setFullPath(n.coordinates);
+                currentMap.distance = n.distance;
+                currentMap.location = adress;
               }}
             />
           )}

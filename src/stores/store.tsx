@@ -224,10 +224,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       // Get the users ID token
       const { idToken } = await GoogleSignin.signIn();
-      console.log(idToken);
       // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
+      await GoogleSignin.clearCachedAccessToken(idToken);
+      await GoogleSignin.getTokens();
       // Sign-in the user with the credential
       await auth().signInWithCredential(googleCredential);
       const usr = await GoogleSignin.getCurrentUser();
@@ -240,6 +240,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   logOut: () =>
     set(() => {
       GoogleSignin.signOut();
+      GoogleSignin.clearCachedAccessToken();
       return { user: undefined };
     }),
   checkLogged: async () => {

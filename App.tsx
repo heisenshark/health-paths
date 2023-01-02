@@ -28,6 +28,7 @@ import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
 import LogInScreen from "./src/screens/LogInScreen";
 import OptionsScreen from "./src/screens/OptionsScreen";
+import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
@@ -73,6 +74,7 @@ export default function App() {
           <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
           <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
           <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+          <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
           <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
           <Navigator.Screen name="LogIn" component={LogInScreen} />
           <Navigator.Screen name="Opcje" component={OptionsScreen} />
@@ -88,10 +90,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const locationss = useLocationTrackingStore.getState().locations;
   const rec = useLocationTrackingStore.getState().currentRecording;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
-
-  // let test = useMapStore.getState().testobject;
-  // test.test.push("test");
-  // console.log("test", test);
 
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
@@ -110,30 +108,14 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * do ostatniego począku linii
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
-    // locations.forEach((n) => locationss.push(n.coords));
     console.log(stamp);
-
     console.log(locationss.coords.length, rec);
-
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)
         .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
       Math.max(locations.map((n) => n.timestamp))
     );
-    // console.log("len: ", locationss.coords.length);
-
-    // useMapStore.setState({
-    //   locations: [...locationss],
-    // });
-
-    // { latitude: lat, longitude: long }] });
-    // addLocation({ latitude: lat, longitude: long });
-
-    // console.log(useMapStore.getState().locations);
-    // console.log("test", useMapStore.getState().testobject);
-
-    // console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${long}`);
     if (locations.length > 1)
       console.log(
         "Received new locations",

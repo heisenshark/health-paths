@@ -1,7 +1,10 @@
 // Import the functions you need from the SDKs you need
 import "@react-native-firebase/app";
-import firestore from "@react-native-firebase/firestore";
+import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { firebase, storage } from "@react-native-firebase/storage";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
 import {
   FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -10,7 +13,6 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
 } from "@env";
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -24,24 +26,49 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
 };
 
+export interface MapDocument {
+  id?: string;
+  ownerId: string;
+  description: string;
+  name: string;
+  rating: number;
+  ratingCount: number;
+  distance: number;
+  location: string;
+  visibility: "public" | "private";
+  storeRef: string;
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+  lastEditedAt?: FirebaseFirestoreTypes.Timestamp;
+}
+export interface RatingDocument {
+  id?: string;
+  pathRef: string;
+  pathOwnerId: string;
+  rating: number;
+  comment: string;
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+  userId: string;
+  userName: string;
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
 if (__DEV__) {
   firestore().useEmulator("localhost", 8081);
+  firebase.storage().useEmulator("10.0.2.2", 9199);
   console.log("elo firebase devmode");
 }
 
 export const db = firestore();
-db.collection("chuj")
-  .get()
-  .then((users) => {
-    users.forEach((n) => console.log(n));
-  });
-
 export const Pathes = db.collection("Pathes");
+export const Users = db.collection("Users");
+export const DbUser = () => firebase.auth().currentUser?.uid;
+
+db.settings({ persistence: false });
 
 async function deleteCollection(collectionPath, batchSize) {
   const collectionRef = db.collection(collectionPath);
@@ -75,3 +102,49 @@ export async function deleteQueryBatch(query, resolve) {
     deleteQueryBatch(query, resolve);
   });
 }
+
+export const addMap = async (map: MapDocument) => {
+  // if(map.)
+  const doc = await Pathes.add(map);
+  console.log(doc);
+
+  const userId = firebase.auth().currentUser?.uid;
+  const user = await Users.doc(userId).get();
+  console.log(user.data());
+  if (user.data()?.maps.length >= 20) throw new Error("You have reached the limit of 20 maps");
+  await Users.doc(userId).set(
+    {
+      maps: firestore.FieldValue.arrayUnion(doc.id),
+    },
+    { merge: true }
+  );
+  console.log("chuj");
+  return doc;
+};
+
+export const addRating = async (rating: RatingDocument) => {
+  const doc = await db.collection("Ratings").add(rating);
+  console.log(doc);
+};
+
+export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
+  try {
+    await Pathes.doc(mapId).set(
+      {
+        visibility: isPrivate ? "private" : "public",
+      },
+      { merge: true }
+    );
+    const doc = await Pathes.doc(mapId).get();
+    console.log(doc.data(), isPrivate, doc.data().storeRef);
+
+    isPrivate = false;
+    await stor
+      .ref(doc.data().storeRef)
+      .updateMetadata({
+        customMetadata: { kutas: "obecny", visibility: isPrivate ? "private" : "public" },
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -5,32 +5,46 @@ import { Card, Searchbar } from "react-native-paper";
 import SquareButton from "../components/SquareButton";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
-import { listAllMaps, loadMap } from "../utils/FileSystemManager";
+import {
+  cloudCheck,
+  deleteMap,
+  listAllMaps,
+  loadMap,
+  zipUploadMapFolder,
+} from "../utils/FileSystemManager";
+import { getCityAdress } from "../utils/HelperFunctions";
+import { HealthPath } from "../utils/interfaces"
 
 interface MapExplorerScreenProps {}
+
+//TODO uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
 
 const MapExplorerScreen = ({ navigation, route }) => {
   const [currentMap, setCurrentMap] = useMapStore((state) => [
     state.currentMap,
     state.setCurrentMap,
   ]);
-  const [maps, setMaps] = useState([]);
+  const [maps, setMaps] = useState<HealthPath[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
+  const refreshMaps = async () => {
+    const m = await listAllMaps();
+    setMaps(m);
+  };
   useEffect(() => {
     console.log("elo");
-    listAllMaps();
-    listAllMaps().then((m) => {
-      setMaps(m);
-    });
+    refreshMaps();
   }, []);
 
   return (
     <View style={tw`h-full`}>
       <View style={tw`bg-main-1 flex justify-center shadow-md`}>
-        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>LOKALNE ŚCIEŻKI</Text>
+        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>
+          <Text>LOKALNE </Text>
+          <Text> WEB</Text>
+        </Text>
       </View>
       <Searchbar
         placeholder="Wyszukaj ścieżkę"
@@ -58,7 +72,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                     <Text style={tw`font-bold pr-2`} numberOfLines={1}>
                       {map.map_id}
                     </Text>
-                    <Text style={tw`text-xl`}>{map.location}</Text>
+                    <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
                   </View>
                   <SquareButton
                     label="Pokaż"
@@ -80,6 +94,31 @@ const MapExplorerScreen = ({ navigation, route }) => {
                       });
                       // console.log(map);
                       // console.log(map.waypoints);
+                    }}></SquareButton>
+                  <SquareButton
+                    label="ZIP"
+                    style={tw`ml-auto`}
+                    size={12}
+                    disabled={false}
+                    onPress={() => {
+                      zipUploadMapFolder(map.map_id);
+                    }}></SquareButton>
+                  <SquareButton
+                    label="Delete"
+                    style={tw`ml-auto`}
+                    size={12}
+                    disabled={false}
+                    onPress={async () => {
+                      await deleteMap(map.map_id);
+                      refreshMaps();
+                    }}></SquareButton>
+                  <SquareButton
+                    label="ccc"
+                    style={tw`ml-auto`}
+                    size={12}
+                    disabled={false}
+                    onPress={async () => {
+                      await cloudCheck(map.webId);
                     }}></SquareButton>
                 </Card.Content>
               </Card>
