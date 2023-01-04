@@ -175,9 +175,9 @@ const MapEditScreen = ({ navigation, route }) => {
       if (!currentMap || currentMap.map_id === "")
         setCurrentMap({
           map_id: getUUID(),
-          name: "kato trasa",
-          description: "trasa krajoznawcza w katowicach",
-          location: "katowice",
+          name: "nienazwana mapa",
+          description: "opis",
+          location: "",
           waypoints: [],
           stops: [],
         } as HealthPath);
@@ -187,6 +187,12 @@ const MapEditScreen = ({ navigation, route }) => {
       setStopPoints(currentMap.stops);
       setFullPath(currentMap.path);
       console.log("elo2");
+      setTimeout(() => {
+        mapRef.current.fitToCoordinates(currentMap.path, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }, 50);
     }
   }, []);
 
@@ -235,7 +241,8 @@ const MapEditScreen = ({ navigation, route }) => {
         onRequestClose={() => {
           setMapInfoModalVisible(false);
         }}
-        onSave={(name: string, description: string) => {
+        onSave={(name: string, description: string, asNew: boolean) => {
+          if (asNew) currentMap.map_id = getUUID();
           saveMapEvent(name, description);
           setSaveMapModalVisible(false);
         }}
@@ -248,6 +255,14 @@ const MapEditScreen = ({ navigation, route }) => {
           showsMyLocationButton={true}
           toolbarEnabled={true}
           minZoomLevel={7}
+          showsUserLocation={true}
+          onMapReady={() => {
+            console.log("map ready", mapRef.current);
+            mapRef.current.fitToCoordinates(currentMap.path, {
+              edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+              animated: true,
+            });
+          }}
           onPress={(e) => {
             addNewWaypoint(e);
             setCalloutOpen(false);
@@ -268,8 +283,7 @@ const MapEditScreen = ({ navigation, route }) => {
                 zoom: 15,
               });
             }
-          }}
-          showsUserLocation={true}>
+          }}>
           {waypoints.length > 1 && (
             <MapViewDirections
               origin={waypoints[0]}

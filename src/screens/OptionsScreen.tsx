@@ -6,7 +6,7 @@ import { Button } from "react-native-elements";
 import tw from "../lib/tailwind";
 import { useUserStore } from "../stores/store";
 import firestore from "@react-native-firebase/firestore";
-import { db, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
+import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
@@ -19,7 +19,7 @@ const OptionsScreen = ({ navigation, route }) => {
   const [pathes, setPathes] = useState([]);
   const addPath = async () => {
     const data = {
-      ownerId: user.user.id,
+      ownerId: DbUser(),
       description: "opis",
       name: "mapka",
       age: 12,
@@ -97,7 +97,7 @@ const OptionsScreen = ({ navigation, route }) => {
                   rating: 5,
                   comment: "super",
                   createdAt: firestore.FieldValue.serverTimestamp(),
-                  userId: user.user.id,
+                  userId: DbUser(),
                   userName: user.user.name,
                 } as RatingDocument;
                 console.log(data);

@@ -136,14 +136,14 @@ export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
       { merge: true }
     );
     const doc = await Pathes.doc(mapId).get();
-    console.log(doc.data(), isPrivate, doc.data().storeRef);
+    // console.log(doc.data(), isPrivate, doc.data().storeRef);
+    const task = stor.ref(doc.data().storeRef).updateMetadata({
+      customMetadata: { visibility: isPrivate ? "private" : "public" },
+    });
 
-    isPrivate = false;
-    await stor
-      .ref(doc.data().storeRef)
-      .updateMetadata({
-        customMetadata: { kutas: "obecny", visibility: isPrivate ? "private" : "public" },
-      });
+    task.then((res) => {
+      console.log(res, isPrivate ? "private" : "public");
+    });
   } catch (e) {
     console.log(e);
   }

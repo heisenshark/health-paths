@@ -5,7 +5,8 @@ import { Camera, LatLng } from "react-native-maps";
 import { getURI } from "../utils/FileSystemManager";
 import { headingDistanceTo } from "geolocation-utils";
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
-import auth from "@react-native-firebase/auth";
+import auth, { firebase } from "@react-native-firebase/auth";
+import { DbUser } from "../config/firebase";
 
 interface MapStore {
   currentMap: HealthPath;
@@ -237,15 +238,16 @@ export const useUserStore = create<UserStore>((set, get) => ({
       return;
     }
   },
-  logOut: () =>
+  logOut: async () => {
     set(() => {
       GoogleSignin.signOut();
-      GoogleSignin.clearCachedAccessToken();
+      firebase.auth().signOut();
       return { user: undefined };
-    }),
+    });
+  },
   checkLogged: async () => {
-    const usr = await GoogleSignin.isSignedIn();
+    const usr = DbUser();
     if (!usr) set(() => ({ user: undefined }));
-    return usr;
+    return usr == undefined;
   },
 }));

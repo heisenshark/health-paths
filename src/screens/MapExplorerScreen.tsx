@@ -10,10 +10,11 @@ import {
   deleteMap,
   listAllMaps,
   loadMap,
+  moveMap,
   zipUploadMapFolder,
 } from "../utils/FileSystemManager";
 import { getCityAdress } from "../utils/HelperFunctions";
-import { HealthPath } from "../utils/interfaces"
+import { HealthPath } from "../utils/interfaces";
 
 interface MapExplorerScreenProps {}
 
@@ -113,12 +114,24 @@ const MapExplorerScreen = ({ navigation, route }) => {
                       refreshMaps();
                     }}></SquareButton>
                   <SquareButton
-                    label="ccc"
+                    label="edit"
+                    style={tw`ml-auto`}
+                    size={12}
+                    disabled={false}
+                    onPress={() => {
+                      setCurrentMap(map);
+                      loadMap(map.name, map.map_id).then((m) => {
+                        setCurrentMap(m);
+                        navigation.navigate("Nagraj", { isRecording: false, editting: true });
+                      });
+                    }}></SquareButton>
+                  <SquareButton
+                    label="move"
                     style={tw`ml-auto`}
                     size={12}
                     disabled={false}
                     onPress={async () => {
-                      await cloudCheck(map.webId);
+                      await moveMap(map.map_id, "test");
                     }}></SquareButton>
                 </Card.Content>
               </Card>
