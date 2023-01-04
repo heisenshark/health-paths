@@ -43,7 +43,7 @@ const SelectNameModal = ({
               }}></SquareButton>
             <SquareButton
               style={tw`w-auto px-2 h-10 `}
-              label={"Zapiszs"}
+              label={"Zapisz"}
               onPress={() => {
                 if (name.trim() === "") return alert("Nazwa nie może być pusta");
                 actionRight(name.trim());

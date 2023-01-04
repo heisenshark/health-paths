@@ -14,6 +14,7 @@ type SquareButtonProps = {
   labelStyle?: Style;
   icon?: string;
   onPress?: () => any;
+  disabled: boolean;
 };
 
 const SquareButton = ({
@@ -25,14 +26,16 @@ const SquareButton = ({
   labelStyle,
   icon,
   onPress,
+  disabled,
 }: SquareButtonProps) => {
   const uberplus = uberActive ? 1 : 0;
   return (
     <TouchableOpacity
+      disabled={disabled}
       style={[
         [
-          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg  bg-main-${
-            uberActive ? "2" : "1"
+          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg  bg-main-${disabled?
+            (9):(uberActive ? "2" : "1")
           }`,
           style,
         ],
@@ -57,6 +60,7 @@ SquareButton.defaultProps = {
   size: 20,
   uberActive: false,
   icon: "",
+  disabled: false,
 };
 
 export default SquareButton;

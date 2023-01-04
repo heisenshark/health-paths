@@ -36,7 +36,7 @@ const MapViewScreen = ({ navigation, route }) => {
         onMapReady={() => {
           mapRef.current.fitToCoordinates(currentMap.path, {
             edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-            animated: true,
+            animated: false,
           });
         }}>
         <Markers waypoints={currentMap.waypoints} isEdit={false} />

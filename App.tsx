@@ -14,7 +14,7 @@ import MapEditScreen from "./src/screens/MapEditScreen";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
 import HomeScreen from "./src/screens/HomeScreen";
 // import { NativeWindStyleSheet, useColorScheme } from "nativewind";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
 import StopPointEditScreen from "./src/screens/StopPointEditScreen";
@@ -24,21 +24,72 @@ import MapExplorerScreen from "./src/screens/MapExplorerScreen";
 import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileSystemManager";
 
 import * as TaskManager from "expo-task-manager";
-import { useMapStore } from "./src/stores/store";
+import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
+import LogInScreen from "./src/screens/LogInScreen";
+import OptionsScreen from "./src/screens/OptionsScreen";
+import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
-const Nor = createNativeStackNavigator();
+const Navigator = createNativeStackNavigator();
 console.log(StatusBar.currentHeight);
 
+export default function App() {
+  // listAllMaps();
+  // ensureMapDirExists();
+  // createNewMap("testowa_mapa");
+  const isTunnel = false;
+  const navigationRef = useNavigationContainerRef();
+  //context api variable
+  const [currentScreen, setCurrentScreen] = useState("");
+
+  useEffect(() => {
+    TaskManager.unregisterAllTasksAsync();
+  }, []);
+
+  return (
+    //TODO finish settings screen
+    //TODO finish mapselect screen
+    //TODO finish info screen
+    //TODO finish mymaps screen
+    //TODO add tracking position and making tracks by gps
+    //TODO dodać możliwość eksportu mapy
+    //TODO dodać możliwość udostępnienia mapy przez watsapp
+    <>
+      {isTunnel && <StatusBar style="auto" />}
+      <NavigationContainer
+        ref={navigationRef}
+        onStateChange={(key) => {
+          setCurrentScreen(key.routes[key.index].name);
+        }}>
+        <Navigator.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Navigator.Screen name="Trasy" component={HomeScreen} />
+          <Navigator.Screen name="Nagraj" component={MapEditScreen} />
+          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
+          <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
+          <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+          <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+          <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
+          <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
+          <Navigator.Screen name="LogIn" component={LogInScreen} />
+          <Navigator.Screen name="Opcje" component={OptionsScreen} />
+        </Navigator.Navigator>
+      </NavigationContainer>
+
+      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+    </>
+  );
+}
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
-  const addLocations = useMapStore.getState().addLocations;
-  let locationss = useMapStore.getState().locations;
-  // let test = useMapStore.getState().testobject;
-  // test.test.push("test");
-  // console.log("test", test);
+  const addLocations = useLocationTrackingStore.getState().addLocations;
+  const locationss = useLocationTrackingStore.getState().locations;
+  const rec = useLocationTrackingStore.getState().currentRecording;
+  const stamp = useLocationTrackingStore.getState().highestTimestamp;
 
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
@@ -57,67 +108,18 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * do ostatniego począku linii
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
-    // locations.forEach((n) => locationss.push(n.coords));
-
-    addLocations(locations.map((n) => ({latitude : n.coords.latitude, longitude : n.coords.longitude})));
-    // console.log(locationss);
-    console.log("len: ",locationss.coords.length);
-    
-    // useMapStore.setState({
-    //   locations: [...locationss],
-    // });
-
-    // { latitude: lat, longitude: long }] });
-    // addLocation({ latitude: lat, longitude: long });
-
-    // console.log(useMapStore.getState().locations);
-    // console.log("test", useMapStore.getState().testobject);
-
-    // console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${long}`);
-    console.log(
-      "Received new locations",
-      locations.map((l) => l.coords)
+    console.log(stamp);
+    console.log(locationss.coords.length, rec);
+    addLocations(
+      locations
+        .filter((n) => n.timestamp > stamp)
+        .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
+      Math.max(locations.map((n) => n.timestamp))
     );
+    if (locations.length > 1)
+      console.log(
+        "Received new locations",
+        locations.map((l) => [l.coords.longitude, l.coords.latitude])
+      );
   }
 });
-
-export default function App() {
-  // listAllMaps();
-  // ensureMapDirExists();
-  // createNewMap("testowa_mapa");
-  const isTunnel = true;
-  const navigationRef = useNavigationContainerRef();
-  //context api variable
-  const [currentScreen, setCurrentScreen] = useState("");
-  return (
-    //TODO finish settings screen
-    //TODO finish mapselect screen
-    //TODO finish info screen
-    //TODO finish mymaps screen
-    //TODO add tracking position and making tracks by gps
-    //TODO dodać możliwość eksportu mapy
-    //TODO dodać możliwość udostępnienia mapy przez watsapp
-    <>
-      {isTunnel && <StatusBar style="auto" />}
-      <NavigationContainer
-        ref={navigationRef}
-        onStateChange={(key) => {
-          setCurrentScreen(key.routes[key.index].name);
-        }}>
-        <Nor.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Nor.Screen name="Trasy" component={HomeScreen} />
-          <Nor.Screen name="Nagraj" component={MapEditScreen} />
-          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
-          <Nor.Screen name="EdycjaMap" component={StopPointEditScreen} />
-          <Nor.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
-          <Nor.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
-          <Nor.Screen name="PodgladMap" component={MapViewScreen} />
-        </Nor.Navigator>
-      </NavigationContainer>
-      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-    </>
-  );
-}
