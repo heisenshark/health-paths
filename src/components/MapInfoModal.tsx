@@ -22,7 +22,7 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
   useEffect(() => {
     setSaveAsNew(false);
     if (visible) {
-      setName({ error: false, text: currentMap.name });
+      setName({ error:false, text: currentMap.name });
       setError("");
       setDesc("");
     }
@@ -45,8 +45,8 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
               checked={saveAsNew}
               onPress={() => {
                 if (saveAsNew == false) {
-                  name.text === currentMap.name && setName({ text: currentMap.name, error: false });
-                  desc === currentMap.description && setDesc(currentMap.description);
+                  name.text === currentMap.name && setName({ text: "", error: true });
+                  desc === currentMap.description && setDesc("");
                 } else {
                   name.text === "" && setName({ text: currentMap.name, error: false });
                   desc === "" && setDesc(currentMap.description);

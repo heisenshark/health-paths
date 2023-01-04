@@ -1,6 +1,6 @@
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
+import MapView, { LatLng, MapPressEvent, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
@@ -12,10 +12,8 @@ import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useLocationTrackingStore, useMapStore } from "./../stores/store";
 import { saveMap } from "../utils/FileSystemManager";
-import SelectNameModal from "../components/SelectNameModal";
 
 import * as Location from "expo-location";
-import * as TaskManager from "expo-task-manager";
 import TrackLine from "../components/TrackLine";
 import { useFocusEffect } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
@@ -197,21 +195,43 @@ const MapEditScreen = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    const unsub = navigation.addListener("beforeRemove", () => {
-      console.log("beforeRemove_mapEdit");
-      unsub.current?.remove();
+    const unsub = navigation.addListener("beforeRemove", (e) => {
+      console.log(currentMap);
+      let isMapEmpty = waypoints.length === 0 && stopPoints.length === 0;
+      console.log({ isMapEmpty, waypoints, stopPoints });
+
+      // If we don't have unsaved changes, then we don't need to do anything
+      if (isMapEmpty) return;
+
+      e.preventDefault();
+
+      // Prompt the user before leaving the screen
+      Alert.alert(
+        "Porzucić zmiany?",
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+        [
+          { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
+          {
+            text: "Opusć",
+            style: "destructive",
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ]
+      );
+
+      // unsub.current?.remove();
       mapRef.current.getMapBoundaries().then((boundaries) => {
-        console.log(boundaries);
+        // console.log(boundaries);
       });
       mapRef.current.getCamera().then((camera) => {
-        console.log(camera);
+        // console.log(camera);
         setCurrentCamera(camera);
       });
-      console.log(initialRegion);
+      // console.log(initialRegion);
     });
 
     return unsub;
-  }, [navigation]);
+  }, [navigation, waypoints, stopPoints]);
 
   useFocusEffect(
     useCallback(() => {
@@ -228,14 +248,6 @@ const MapEditScreen = ({ navigation, route }) => {
   const hideModal = () => setSaveMapModalVisible(false);
   return (
     <View className="relative border-4">
-      {/* <SelectNameModal
-        visible={saveMapModalVisible}
-        onRequestClose={hideModal}
-        actionLeft={hideModal}
-        actionRight={(name: string) => {
-          saveMapEvent(name);
-          setSaveMapModalVisible(false);
-        }}></SelectNameModal> */}
       <MapInfoModal
         visible={mapInfoModalVisible}
         onRequestClose={() => {
@@ -257,7 +269,7 @@ const MapEditScreen = ({ navigation, route }) => {
           minZoomLevel={7}
           showsUserLocation={true}
           onMapReady={() => {
-            console.log("map ready", mapRef.current);
+            // console.log("map ready", mapRef.current);
             mapRef.current.fitToCoordinates(currentMap.path, {
               edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
               animated: true,
