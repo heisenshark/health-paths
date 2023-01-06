@@ -21,7 +21,8 @@ export interface HealthPath {
   waypoints?: LatLng[];
   stops?: Waypoint[];
   path?: LatLng[];
-  imageCover?: MediaFile;
+  imagePreview?: MediaFile;
+  imageIcon?: MediaFile;
 
   authorName?: string;
   authorId?: string;

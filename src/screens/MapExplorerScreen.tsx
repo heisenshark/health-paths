@@ -1,46 +1,100 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Text, View, Image, ScrollView } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
-import SquareButton from "../components/SquareButton";
+import OptionsModal from "../components/OptionsModal";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import {
-  cloudCheck,
   deleteMap,
+  getURI,
   listAllMaps,
   loadMap,
-  moveMap,
   zipUploadMapFolder,
 } from "../utils/FileSystemManager";
 import { getCityAdress } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
-interface MapExplorerScreenProps {}
-
 //TODO uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
 
 const MapExplorerScreen = ({ navigation, route }) => {
-  const [currentMap, setCurrentMap] = useMapStore((state) => [
-    state.currentMap,
-    state.setCurrentMap,
-  ]);
+  const imagePlaceholder =
+    "https://cdn.discordapp.com/attachments/989095141874749470/1060571824385163384/800px-Question_mark_28black29.png";
+  const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
   const [maps, setMaps] = useState<HealthPath[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalVisible, setModalVisible] = useState(true);
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   const refreshMaps = async () => {
     const m = await listAllMaps();
+    m.forEach((map) => {
+      console.log(map.imagePreview);
+    });
     setMaps(m);
   };
+
+  const selectedMap = useRef(null);
+
   useEffect(() => {
-    console.log("elo");
+    selectedMap.current = null;
+    setModalVisible(false);
     refreshMaps();
   }, []);
 
+  const options = [
+    {
+      label: "Pokaż Mapę",
+      icon: "cloud-download",
+      onPress: () => {
+        setModalVisible(false);
+        loadMap(selectedMap.current.name, selectedMap.current.map_id).then((m) => {
+          setCurrentMap(m);
+          navigation.navigate("PodgladMap");
+        });
+      },
+    },
+    {
+      label: "Edytuj mapę",
+      icon: "cloud-upload",
+      onPress: async () => {
+        setModalVisible(false);
+        setCurrentMap(selectedMap.current);
+        loadMap(selectedMap.current.name, selectedMap.current.map_id).then((m) => {
+          setCurrentMap(m);
+          navigation.navigate("Nagraj", { isRecording: false, editting: true });
+        });
+      },
+    },
+    {
+      label: "Prześlij do internetu",
+      icon: "minus-circle",
+      onPress: async () => {
+        await zipUploadMapFolder(selectedMap.current.map_id);
+        setModalVisible(false);
+      },
+    },
+    {
+      label: "Usuń mapę",
+      icon: "cloud-upload",
+      onPress: () => {
+        deleteMap(selectedMap.current.map_id).then(() => {
+          setModalVisible(false);
+          refreshMaps();
+        });
+      },
+    },
+  ] as { label: string; icon?: string; onPress: () => void }[];
   return (
     <View style={tw`h-full`}>
+      <OptionsModal
+        visible={modalVisible}
+        label={"Co chcesz zrobić z mapą?"}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+        actions={options}></OptionsModal>
       <View style={tw`bg-main-1 flex justify-center shadow-md`}>
         <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>
           <Text>LOKALNE </Text>
@@ -61,78 +115,33 @@ const MapExplorerScreen = ({ navigation, route }) => {
             );
           })
           .map((map) => {
+            if(map.imagePreview)console.log({ aa: getURI(map, map.imagePreview) });
+
             return (
-              <Card key={map.map_id} style={tw`flex flex-row my-1 mx-2`}>
+              <Card
+                key={map.map_id}
+                style={tw`flex flex-row my-1 mx-2`}
+                onPress={() => {
+                  selectedMap.current = map;
+                  setModalVisible(true);
+                }}>
                 <Card.Content style={tw`flex flex-row`}>
-                  {/* <Image style={tw`flex-0 h-20 w-20 bg-black mr-2`}></Image> */}
+                  <Image
+                    style={tw`flex-0 h-20 w-20 bg-white mr-2`}
+                    source={{
+                      uri:
+                        map.imagePreview === undefined
+                          ? imagePlaceholder
+                          : getURI(map, map.imagePreview),
+                    }}></Image>
 
                   <View style={tw`flex-1`}>
                     <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
                       {map.name}
                     </Text>
-                    <Text style={tw`font-bold pr-2`} numberOfLines={1}>
-                      {map.map_id}
-                    </Text>
                     <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
+                    <Text style={tw`text-xl`}>{map.map_id}</Text>
                   </View>
-                  <SquareButton
-                    label="Pokaż"
-                    style={tw`ml-auto`}
-                    size={10}
-                    onPress={() => {
-                      loadMap(map.name, map.map_id).then((m) => {
-                        setCurrentMap(m);
-                        navigation.navigate("PodgladMap");
-                      });
-                    }}></SquareButton>
-                  <SquareButton
-                    label="print"
-                    style={tw`ml-auto`}
-                    size={10}
-                    onPress={() => {
-                      loadMap(map.name, map.map_id).then((m) => {
-                        console.log(m.path);
-                      });
-                      // console.log(map);
-                      // console.log(map.waypoints);
-                    }}></SquareButton>
-                  <SquareButton
-                    label="ZIP"
-                    style={tw`ml-auto`}
-                    size={12}
-                    disabled={false}
-                    onPress={() => {
-                      zipUploadMapFolder(map.map_id);
-                    }}></SquareButton>
-                  <SquareButton
-                    label="Delete"
-                    style={tw`ml-auto`}
-                    size={12}
-                    disabled={false}
-                    onPress={async () => {
-                      await deleteMap(map.map_id);
-                      refreshMaps();
-                    }}></SquareButton>
-                  <SquareButton
-                    label="edit"
-                    style={tw`ml-auto`}
-                    size={12}
-                    disabled={false}
-                    onPress={() => {
-                      setCurrentMap(map);
-                      loadMap(map.name, map.map_id).then((m) => {
-                        setCurrentMap(m);
-                        navigation.navigate("Nagraj", { isRecording: false, editting: true });
-                      });
-                    }}></SquareButton>
-                  <SquareButton
-                    label="move"
-                    style={tw`ml-auto`}
-                    size={12}
-                    disabled={false}
-                    onPress={async () => {
-                      await moveMap(map.map_id, "test");
-                    }}></SquareButton>
                 </Card.Content>
               </Card>
             );

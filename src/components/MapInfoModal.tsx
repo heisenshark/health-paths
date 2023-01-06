@@ -6,10 +6,20 @@ import { TextInput } from "react-native-paper";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import SquareButton from "./SquareButton";
+import * as ImagePicker from "expo-image-picker";
+import uuid from "react-native-uuid";
+import { MediaFile } from "../utils/interfaces";
+import { getURI } from "./../utils/FileSystemManager";
+
 interface MapInfoModalProps {
   visible: boolean;
   onRequestClose: () => void;
-  onSave: (name: string, description: string, asNew: boolean) => void;
+  onSave: (
+    name: string,
+    description: string,
+    asNew: boolean,
+    mapIcon: MediaFile
+  ) => Promise<boolean>;
 }
 
 const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) => {
@@ -18,15 +28,51 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
   const [desc, setDesc] = useState("");
   const [saveAsNew, setSaveAsNew] = useState(false);
   const [error, setError] = useState("");
+  const [image, setImage] = useState(null);
+  const mapIcon = useRef<MediaFile>(undefined);
 
   useEffect(() => {
     setSaveAsNew(false);
     if (visible) {
-      setName({ error:false, text: currentMap.name });
+      console.log(currentMap.imageIcon);
+
+      setName({ error: false, text: currentMap.name });
       setError("");
-      setDesc("");
+      setDesc(currentMap.description);
+      if (currentMap.imageIcon) setImage(getURI(currentMap, currentMap.imageIcon));
     }
   }, [visible]);
+
+  const pickImage = async ({ isCamera }: { isCamera: boolean }) => {
+    // No permissions request is necessary for launching the image library
+    let result = isCamera
+      ? await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.1,
+        aspect: [1, 1],
+      })
+      : await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.1,
+      });
+    console.log(result);
+
+    if (result.canceled) return;
+
+    setImage(result.assets[0].uri);
+
+    const imageRes = {
+      media_id: uuid.v4(),
+      path: result.assets[0].uri,
+      type: "image",
+      storage_type: "cache",
+    } as MediaFile;
+    mapIcon.current = imageRes;
+  };
+
   return (
     // <Text>ss</Text>
     <Modal
@@ -76,6 +122,18 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
             }}
             focusable={true}
           />
+          <View style={tw`flex flex-row mx-6 justify-around`}>
+            <Image
+              style={tw`aspect-square w-20 h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
+              source={{ uri: image }}
+            />
+            <SquareButton
+              style={tw`my-4 w-56`}
+              labelStyle={tw`text-xl`}
+              label={"Wybierz ikonę mapy"}
+              onPress={() => pickImage({ isCamera: false })}></SquareButton>
+          </View>
+
           <View style={tw`mx-5 my-2 flex flex-row justify-between`}>
             <SquareButton
               style={tw`flex-1 mx-2`}
@@ -86,14 +144,15 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
               style={tw`flex-1 mx-2`}
               size={10}
               label="Zapisz"
-              onPress={() => {
+              onPress={async () => {
                 if (name.text === "") {
                   setName({ ...name, error: true });
                   setError("Nazwa nie może być pusta");
                   return;
                 }
-                onSave(name.text, desc, saveAsNew);
-                onRequestClose();
+                const good = await onSave(name.text, desc, saveAsNew, mapIcon.current);
+                if (good) onRequestClose();
+                else console.log("Map not Saved...");
               }}></SquareButton>
           </View>
         </View>

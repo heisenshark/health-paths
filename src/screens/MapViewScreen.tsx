@@ -1,10 +1,8 @@
 import * as React from "react";
 import { useEffect, useRef } from "react";
-import { Text, View, StyleSheet } from "react-native";
-import MapView, { Polyline } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
+import { View } from "react-native";
+import MapView, { Polyline, Region } from "react-native-maps";
 import { Markers } from "../components/Markers";
-import SelectNameModal from "../components/SelectNameModal";
 import StopPoints from "../components/StopPoints";
 import { mapStylesJSON } from "../providedfiles/Export";
 import { useMapStore } from "../stores/store";
@@ -39,7 +37,7 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: false,
           });
         }}>
-        <Markers waypoints={currentMap.waypoints} isEdit={false} />
+        <Markers waypoints={currentMap.waypoints} isEdit={false} updateWaypoints={undefined} />
 
         <StopPoints waypoints={currentMap.stops} isStop={false}></StopPoints>
         <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />

@@ -34,7 +34,7 @@ export {
   listAllMaps,
   loadMap,
   deleteMap,
-  zipUploadMapFolder,
+  UploadMapFolder as zipUploadMapFolder,
   cloudCheck,
   downloadMap,
   moveMap,
@@ -60,7 +60,7 @@ const getNameFromUri = (uri: string) => {
 
 export function getURI(map: HealthPath, media: MediaFile) {
   if (media.storage_type === "cache") return media.path;
-  return `${mapDir}${map.name}_${map.map_id}/${media.path}`;
+  return `${mapDir}_${map.map_id}/${media.path}`;
 }
 async function ensureMapDirExists() {
   const dirInfo = await fs.getInfoAsync(mapDir);
@@ -89,10 +89,11 @@ async function writeToFile(path: string, data: string = "") {
 }
 
 async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path: string) {
+  if (file === undefined || !file || file.media_id === undefined || file.path === undefined)
+    return undefined;
   console.log("copyExistingFileToMedia 1 ", file);
   console.log(file, mapNameDir, path);
 
-  if (!file || file.media_id === undefined || file.path === undefined) return undefined;
   if (file.storage_type === "local") return file;
 
   const newPlace = mapNameDir + path + getNameFromUri(file.path);
@@ -201,7 +202,8 @@ async function saveMap(map: HealthPath) {
   const mapInfo = {
     name: map.name,
     map_id: map.map_id,
-    imageCover: map.imageCover,
+    imagePreview: map.imagePreview,
+    imageIcon: map.imageIcon,
     description: map.description,
     location: map.location,
     duration: map.duration,
@@ -233,6 +235,34 @@ async function saveMap(map: HealthPath) {
     })),
   ];
 
+  const features = {
+    features: [
+      ...waypoints.map((x, index) => ({
+        type: "Feature",
+        properties: {
+          [index]: x.waypoint_id,
+        },
+        geometry: {
+          coordinates: x.coordinates,
+          type: "Point",
+        },
+        id: index,
+      })),
+    ],
+  };
+
+  const urban = {
+    path_id: map.map_id,
+    path_icon: map.imageIcon?.media_id, //wrok on it
+    displayed_name: map.name,
+    approximate_distance_in_meters: map.distance * 1000, //HACK elo to powinno być zawsze w metrach tbh
+    is_cyclic: false,
+    map_url: "mapbox://styles/polslrau6/cl4fw1x8i001t14lih34jtkhz",
+    waypoints: [...waypoints.map((x) => x.waypoint_id)],
+    preview_image: map.imagePreview.media_id, //wrok on it
+    icon: map.imageIcon?.media_id, //wrok on it
+  };
+
   let medias = [] as MediaFile[];
 
   try {
@@ -245,8 +275,12 @@ async function saveMap(map: HealthPath) {
     for (const stop of map.stops) {
       medias = [...medias, ...(await copycachedMedia(stop, mapNameDir))];
     }
+    const preview = await copyExistingFileToMedia(map.imagePreview, mapNameDir, "images/previews/");
+    if (preview) medias.push(preview);
+    const icon = await copyExistingFileToMedia(map.imageIcon, mapNameDir, "images/icons/");
+    if (icon) medias.push(icon);
   } catch (error) {
-    console.error(error);
+    console.error("error", error);
   }
 
   console.log(medias);
@@ -254,9 +288,13 @@ async function saveMap(map: HealthPath) {
   console.log("mapid::" + map.map_id);
   await writeToFile(mapNameDir + "mapInfo.json", JSON.stringify(mapInfo));
   await writeToFile(mapNameDir + "features_" + map.name + "_lines.geojson", JSON.stringify(lines));
-  await writeToFile(mapNameDir + "features.geojson_" + map.name + ".geojson");
+  await writeToFile(
+    mapNameDir + "features.geojson_" + map.name + ".geojson",
+    JSON.stringify(features)
+  );
   await writeToFile(mapNameDir + "waypoints.json", JSON.stringify(waypoints));
   await writeToFile(mapNameDir + "media_files.json", JSON.stringify(medias));
+  await writeToFile(mapNameDir + "urban_paths.json", JSON.stringify(urban));
 
   //TODO write code that clears the rest of files in mapdir, to stop local storage from leaking
 
@@ -341,7 +379,7 @@ async function deleteMap(id: string) {
   await fs.deleteAsync(mapNameDir);
 }
 
-async function zipUploadMapFolder(id: string) {
+async function UploadMapFolder(id: string) {
   const mapNameDir = `${mapDir}_${id}/`;
   const target = `${cacheDir}_${id}.zip`;
   try {
@@ -411,18 +449,18 @@ async function zipUploadMapFolder(id: string) {
   }
 }
 
-async function listAllMaps(): Promise<string[]> {
+async function listAllMaps(): Promise<HealthPath[]> {
   const files = await fs.readDirectoryAsync(mapDir);
-  console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
+  // console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
   let maps = [];
   for (const file of files) {
     const fileInfo = await fs.getInfoAsync(mapDir + file);
     if (!fileInfo.isDirectory) continue;
     const mapInfo = await fs.readAsStringAsync(mapDir + file + "/mapInfo.json");
-    console.log(mapInfo);
+    // console.log(mapInfo);
     maps.push(JSON.parse(mapInfo) as HealthPath);
   }
-  console.log(maps);
+  // console.log(maps);
 
   return maps;
 }

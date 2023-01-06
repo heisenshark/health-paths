@@ -5,13 +5,14 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
-import Waypoint, { HealthPath } from "../utils/interfaces";
+import Waypoint, { HealthPath, MediaFile } from "../utils/interfaces";
 import SquareButton from "../components/SquareButton";
 import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useLocationTrackingStore, useMapStore } from "./../stores/store";
 import { saveMap } from "../utils/FileSystemManager";
+import uuid from "react-native-uuid";
 
 import * as Location from "expo-location";
 import TrackLine from "../components/TrackLine";
@@ -47,6 +48,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [isWatchingposition, setIsWatchingposition] = useState(false);
 
   const [isRecording, setIsRecording] = useState(false);
+  const [showUserLocation, setShowUserLocation] = useState(true);
   const [isRecordingDone, setIsRecordingDone] = useState(false);
 
   const [
@@ -98,7 +100,7 @@ const MapEditScreen = ({ navigation, route }) => {
       setStopPoints([
         ...stopPoints,
           {
-            waypoint_id: getUUID(),
+            waypoint_id: uuid.v4(),
             displayed_name: "",
             coordinates: e.nativeEvent.coordinate,
             description: "",
@@ -110,19 +112,49 @@ const MapEditScreen = ({ navigation, route }) => {
     }
   }
 
-  const saveMapEvent = (name: string, description: string) => {
-    console.log(currentMap);
+  const saveMapEvent = async (
+    name: string,
+    description: string,
+    mapIcon: MediaFile
+  ): Promise<boolean> => {
+    console.log(mapIcon);
     let p = isInRecordingState ? useLocationTrackingStore.getState().outputLocations : fullPath;
+    if (p.length <= 0) return false;
     let xd = {
       ...currentMap,
       name: name,
       description: description,
+      imageIcon: mapIcon,
       waypoints: [...waypoints],
       stops: [...stopPoints],
       path: [...p],
     };
+    setShowUserLocation(false);
+    mapRef.current.fitToCoordinates([...waypoints, ...p], {
+      edgePadding: { top: 10, right: 10, bottom: 10, left: 10 },
+      animated: false,
+    });
+    const uri = await mapRef.current.takeSnapshot({
+      width: 500, // optional, when omitted the view-width is used
+      height: 500, // optional, when omitted the view-height is used
+      format: "jpg", // image formats: 'png', 'jpg' (default: 'png')
+      quality: 0.8, // image quality: 0..1 (only relevant for jpg, default: 1)
+      result: "file", // result types: 'file', 'base64' (default: 'file')
+    });
+    setShowUserLocation(true);
+    console.log("snapshot taken");
+    xd.imagePreview = {
+      media_id: uuid.v4(),
+      storage_type: "cache",
+      type: "image",
+      path: uri,
+    } as MediaFile;
+    console.log(xd.imagePreview);
+
     setCurrentMap(xd);
-    saveMap(xd);
+    console.log("current map set");
+    await saveMap(xd);
+    return true;
   };
   const getPermissions = async (): Promise<boolean> => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -168,16 +200,17 @@ const MapEditScreen = ({ navigation, route }) => {
     console.log("render");
   });
   useEffect(() => {
-    if (route.params === undefined && currentMap.map_id === "") {
+    if (currentMap.map_id === "") {
       console.log("elo");
       if (!currentMap || currentMap.map_id === "")
         setCurrentMap({
-          map_id: getUUID(),
+          map_id: uuid.v4(),
           name: "nienazwana mapa",
           description: "opis",
           location: "",
           waypoints: [],
           stops: [],
+          path: [],
         } as HealthPath);
       console.log(currentCamera);
     } else {
@@ -185,6 +218,8 @@ const MapEditScreen = ({ navigation, route }) => {
       setStopPoints(currentMap.stops);
       setFullPath(currentMap.path);
       console.log("elo2");
+      console.log(currentMap);
+
       setTimeout(() => {
         mapRef.current.fitToCoordinates(currentMap.path, {
           edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -252,11 +287,22 @@ const MapEditScreen = ({ navigation, route }) => {
         visible={mapInfoModalVisible}
         onRequestClose={() => {
           setMapInfoModalVisible(false);
+          setShowUserLocation(true);
         }}
-        onSave={(name: string, description: string, asNew: boolean) => {
-          if (asNew) currentMap.map_id = getUUID();
-          saveMapEvent(name, description);
-          setSaveMapModalVisible(false);
+        onSave={async (
+          name: string,
+          description: string,
+          asNew: boolean,
+          mapIcon: MediaFile
+        ): Promise<boolean> => {
+          try {
+            if (asNew) currentMap.map_id = getUUID();
+            const good = await saveMapEvent(name, description, mapIcon); //TODO mordo tutaj trzeba to zamienić na asynca
+            if (good) return true;
+          } catch (e) {
+            console.log(e, "AAAAAA");
+          }
+          return false;
         }}
       />
       <View className="w-full h-full bg-red-600">
@@ -264,10 +310,9 @@ const MapEditScreen = ({ navigation, route }) => {
           ref={mapRef}
           className="flex-1"
           camera={currentCamera}
-          showsMyLocationButton={true}
           toolbarEnabled={true}
           minZoomLevel={7}
-          showsUserLocation={true}
+          showsUserLocation={showUserLocation}
           onMapReady={() => {
             // console.log("map ready", mapRef.current);
             mapRef.current.fitToCoordinates(currentMap.path, {
@@ -355,6 +400,7 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"save"}
           onPress={() => {
             setMapInfoModalVisible(true);
+            setShowUserLocation(false);
           }}
           icon="save"
         />
