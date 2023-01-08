@@ -18,7 +18,7 @@ import * as Location from "expo-location";
 import TrackLine from "../components/TrackLine";
 import { useFocusEffect } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
-
+//TODO make the alert for saving the map normal and functional
 //TODO make option to fill the path with google directions if the path was stopped and resumed
 //TODO make waypoint edit screen basically a modal with a form
 const MapEditScreen = ({ navigation, route }) => {
