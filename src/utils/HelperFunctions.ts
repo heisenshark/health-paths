@@ -31,3 +31,8 @@ export const getCityAdress = (location: string) => {
   if (arr.length > 2) return trimnumbers(arr[1]);
   return "";
 };
+
+export const formatDistance = (distance: number) => {
+  if (distance < 1000) return `${Math.round(distance)} m`;
+  return `${(distance / 1000).toFixed(2)} km`;
+};

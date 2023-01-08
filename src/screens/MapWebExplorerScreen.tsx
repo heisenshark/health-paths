@@ -6,13 +6,14 @@ import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate } from "../config/firebase";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
-import { downloadMap } from "../utils/FileSystemManager"
+import { downloadMap } from "../utils/FileSystemManager";
 import { getCityAdress } from "../utils/HelperFunctions";
 import LogInScreen from "./LogInScreen";
 
-//TODO przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
-//TODO jak dodawać lokację do bazy w suuumie XD
-//TODO zrobić pobieranie i odzipowanie
+//[x] przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
+//[x] jak dodawać lokację do bazy w suuumie XD
+//[x] zrobić pobieranie i odzipowanie
+//TODO zrobić obsługę manadżera pobrań
 const MapWebExplorerScreen = ({ navigation, route }) => {
   const [currentMap, setCurrentMap] = useMapStore((state) => [
     state.currentMap,
@@ -25,6 +26,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   const listAllMaps = () => {
     db.collection("Pathes")
+      .where("visibility", "==", "public")
       .get()
       .then((querySnapshot) => {
         let maps = [];
@@ -32,7 +34,6 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
           const d = doc.data() as MapDocument;
           d.id = doc.id;
           maps.push(d);
-          // console.log(d);
         });
         setMaps(maps);
       })
@@ -44,7 +45,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
   useEffect(() => {
     console.log("elo");
     listAllMaps();
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={tw`h-full`}>
@@ -88,13 +89,26 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
                     disabled={false}
                     onPress={() => {
                       console.log("map.visibility === \"public\"", map.visibility === "public");
-                      downloadMap(map)
+                      downloadMap(map);
                       // togglePrivate(map.id, map.visibility === "public").then(() => {
                       //   listAllMaps();
                       //   console.log("end");
                       // });
                     }}></SquareButton>
                   <SquareButton
+                    label="Go to Preview"
+                    style={tw`ml-auto flex-1`}
+                    size={10}
+                    disabled={false}
+                    onPress={() => {
+                      console.log(map);
+                      navigation.navigate("MapWebPreviewScreen", { webMap: map });
+                      // togglePrivate(map.id, map.visibility === "public").then(() => {
+                      //   listAllMaps();
+                      //   console.log("end");
+                      // });
+                    }}></SquareButton>
+                  {/* <SquareButton
                     label="togglePrivate"
                     style={tw`ml-auto flex-1`}
                     size={10}
@@ -107,7 +121,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
                         listAllMaps();
                         console.log("end");
                       });
-                    }}></SquareButton>
+                    }}></SquareButton> */}
                 </Card.Content>
               </Card>
             );

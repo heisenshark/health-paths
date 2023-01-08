@@ -1,0 +1,12 @@
+{
+ "Tailwind Style class": {
+  "scope": "javascript,html,*.tsx",
+  "prefix": [
+   "wind"
+  ],
+  "body": [
+   "style={tw`$0`}"
+  ],
+  "description": "A for loop."
+ }
+}

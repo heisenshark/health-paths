@@ -7,6 +7,7 @@ import tw from "../lib/tailwind";
 import { useUserStore } from "../stores/store";
 import firestore from "@react-native-firebase/firestore";
 import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
+import { firebase } from "@react-native-firebase/auth";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
@@ -54,18 +55,20 @@ const OptionsScreen = ({ navigation, route }) => {
     return unsub;
   }, []);
 
-  return user != null ? (
+  return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
       <Text style={tw`text-3xl p-10 pb-2`}>Opcje Użytkownika</Text>
       <Text style={tw`text-3xl pb-10`}>Zalogowany jako</Text>
-      <Image style={tw`h-40 aspect-square rounded-full `} source={{ uri: user.user.photo }} />
-      <Text style={tw`text-3xl `}>{user.user.name}</Text>
+      {/* <Image style={tw`h-40 aspect-square rounded-full `} source={{ uri: user.user.photo }} /> */}
+      {/* <Text style={tw`text-3xl `}>{user.user.name}</Text> */}
       <Button
         title="Wyloguj"
-        onPress={() => {
-          GoogleSignin.signOut();
+        onPress={async () => {
+          await firebase.auth().signOut();
+          // console.log(DbUser());
+          // GoogleSignin.signOut();
           setIsLogged(false);
-          logOut();
+          // logOut();
         }}
       />
       <Button
@@ -93,19 +96,16 @@ const OptionsScreen = ({ navigation, route }) => {
                 const ratingNumber = 5;
                 const data = {
                   pathRef: n.id,
-                  pathOwnerId: n.ownerId,
                   rating: 5,
-                  comment: "super",
-                  createdAt: firestore.FieldValue.serverTimestamp(),
                   userId: DbUser(),
-                  userName: user.user.name,
+                  createdAt: firestore.FieldValue.serverTimestamp(),
                 } as RatingDocument;
                 console.log(data);
 
                 db.collection("Ratings").add(data);
                 Pathes.doc(n.id).update({
                   rating: firestore.FieldValue.increment(ratingNumber),
-                  ratingsCount: firestore.FieldValue.increment(1),
+                  ratingCount: firestore.FieldValue.increment(1),
                 });
               }}></Button>
             <Button

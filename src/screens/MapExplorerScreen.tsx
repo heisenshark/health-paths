@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import OptionsModal from "../components/OptionsModal";
+import { DbUser } from "../config/firebase";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import {
@@ -71,9 +72,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
       label: "Prześlij do internetu",
       icon: "minus-circle",
       onPress: async () => {
-        await zipUploadMapFolder(selectedMap.current.map_id);
+        if (DbUser() !== undefined) await zipUploadMapFolder(selectedMap.current.map_id);
         setModalVisible(false);
       },
+      disabled: DbUser() === undefined,
     },
     {
       label: "Usuń mapę",
@@ -115,7 +117,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             );
           })
           .map((map) => {
-            if(map.imagePreview)console.log({ aa: getURI(map, map.imagePreview) });
+            if (map.imagePreview) console.log({ aa: getURI(map, map.imagePreview) });
 
             return (
               <Card
@@ -130,9 +132,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                     style={tw`flex-0 h-20 w-20 bg-white mr-2`}
                     source={{
                       uri:
-                        map.imagePreview === undefined
-                          ? imagePlaceholder
-                          : getURI(map, map.imagePreview),
+                        map.imageIcon === undefined ? imagePlaceholder : getURI(map, map.imageIcon),
                     }}></Image>
 
                   <View style={tw`flex-1`}>

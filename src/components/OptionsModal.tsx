@@ -7,7 +7,7 @@ import tw from "../lib/tailwind";
 interface OptionsModalProps {
   visible: boolean;
   label?: string;
-  actions: { label: string; icon?: string; onPress: () => void }[];
+  actions: { label: string; icon?: string; onPress: () => void; disabled: boolean }[];
   onRequestClose: () => void | Promise<void>;
 }
 
@@ -30,6 +30,7 @@ const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalP
           <View style={tw`h-[0.5] bg-gray-300 rounded-full`}></View>
 
           {actions.map((action, index) => {
+            if (action.disabled === true) return null;
             return (
               <View key={index}>
                 <TouchableRipple

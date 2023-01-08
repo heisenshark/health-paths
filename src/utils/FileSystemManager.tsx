@@ -55,10 +55,18 @@ type DownloadTracker = {
 //TODO upewnić się że na pewno usuwamy pliki po edycji mapki takie jak zdjęcia które zostały zedytowane itp
 
 const getNameFromUri = (uri: string) => {
-  return uri.substring(uri.lastIndexOf("/") + 1, uri.length);
+  if (!uri) return undefined;
+  if (uri.endsWith("/")) {
+    uri = uri.substring(0, uri.length - 1);
+  }
+  if (uri.indexOf("/") === -1) {
+    return uri;
+  }
+  return uri.substring(uri.lastIndexOf("/") + 1);
 };
 
 export function getURI(map: HealthPath, media: MediaFile) {
+  if (!media) return undefined;
   if (media.storage_type === "cache") return media.path;
   return `${mapDir}_${map.map_id}/${media.path}`;
 }
@@ -275,6 +283,8 @@ async function saveMap(map: HealthPath) {
     for (const stop of map.stops) {
       medias = [...medias, ...(await copycachedMedia(stop, mapNameDir))];
     }
+    console.log("icon preview ", map.imageIcon, map.imagePreview);
+
     const preview = await copyExistingFileToMedia(map.imagePreview, mapNameDir, "images/previews/");
     if (preview) medias.push(preview);
     const icon = await copyExistingFileToMedia(map.imageIcon, mapNameDir, "images/icons/");
@@ -295,8 +305,8 @@ async function saveMap(map: HealthPath) {
   await writeToFile(mapNameDir + "waypoints.json", JSON.stringify(waypoints));
   await writeToFile(mapNameDir + "media_files.json", JSON.stringify(medias));
   await writeToFile(mapNameDir + "urban_paths.json", JSON.stringify(urban));
-
-  //TODO write code that clears the rest of files in mapdir, to stop local storage from leaking
+  clearMapDir(map);
+  //[x] write code that clears the rest of files in mapdir, to stop local storage from leaking
 
   return mapNameDir;
 }
@@ -389,6 +399,9 @@ async function UploadMapFolder(id: string) {
     mapinfo.authorId = DbUser();
     mapinfo.authorName = user.user.name;
     console.log(mapinfo);
+    const preview = getURI(mapinfo, mapinfo.imagePreview);
+    const icon = getURI(mapinfo, mapinfo.imageIcon);
+
     saveMapInfo({ ...mapinfo }, id);
 
     const dirInfo = await fs.getInfoAsync(cacheDir);
@@ -409,18 +422,31 @@ async function UploadMapFolder(id: string) {
       cacheControl: "no-store", // disable caching
       customMetadata: { visibility: "public" },
     });
-
     task.on("state_changed", (taskSnapshot) => {
       console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
     });
-
     task.then(() => {
       console.log("Image uploaded to the bucket!");
     });
-
     task.catch((e) => {
       console.log(e);
     });
+    let iconURL = undefined;
+    let previewURL = undefined;
+    if (icon) {
+      const iconRef = stor.ref(`Maps/${DbUser()}/icons/_${id}_icon`);
+      const iconTask = await iconRef.putFile(icon, {
+        cacheControl: "no-store", // disable caching
+      });
+      iconURL = await iconRef.getDownloadURL();
+    }
+    if (preview) {
+      const previewRef = stor.ref(`Maps/${DbUser()}/previews/_${id}_icon`);
+      const previewTask = await previewRef.putFile(preview, {
+        cacheControl: "no-store", // disable caching
+      });
+      previewURL = await previewRef.getDownloadURL();
+    }
 
     if (mapinfo.distance === undefined) {
       mapinfo.distance = 0;
@@ -429,12 +455,15 @@ async function UploadMapFolder(id: string) {
 
     const data = {
       ownerId: DbUser(),
+      ownerName: user.user.name,
       description: mapinfo.description,
       name: mapinfo.name,
       rating: 0,
       ratingCount: 0,
       distance: mapinfo.distance,
       visibility: "public",
+      iconRef: iconURL,
+      previewRef: previewURL,
       storeRef: reference.fullPath,
       location: mapinfo.location,
       createdAt: firestore.FieldValue.serverTimestamp(),
@@ -450,6 +479,8 @@ async function UploadMapFolder(id: string) {
 }
 
 async function listAllMaps(): Promise<HealthPath[]> {
+  const dirInfo = await fs.getInfoAsync(mapDir);
+  if (!dirInfo.exists) return [];
   const files = await fs.readDirectoryAsync(mapDir);
   // console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
   let maps = [];
@@ -557,4 +588,53 @@ async function cloudCheck(id: string) {
     console.log("task cancelled");
     task.cancel();
   }, 3000);
+}
+
+async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {
+  // Get a list of all the files in the directory
+
+  const info = await fs.getInfoAsync(directory);
+  if (!info.exists) return;
+  const results = await fs.readDirectoryAsync(directory);
+
+  // Filter the list of files to keep only those with disallowed names
+  const filesToDelete = results.filter((name) => !allowedNames.includes(name));
+
+  // Delete the unwanted files
+  for (const file of filesToDelete) {
+    await fs.deleteAsync(`${directory}/${file}`);
+  }
+}
+
+async function clearMapDir(map: HealthPath) {
+  const foldername = `_${map.map_id}`;
+  const mapNameDir = `${mapDir}${foldername}/`;
+  const dirInfo = await fs.getInfoAsync(mapNameDir);
+  if (!dirInfo.exists) return;
+
+  const wantedRoot = [
+    "features_" + map.name + "_lines.geojson",
+    "features.geojson_" + map.name + ".geojson",
+    "images",
+    "audios",
+    "mapInfo.json",
+    "waypoints.json",
+    "urban_paths.json",
+    "media_files.json",
+  ];
+  const intros = [];
+  const navs = [];
+  const stopImages = [];
+
+  for (const a of map.stops) {
+    intros.push(getNameFromUri(a.introduction_audio.path));
+    navs.push(getNameFromUri(a.navigation_audio.path));
+    stopImages.push(getNameFromUri(a.image.path));
+  }
+  deleteUnwantedFiles(mapNameDir + "audios/introductions", intros);
+  deleteUnwantedFiles(mapNameDir + "audios/navigations", navs);
+  deleteUnwantedFiles(mapNameDir + "images/covers", stopImages);
+  deleteUnwantedFiles(mapNameDir + "images/previews", [getNameFromUri(map.imagePreview?.path)]);
+  deleteUnwantedFiles(mapNameDir + "images/icons", [getNameFromUri(map.imageIcon?.path)]);
+  deleteUnwantedFiles(mapNameDir, wantedRoot);
 }

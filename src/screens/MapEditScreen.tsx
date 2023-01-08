@@ -82,7 +82,7 @@ const MapEditScreen = ({ navigation, route }) => {
   //TODO zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
 
-  //TODO dodać automatyczne robienie cover photo dla mapy
+  //[x] dodać automatyczne robienie cover photo dla mapy
   //TODO Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
@@ -149,7 +149,10 @@ const MapEditScreen = ({ navigation, route }) => {
       type: "image",
       path: uri,
     } as MediaFile;
+    console.log("printing preview and icon onSaveEvent");
+    
     console.log(xd.imagePreview);
+    console.log(xd.imageIcon);
 
     setCurrentMap(xd);
     console.log("current map set");
@@ -297,7 +300,7 @@ const MapEditScreen = ({ navigation, route }) => {
         ): Promise<boolean> => {
           try {
             if (asNew) currentMap.map_id = getUUID();
-            const good = await saveMapEvent(name, description, mapIcon); //TODO mordo tutaj trzeba to zamienić na asynca
+            const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
             if (good) return true;
           } catch (e) {
             console.log(e, "AAAAAA");
@@ -358,7 +361,8 @@ const MapEditScreen = ({ navigation, route }) => {
                 console.log("path drawn ");
                 snapEnds(n.coordinates);
                 setFullPath(n.coordinates);
-                currentMap.distance = n.distance;
+                currentMap.distance = n.distance * 1000;
+                console.log(n.distance * 1000);
                 currentMap.location = adress;
               }}
             />
@@ -402,6 +406,7 @@ const MapEditScreen = ({ navigation, route }) => {
             setMapInfoModalVisible(true);
             setShowUserLocation(false);
           }}
+          disabled={fullPath !== undefined && fullPath.length < 2}
           icon="save"
         />
 

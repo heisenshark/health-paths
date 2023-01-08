@@ -39,7 +39,11 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
       setName({ error: false, text: currentMap.name });
       setError("");
       setDesc(currentMap.description);
-      if (currentMap.imageIcon) setImage(getURI(currentMap, currentMap.imageIcon));
+      if (currentMap.imageIcon) {
+        setImage(getURI(currentMap, currentMap.imageIcon));
+        mapIcon.current = currentMap.imageIcon;
+      }
+      console.log(mapIcon.current);
     }
   }, [visible]);
 
@@ -49,14 +53,14 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
       ? await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        quality: 0.1,
+        quality: 0.3,
         aspect: [1, 1],
       })
       : await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.1,
+        quality: 0.3,
       });
     console.log(result);
 

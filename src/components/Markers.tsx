@@ -43,8 +43,6 @@ export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
     //fetch(`https://roads.googleapis.com/v1/snapToRoads?path=-35.27801%2C149.12958%7C&key=***REMOVED***`)
   }
 
-  //TODO make betrter snapper for
-
   // const addWaypoint = (cords: LatLng) => {
   //   let w: Waypoint = {
   //     waypoint_id: "gliwice.rynek.ratusz",

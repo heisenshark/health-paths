@@ -1,179 +1,70 @@
-[debug] [2023-01-03T14:24:31.670Z] ----------------------------------------------------------------------
-[debug] [2023-01-03T14:24:31.672Z] Command:       G:\Programs\node.exe C:\Users\Dom\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
-[debug] [2023-01-03T14:24:31.672Z] CLI Version:   11.19.0
-[debug] [2023-01-03T14:24:31.672Z] Platform:      win32
-[debug] [2023-01-03T14:24:31.672Z] Node Version:  v18.12.1
-[debug] [2023-01-03T14:24:31.673Z] Time:          Tue Jan 03 2023 15:24:31 GMT+0100 (czas środkowoeuropejski standardowy)
-[debug] [2023-01-03T14:24:31.673Z] ----------------------------------------------------------------------
+[debug] [2023-01-06T01:42:08.688Z] ----------------------------------------------------------------------
+[debug] [2023-01-06T01:42:08.690Z] Command:       G:\Programs\node.exe C:\Users\Dom\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2023-01-06T01:42:08.690Z] CLI Version:   11.19.0
+[debug] [2023-01-06T01:42:08.690Z] Platform:      win32
+[debug] [2023-01-06T01:42:08.690Z] Node Version:  v18.12.1
+[debug] [2023-01-06T01:42:08.691Z] Time:          Fri Jan 06 2023 02:42:08 GMT+0100 (czas środkowoeuropejski standardowy)
+[debug] [2023-01-06T01:42:08.691Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2023-01-03T14:24:31.753Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"react-native"}
-[debug] [2023-01-03T14:24:31.758Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2023-01-03T14:24:31.758Z] > authorizing via signed-in user (sylaypaper@gmail.com)
-[debug] [2023-01-03T14:24:31.831Z] java version "18.0.2.1" 2022-08-18
+[debug] [2023-01-06T01:42:08.766Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"react-native"}
+[debug] [2023-01-06T01:42:08.771Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-01-06T01:42:08.771Z] > authorizing via signed-in user (sylaypaper@gmail.com)
+[debug] [2023-01-06T01:42:08.841Z] java version "18.0.2.1" 2022-08-18
 Java(TM) SE Runtime Environment (build 18.0.2.1+1-1)
 
-[debug] [2023-01-03T14:24:31.831Z] Java HotSpot(TM) 64-Bit Server VM (build 18.0.2.1+1-1, mixed mode, sharing)
+[debug] [2023-01-06T01:42:08.842Z] Java HotSpot(TM) 64-Bit Server VM (build 18.0.2.1+1-1, mixed mode, sharing)
 
-[debug] [2023-01-03T14:24:31.845Z] Parsed Java major version: 18
+[debug] [2023-01-06T01:42:08.851Z] Parsed Java major version: 18
 [info] i  emulators: Starting emulators: auth, firestore, database, hosting, storage {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, firestore, database, hosting, storage"}}
-[debug] [2023-01-03T14:24:31.861Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.861Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.861Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.861Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.862Z] [database] Database Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.862Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.862Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-03T14:24:31.862Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":9999},{"address":"::1","family":"IPv6","port":9999}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"database":[{"address":"127.0.0.1","family":"IPv4","port":9000}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
-[debug] [2023-01-03T14:24:31.870Z] [hub] writing locator at C:\Users\Dom\AppData\Local\Temp\hub-***REMOVED***.json
-[debug] [2023-01-03T14:24:31.882Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-03T14:24:31.882Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
-[debug] [2023-01-03T14:24:31.882Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.15.1.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","***REMOVED***","--rules","G:\\Repos\\Patches\\health-pathes\\firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.15.1.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"***REMOVED***\",\"--rules\",\"G:\\\\Repos\\\\Patches\\\\health-pathes\\\\firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false}"}}
+[debug] [2023-01-06T01:42:08.866Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [database] Database Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-06T01:42:08.867Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":9999},{"address":"::1","family":"IPv6","port":9999}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"database":[{"address":"127.0.0.1","family":"IPv4","port":9000}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2023-01-06T01:42:08.874Z] [hub] writing locator at C:\Users\Dom\AppData\Local\Temp\hub-***REMOVED***.json
+[debug] [2023-01-06T01:42:08.894Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-06T01:42:08.894Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2023-01-06T01:42:08.895Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.15.1.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","***REMOVED***","--rules","G:\\Repos\\Patches\\health-pathes\\firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.15.1.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"***REMOVED***\",\"--rules\",\"G:\\\\Repos\\\\Patches\\\\health-pathes\\\\firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false}"}}
 [info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
 [info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
-[debug] [2023-01-03T14:24:32.924Z] > refreshing access token with scopes: []
-[debug] [2023-01-03T14:24:32.926Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2023-01-03T14:24:32.926Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2023-01-03T14:24:33.023Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
-[debug] [2023-01-03T14:24:33.024Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2023-01-03T14:24:33.033Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
-[debug] [2023-01-03T14:24:33.318Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 200
-[debug] [2023-01-03T14:24:33.318Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"projectId":"***REMOVED***","projectNumber":"***REMOVED***","displayName":"health-paths","name":"projects/***REMOVED***","resources":{"hostingSite":"***REMOVED***","realtimeDatabaseInstance":"***REMOVED***-default-rtdb","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west"},"state":"ACTIVE","etag":"1_4cb2bf6e-7d39-42ba-ad44-f24f4dee8d63"}
-[debug] [2023-01-03T14:24:33.318Z] database rules config:  [{"instance":"***REMOVED***-default-rtdb","rules":"G:\\Repos\\Patches\\health-pathes\\database.rules.json"}]
-[debug] [2023-01-03T14:24:33.322Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: projectId"}}
-[debug] [2023-01-03T14:24:33.322Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-03T14:24:33.322Z] Ignoring unsupported arg: rules {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: rules"}}
-[debug] [2023-01-03T14:24:33.322Z] Starting Database Emulator with command {"binary":"java","args":["-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\firebase-database-emulator-v4.11.0.jar","--host","127.0.0.1","--port",9000,"--single_project_mode","Warning"],"optionalArgs":["port","host","functions_emulator_port","functions_emulator_host","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"database"},"message":"Starting Database Emulator with command {\"binary\":\"java\",\"args\":[\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\firebase-database-emulator-v4.11.0.jar\",\"--host\",\"127.0.0.1\",\"--port\",9000,\"--single_project_mode\",\"Warning\"],\"optionalArgs\":[\"port\",\"host\",\"functions_emulator_port\",\"functions_emulator_host\",\"single_project_mode\"],\"joinArgs\":false}"}}
+[debug] [2023-01-06T01:42:10.199Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
+[debug] [2023-01-06T01:42:10.556Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 200
+[debug] [2023-01-06T01:42:10.556Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"projectId":"***REMOVED***","projectNumber":"***REMOVED***","displayName":"health-paths","name":"projects/***REMOVED***","resources":{"hostingSite":"***REMOVED***","realtimeDatabaseInstance":"***REMOVED***-default-rtdb","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west"},"state":"ACTIVE","etag":"1_4cb2bf6e-7d39-42ba-ad44-f24f4dee8d63"}
+[debug] [2023-01-06T01:42:10.557Z] database rules config:  [{"instance":"***REMOVED***-default-rtdb","rules":"G:\\Repos\\Patches\\health-pathes\\database.rules.json"}]
+[debug] [2023-01-06T01:42:10.561Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: projectId"}}
+[debug] [2023-01-06T01:42:10.561Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-06T01:42:10.561Z] Ignoring unsupported arg: rules {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: rules"}}
+[debug] [2023-01-06T01:42:10.561Z] Starting Database Emulator with command {"binary":"java","args":["-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\firebase-database-emulator-v4.11.0.jar","--host","127.0.0.1","--port",9000,"--single_project_mode","Warning"],"optionalArgs":["port","host","functions_emulator_port","functions_emulator_host","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"database"},"message":"Starting Database Emulator with command {\"binary\":\"java\",\"args\":[\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\firebase-database-emulator-v4.11.0.jar\",\"--host\",\"127.0.0.1\",\"--port\",9000,\"--single_project_mode\",\"Warning\"],\"optionalArgs\":[\"port\",\"host\",\"functions_emulator_port\",\"functions_emulator_host\",\"single_project_mode\"],\"joinArgs\":false}"}}
 [info] i  database: Database Emulator logging to database-debug.log {"metadata":{"emulator":{"name":"database"},"message":"Database Emulator logging to \u001b[1mdatabase-debug.log\u001b[22m"}}
-[debug] [2023-01-03T14:24:39.472Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
-[debug] [2023-01-03T14:24:40.167Z] Temp file directory for storage emulator: C:\Users\Dom\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Dom\\AppData\\Local\\Temp/firebase/storage/blobs"}}
-[debug] [2023-01-03T14:24:40.173Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 
-[debug] [2023-01-03T14:24:41.264Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 200
-[debug] [2023-01-03T14:24:41.264Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites {"sites":[{"name":"projects/***REMOVED***/sites/***REMOVED***","defaultUrl":"https://***REMOVED***.web.app","type":"DEFAULT_SITE"}]}
-[debug] [2023-01-03T14:24:41.264Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config [none]
-[debug] [2023-01-03T14:24:42.573Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config 200
-[debug] [2023-01-03T14:24:42.573Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config {"projectId":"***REMOVED***","appId":"1:***REMOVED***:web:***REMOVED***","databaseURL":"https://***REMOVED***-default-rtdb.europe-west1.firebasedatabase.app","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west","apiKey":"***REMOVED***","authDomain":"***REMOVED***.firebaseapp.com","messagingSenderId":"***REMOVED***"}
-[debug] [2023-01-03T14:24:42.576Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
-[debug] [2023-01-03T14:24:42.847Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 200
-[debug] [2023-01-03T14:24:42.847Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"projectId":"***REMOVED***","projectNumber":"***REMOVED***","displayName":"health-paths","name":"projects/***REMOVED***","resources":{"hostingSite":"***REMOVED***","realtimeDatabaseInstance":"***REMOVED***-default-rtdb","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west"},"state":"ACTIVE","etag":"1_4cb2bf6e-7d39-42ba-ad44-f24f4dee8d63"}
-[debug] [2023-01-03T14:24:42.848Z] Specified "public" directory "public" does not exist; Deploy to Hosting site "***REMOVED***" may fail or be empty.
+[debug] [2023-01-06T01:42:17.314Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2023-01-06T01:42:18.154Z] Temp file directory for storage emulator: C:\Users\Dom\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Dom\\AppData\\Local\\Temp/firebase/storage/blobs"}}
+[debug] [2023-01-06T01:42:18.163Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 
+[debug] [2023-01-06T01:42:19.225Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 200
+[debug] [2023-01-06T01:42:19.225Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites {"sites":[{"name":"projects/***REMOVED***/sites/***REMOVED***","defaultUrl":"https://***REMOVED***.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2023-01-06T01:42:19.225Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config [none]
+[debug] [2023-01-06T01:42:20.113Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config 200
+[debug] [2023-01-06T01:42:20.113Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config {"projectId":"***REMOVED***","appId":"1:***REMOVED***:web:***REMOVED***","databaseURL":"https://***REMOVED***-default-rtdb.europe-west1.firebasedatabase.app","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west","apiKey":"***REMOVED***","authDomain":"***REMOVED***.firebaseapp.com","messagingSenderId":"***REMOVED***"}
+[debug] [2023-01-06T01:42:20.117Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
+[debug] [2023-01-06T01:42:20.378Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 200
+[debug] [2023-01-06T01:42:20.378Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"projectId":"***REMOVED***","projectNumber":"***REMOVED***","displayName":"health-paths","name":"projects/***REMOVED***","resources":{"hostingSite":"***REMOVED***","realtimeDatabaseInstance":"***REMOVED***-default-rtdb","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west"},"state":"ACTIVE","etag":"1_4cb2bf6e-7d39-42ba-ad44-f24f4dee8d63"}
+[debug] [2023-01-06T01:42:20.379Z] Specified "public" directory "public" does not exist; Deploy to Hosting site "***REMOVED***" may fail or be empty.
 [info] i  hosting[***REMOVED***]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
 [info] +  hosting[***REMOVED***]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
-[debug] [2023-01-03T14:24:42.874Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-03T14:24:42.874Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
-[debug] [2023-01-03T14:24:42.874Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\Dom\\.cache\\firebase\\emulators\\ui-v1.11.1\\server\\server.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.1\\\\server\\\\server.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[debug] [2023-01-06T01:42:20.454Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-06T01:42:20.454Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2023-01-06T01:42:20.454Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\Dom\\.cache\\firebase\\emulators\\ui-v1.11.1\\server\\server.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.1\\\\server\\\\server.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
 [info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
-[debug] [2023-01-03T14:24:43.000Z] Web / API server started at 127.0.0.1:9999
+[debug] [2023-01-06T01:42:20.751Z] Web / API server started at 127.0.0.1:9999
  {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:9999\n"}}
-[debug] [2023-01-03T14:24:43.001Z] Web / API server started at ::1:9999
+[debug] [2023-01-06T01:42:20.751Z] Web / API server started at ::1:9999
  {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:9999\n"}}
-[debug] [2023-01-03T14:24:43.149Z] >>> [apiv2][query] PUT http://127.0.0.1:9000/.settings/rules.json ns=***REMOVED***-default-rtdb
-[debug] [2023-01-03T14:24:43.149Z] >>> [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json "{\n  \"rules\": {\n    \".read\": \"now < 1674860400000\",  // 2023-1-28\n    \".write\": \"now < 1674860400000\",  // 2023-1-28\n  }\n}"
-[debug] [2023-01-03T14:24:43.493Z] <<< [apiv2][status] PUT http://127.0.0.1:9000/.settings/rules.json 200
-[debug] [2023-01-03T14:24:43.493Z] <<< [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json {"status":"ok"}
-[info] 
-┌─────────────────────────────────────────────────────────────┐
-│ ✔  All emulators ready! It is now safe to connect your app. │
-│ i  View Emulator UI at http://127.0.0.1:9999/               │
-└─────────────────────────────────────────────────────────────┘
-
-┌────────────────┬────────────────┬─────────────────────────────────┐
-│ Emulator       │ Host:Port      │ View in Emulator UI             │
-├────────────────┼────────────────┼─────────────────────────────────┤
-│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:9999/auth      │
-├────────────────┼────────────────┼─────────────────────────────────┤
-│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:9999/firestore │
-├────────────────┼────────────────┼─────────────────────────────────┤
-│ Database       │ 127.0.0.1:9000 │ http://127.0.0.1:9999/database  │
-├────────────────┼────────────────┼─────────────────────────────────┤
-│ Hosting        │ 127.0.0.1:5000 │ n/a                             │
-├────────────────┼────────────────┼─────────────────────────────────┤
-│ Storage        │ 127.0.0.1:9199 │ http://127.0.0.1:9999/storage   │
-└────────────────┴────────────────┴─────────────────────────────────┘
-  Emulator Hub running at 127.0.0.1:4400
-  Other reserved ports: 4500, 9150
-
-Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
- 
-[debug] [2023-01-05T18:46:25.361Z] ----------------------------------------------------------------------
-[debug] [2023-01-05T18:46:25.362Z] Command:       G:\Programs\node.exe C:\Users\Dom\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
-[debug] [2023-01-05T18:46:25.363Z] CLI Version:   11.19.0
-[debug] [2023-01-05T18:46:25.363Z] Platform:      win32
-[debug] [2023-01-05T18:46:25.363Z] Node Version:  v18.12.1
-[debug] [2023-01-05T18:46:25.364Z] Time:          Thu Jan 05 2023 19:46:25 GMT+0100 (czas środkowoeuropejski standardowy)
-[debug] [2023-01-05T18:46:25.364Z] ----------------------------------------------------------------------
-[debug] 
-[debug] [2023-01-05T18:46:25.371Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
-[debug] [2023-01-05T18:46:25.487Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"react-native"}
-[debug] [2023-01-05T18:46:25.495Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2023-01-05T18:46:25.495Z] > authorizing via signed-in user (sylaypaper@gmail.com)
-[debug] [2023-01-05T18:46:25.572Z] java version "18.0.2.1" 2022-08-18
-Java(TM) SE Runtime Environment (build 18.0.2.1+1-1)
-
-[debug] [2023-01-05T18:46:25.572Z] Java HotSpot(TM) 64-Bit Server VM (build 18.0.2.1+1-1, mixed mode, sharing)
-
-[debug] [2023-01-05T18:46:25.587Z] Parsed Java major version: 18
-[info] i  emulators: Starting emulators: auth, firestore, database, hosting, storage {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, firestore, database, hosting, storage"}}
-[debug] [2023-01-05T18:46:25.604Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.604Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.604Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.605Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.605Z] [database] Database Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.605Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.605Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
-[debug] [2023-01-05T18:46:25.605Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":9999},{"address":"::1","family":"IPv6","port":9999}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"database":[{"address":"127.0.0.1","family":"IPv4","port":9000}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
-[warn] !  emulators: It seems that you are running multiple instances of the emulator suite for project ***REMOVED***. This may result in unexpected behavior. 
-[debug] [2023-01-05T18:46:25.612Z] [hub] writing locator at C:\Users\Dom\AppData\Local\Temp\hub-***REMOVED***.json
-[debug] [2023-01-05T18:46:25.623Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-05T18:46:25.623Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
-[debug] [2023-01-05T18:46:25.623Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.15.1.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","***REMOVED***","--rules","G:\\Repos\\Patches\\health-pathes\\firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.15.1.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"***REMOVED***\",\"--rules\",\"G:\\\\Repos\\\\Patches\\\\health-pathes\\\\firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false}"}}
-[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
-[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
-[debug] [2023-01-05T18:46:26.692Z] > refreshing access token with scopes: []
-[debug] [2023-01-05T18:46:26.692Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2023-01-05T18:46:26.692Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[warn] !  Unable to fetch the CLI MOTD and remote config. 
-[debug] [2023-01-05T18:47:59.226Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
-[debug] [2023-01-05T18:47:59.837Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
-
-For CI servers and headless environments, generate a new token with firebase login:ci
-[debug] [2023-01-05T18:47:59.837Z] Failed to retrieve default database instance: {"name":"FirebaseError","children":[],"exit":2,"message":"Failed to get Firebase project ***REMOVED***. Please make sure the project exists and your account has permission to access it.","original":{"name":"FirebaseError","children":[],"exit":1,"message":"Authentication Error: Your credentials are no longer valid. Please run \u001b[1mfirebase login --reauth\u001b[22m\n\nFor CI servers and headless environments, generate a new token with \u001b[1mfirebase login:ci\u001b[22m","status":500},"status":500} {"metadata":{"emulator":{"name":"database"},"message":"Failed to retrieve default database instance: {\"name\":\"FirebaseError\",\"children\":[],\"exit\":2,\"message\":\"Failed to get Firebase project ***REMOVED***. Please make sure the project exists and your account has permission to access it.\",\"original\":{\"name\":\"FirebaseError\",\"children\":[],\"exit\":1,\"message\":\"Authentication Error: Your credentials are no longer valid. Please run \\u001b[1mfirebase login --reauth\\u001b[22m\\n\\nFor CI servers and headless environments, generate a new token with \\u001b[1mfirebase login:ci\\u001b[22m\",\"status\":500},\"status\":500}"}}
-[debug] [2023-01-05T18:47:59.838Z] database rules config:  [{"instance":"***REMOVED***-default-rtdb","rules":"G:\\Repos\\Patches\\health-pathes\\database.rules.json"}]
-[debug] [2023-01-05T18:47:59.841Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: projectId"}}
-[debug] [2023-01-05T18:47:59.841Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-05T18:47:59.841Z] Ignoring unsupported arg: rules {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: rules"}}
-[debug] [2023-01-05T18:47:59.841Z] Starting Database Emulator with command {"binary":"java","args":["-Duser.language=en","-jar","C:\\Users\\Dom\\.cache\\firebase\\emulators\\firebase-database-emulator-v4.11.0.jar","--host","127.0.0.1","--port",9000,"--single_project_mode","Warning"],"optionalArgs":["port","host","functions_emulator_port","functions_emulator_host","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"database"},"message":"Starting Database Emulator with command {\"binary\":\"java\",\"args\":[\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\firebase-database-emulator-v4.11.0.jar\",\"--host\",\"127.0.0.1\",\"--port\",9000,\"--single_project_mode\",\"Warning\"],\"optionalArgs\":[\"port\",\"host\",\"functions_emulator_port\",\"functions_emulator_host\",\"single_project_mode\"],\"joinArgs\":false}"}}
-[info] i  database: Database Emulator logging to database-debug.log {"metadata":{"emulator":{"name":"database"},"message":"Database Emulator logging to \u001b[1mdatabase-debug.log\u001b[22m"}}
-[debug] [2023-01-05T18:48:05.890Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
-[debug] [2023-01-05T18:48:06.580Z] Temp file directory for storage emulator: C:\Users\Dom\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Dom\\AppData\\Local\\Temp/firebase/storage/blobs"}}
-[debug] [2023-01-05T18:48:06.586Z] > refreshing access token with scopes: []
-[debug] [2023-01-05T18:48:06.587Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2023-01-05T18:48:06.588Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2023-01-05T18:48:06.705Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
-[debug] [2023-01-05T18:48:06.705Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2023-01-05T18:48:06.718Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 
-[debug] [2023-01-05T18:48:07.836Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 200
-[debug] [2023-01-05T18:48:07.836Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites {"sites":[{"name":"projects/***REMOVED***/sites/***REMOVED***","defaultUrl":"https://***REMOVED***.web.app","type":"DEFAULT_SITE"}]}
-[debug] [2023-01-05T18:48:07.836Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config [none]
-[debug] [2023-01-05T18:48:08.858Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config 200
-[debug] [2023-01-05T18:48:08.859Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config {"projectId":"***REMOVED***","appId":"1:***REMOVED***:web:***REMOVED***","databaseURL":"https://***REMOVED***-default-rtdb.europe-west1.firebasedatabase.app","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west","apiKey":"***REMOVED***","authDomain":"***REMOVED***.firebaseapp.com","messagingSenderId":"***REMOVED***"}
-[debug] [2023-01-05T18:48:08.866Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
-[debug] [2023-01-05T18:48:09.128Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 200
-[debug] [2023-01-05T18:48:09.129Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"projectId":"***REMOVED***","projectNumber":"***REMOVED***","displayName":"health-paths","name":"projects/***REMOVED***","resources":{"hostingSite":"***REMOVED***","realtimeDatabaseInstance":"***REMOVED***-default-rtdb","storageBucket":"***REMOVED***.appspot.com","locationId":"europe-west"},"state":"ACTIVE","etag":"1_4cb2bf6e-7d39-42ba-ad44-f24f4dee8d63"}
-[debug] [2023-01-05T18:48:09.130Z] Specified "public" directory "public" does not exist; Deploy to Hosting site "***REMOVED***" may fail or be empty.
-[info] i  hosting[***REMOVED***]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
-[info] +  hosting[***REMOVED***]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
-[debug] [2023-01-05T18:48:09.194Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2023-01-05T18:48:09.194Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
-[debug] [2023-01-05T18:48:09.194Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\Dom\\.cache\\firebase\\emulators\\ui-v1.11.1\\server\\server.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\Dom\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.1\\\\server\\\\server.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
-[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
-[debug] [2023-01-05T18:48:09.449Z] Web / API server started at 127.0.0.1:9999
- {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:9999\n"}}
-[debug] [2023-01-05T18:48:09.449Z] Web / API server started at ::1:9999
- {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:9999\n"}}
-[debug] [2023-01-05T18:48:09.464Z] >>> [apiv2][query] PUT http://127.0.0.1:9000/.settings/rules.json ns=***REMOVED***-default-rtdb
-[debug] [2023-01-05T18:48:09.464Z] >>> [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json "{\n  \"rules\": {\n    \".read\": \"now < 1674860400000\",  // 2023-1-28\n    \".write\": \"now < 1674860400000\",  // 2023-1-28\n  }\n}"
-[debug] [2023-01-05T18:48:09.774Z] <<< [apiv2][status] PUT http://127.0.0.1:9000/.settings/rules.json 200
-[debug] [2023-01-05T18:48:09.774Z] <<< [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json {"status":"ok"}
+[debug] [2023-01-06T01:42:20.975Z] >>> [apiv2][query] PUT http://127.0.0.1:9000/.settings/rules.json ns=***REMOVED***-default-rtdb
+[debug] [2023-01-06T01:42:20.975Z] >>> [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json "{\n  \"rules\": {\n    \".read\": \"now < 1674860400000\",  // 2023-1-28\n    \".write\": \"now < 1674860400000\",  // 2023-1-28\n  }\n}"
+[debug] [2023-01-06T01:42:21.389Z] <<< [apiv2][status] PUT http://127.0.0.1:9000/.settings/rules.json 200
+[debug] [2023-01-06T01:42:21.390Z] <<< [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json {"status":"ok"}
 [info] 
 ┌─────────────────────────────────────────────────────────────┐
 │ ✔  All emulators ready! It is now safe to connect your app. │

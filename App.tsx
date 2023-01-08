@@ -29,6 +29,7 @@ import { LatLng } from "react-native-maps";
 import LogInScreen from "./src/screens/LogInScreen";
 import OptionsScreen from "./src/screens/OptionsScreen";
 import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
+import MapWebPreview from "./src/screens/MapWebPreviewScreen";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
@@ -75,6 +76,7 @@ export default function App() {
           <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
           <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
           <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
+          <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
           <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
           <Navigator.Screen name="LogIn" component={LogInScreen} />
           <Navigator.Screen name="Opcje" component={OptionsScreen} />

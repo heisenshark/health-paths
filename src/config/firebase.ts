@@ -29,6 +29,7 @@ const firebaseConfig = {
 export interface MapDocument {
   id?: string;
   ownerId: string;
+  ownerName: string;
   description: string;
   name: string;
   rating: number;
@@ -37,6 +38,8 @@ export interface MapDocument {
   location: string;
   visibility: "public" | "private";
   storeRef: string;
+  previewRef: string;
+  iconRef: string;
   createdAt: FirebaseFirestoreTypes.Timestamp;
   lastEditedAt?: FirebaseFirestoreTypes.Timestamp;
 }
@@ -67,7 +70,6 @@ export const db = firestore();
 export const Pathes = db.collection("Pathes");
 export const Users = db.collection("Users");
 export const DbUser = () => firebase.auth().currentUser?.uid;
-
 db.settings({ persistence: false });
 
 async function deleteCollection(collectionPath, batchSize) {
