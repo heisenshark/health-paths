@@ -136,11 +136,13 @@ async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<Medi
     (await copyExistingFileToMedia(media, mapNameDir, path)) && medias.push(media);
   return medias;
 }
+
 async function saveMap(map: HealthPath) {
   const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;
   const dirInfo = await createIfNotExists(mapNameDir, { isFile: false });
   const currentUser = await GoogleSignin.getCurrentUser();
+  const isUserLogged = DbUser() !== undefined;
   console.log(dirInfo);
   let existingInfo = undefined;
   console.log("map::: ", map);
@@ -152,10 +154,10 @@ async function saveMap(map: HealthPath) {
   }
 
   const webFields = {};
-  if (DbUser() !== undefined) {
+  if (isUserLogged) {
     webFields["authorId"] = DbUser();
     webFields["authorName"] = await currentUser.user.name;
-    if (existingInfo != undefined) webFields["webId"] = map.webId;
+    if (existingInfo !== undefined) webFields["webId"] = map.webId;
   }
 
   const mapInfo = {
@@ -212,7 +214,7 @@ async function saveMap(map: HealthPath) {
 
   const urban = {
     path_id: map.map_id,
-    path_icon: map.imageIcon?.media_id, //wrok on it
+    path_icon: map.imageIcon?.media_id,
     displayed_name: map.name,
     approximate_distance_in_meters: map.distance * 1000, //HACK elo to powinno być zawsze w metrach tbh
     is_cyclic: false,
@@ -227,7 +229,6 @@ async function saveMap(map: HealthPath) {
   try {
     for (const stop of map.stops) {
       console.log(stop);
-
       await checkExistanceOfMedia(stop, mapNameDir);
     }
 
@@ -308,9 +309,7 @@ async function loadMapInfo(id: string): Promise<HealthPath> {
 }
 
 async function loadMapInfoDir(id: string): Promise<HealthPath> {
-  const mapNameDir = `${mapDir}${id}/`;
-  const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
-  return JSON.parse(mapInfo) as HealthPath;
+  return loadMapInfo(id.substring(1));
 }
 
 async function moveMap(id: string, idTo: string) {
@@ -536,16 +535,12 @@ async function downloadMap(map: MapDocument) {
 }
 
 async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {
-  // Get a list of all the files in the directory
-
   const info = await fs.getInfoAsync(directory);
   if (!info.exists) return;
-  const results = await fs.readDirectoryAsync(directory);
 
-  // Filter the list of files to keep only those with disallowed names
+  const results = await fs.readDirectoryAsync(directory);
   const filesToDelete = results.filter((name) => !allowedNames.includes(name));
 
-  // Delete the unwanted files
   for (const file of filesToDelete) {
     await fs.deleteAsync(`${directory}/${file}`);
   }
