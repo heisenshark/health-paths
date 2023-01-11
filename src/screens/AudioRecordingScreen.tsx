@@ -11,6 +11,7 @@ interface AudioRecordingScreenProps {}
 //Ok, ten screen dostaje route z stoppoints, nagrywa audio i zwraca route
 //właśnie do stoppoints tylko ze ścieżką do audio
 //ewentualnie zrobię ten komponent jako modal
+//TODO naprawić buga który uniemożliwia zastopowanie nagrywania audio
 const AudioRecordingScreen = ({ navigation, route }) => {
   const nav = useNavigation();
   const [status, setStatus] = useRecordingState(RecordingStatus.NO_RECORD);

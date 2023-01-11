@@ -16,8 +16,6 @@ import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
 const mapDir = fs.documentDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/files
 const cacheDir = fs.cacheDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/cache
-// Checks if gif directory exists. If not, creates it
-
 /*
 Map "testmap" 
   Audio/ 
@@ -85,10 +83,9 @@ async function createIfNotExists(
   } else await fs.makeDirectoryAsync(path, { intermediates: true });
   return await fs.getInfoAsync(path);
 }
+
 async function writeToFile(path: string, data: string = "") {
-  const fileInfo = await fs.getInfoAsync(path);
-  // console.log(fileInfo);
-  const aaaa = fs.writeAsStringAsync(path, data);
+  const aaaa = await fs.writeAsStringAsync(path, data);
   // console.log(aaaa);
 }
 
@@ -116,42 +113,17 @@ async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path
 }
 
 async function checkExistanceOfMedia(stop: Waypoint, mapNameDir: string) {
-  const checkOne = async (p: string) => {
-    if (p === undefined) return undefined;
-    return await fs.getInfoAsync(p);
+  const checkMedia = async (med: MediaFile) => {
+    if (med) {
+      const p = med.storage_type === "local" ? mapNameDir + med.path : med.path;
+      if (p === undefined) return;
+      const exist = await fs.getInfoAsync(p);
+      if (exist && !exist.exists) med.path = undefined;
+    }
   };
-  if (stop.introduction_audio) {
-    const introPath =
-      stop.introduction_audio.storage_type === "local"
-        ? mapNameDir + stop.introduction_audio.path
-        : stop.introduction_audio?.path;
-    console.log(introPath);
-
-    const intro = await checkOne(introPath);
-    if (intro && !intro.exists) {
-      stop.introduction_audio.path = undefined;
-    }
-  }
-  if (stop.navigation_audio) {
-    const navPath =
-      stop.navigation_audio.storage_type === "local"
-        ? mapNameDir + stop.navigation_audio.path
-        : stop.navigation_audio?.path;
-    console.log(navPath);
-    const nav = await checkOne(navPath);
-    if (nav && !nav.exists) {
-      stop.navigation_audio.path = undefined;
-    }
-  }
-  if (stop.image) {
-    const imageCoverPath =
-      stop.image.storage_type === "local" ? mapNameDir + stop.image.path : stop.image?.path;
-    console.log(imageCoverPath);
-    const imageCover = await checkOne(imageCoverPath);
-    if (stop && !imageCover.exists) {
-      stop.image.path = undefined;
-    }
-  }
+  [stop.introduction_audio, stop.navigation_audio, stop.image].forEach(async (med) => {
+    await checkMedia(med);
+  });
 }
 
 async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<MediaFile[]> {
@@ -176,13 +148,6 @@ async function saveMap(map: HealthPath) {
   console.log(dirInfo);
   let existingInfo = undefined;
   console.log("map::: ", map);
-
-  createIfNotExists(mapNameDir + "audios/");
-  // createIfNotExists(mapNameDir + "images/");
-  // createIfNotExists(mapNameDir + "images/covers/"); //clear this dir
-  // createIfNotExists(mapNameDir + "audios/introductions/"); //clear this dir
-  // createIfNotExists(mapNameDir + "audios/navigations/"); //clear this dir
-  // createIfNotExists(mapNameDir + "Video/");
 
   //Obliczanie dystansu ścieżki
   if (map.distance === undefined) {
@@ -514,12 +479,7 @@ async function listAllMaps(): Promise<HealthPath[]> {
 async function createDownloadTrackerIfNotExist() {
   const dirInfo = await createIfNotExists(mapDir, { isFile: false });
   const target = `${mapDir}downloadTracker.json`;
-  const fileInfo = await createIfNotExists(target, { isFile: true });
-  // console.log(fileInfo);
-  if (!fileInfo.exists) {
-    // console.log("downloadTracker.json doesn't exist, creating...");
-    await fs.writeAsStringAsync(target, JSON.stringify({}));
-  }
+  const fileInfo = await createIfNotExists(target, { isFile: true, content: "{}" });
 }
 
 async function saveDownloadTracker(xd: { [id: string]: DownloadTrackerRecord }) {
@@ -527,6 +487,7 @@ async function saveDownloadTracker(xd: { [id: string]: DownloadTrackerRecord }) 
   await createDownloadTrackerIfNotExist();
   await fs.writeAsStringAsync(target, JSON.stringify(xd));
 }
+
 async function loadDownloadTracker() {
   const target = `${mapDir}downloadTracker.json`;
   await createDownloadTrackerIfNotExist();
@@ -536,7 +497,6 @@ async function loadDownloadTracker() {
 
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
-
   const cacheInfo = await createIfNotExists(cacheDir);
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
   const reference = stor.ref(map.storeRef);
