@@ -70,23 +70,20 @@ export function getURI(map: HealthPath, media: MediaFile) {
   return `${mapDir}_${map.map_id}/${media.path}`;
 }
 async function ensureMapDirExists() {
-  const dirInfo = await fs.getInfoAsync(mapDir);
-  console.log(dirInfo);
-  if (!dirInfo.exists) {
-    console.log("Map directory doesn't exist, creating...");
-    await fs.makeDirectoryAsync(mapDir, { intermediates: true });
-  }
-  // const files = await fs.readDirectoryAsync(mapDir);
-  // console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
+  await createIfNotExists(mapDir, { isFile: false });
 }
 
-async function createIfNotExists(path: string) {
-  const dirInfo = await fs.getInfoAsync(path);
-  // console.log(dirInfo);
-  if (!dirInfo.exists || !dirInfo.isDirectory) {
-    // console.log("Map directory doesn't exist, creating...");
-    await fs.makeDirectoryAsync(path);
-  }
+async function createIfNotExists(
+  path: string,
+  { isFile = false, content = "" }: { isFile: boolean; content?: string } = { isFile: false }
+) {
+  const info = await fs.getInfoAsync(path);
+  if (info.exists) return info;
+
+  if (isFile) {
+    await fs.writeAsStringAsync(path, content);
+  } else await fs.makeDirectoryAsync(path, { intermediates: true });
+  return await fs.getInfoAsync(path);
 }
 async function writeToFile(path: string, data: string = "") {
   const fileInfo = await fs.getInfoAsync(path);
@@ -174,16 +171,10 @@ async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<Medi
 async function saveMap(map: HealthPath) {
   const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;
-  const dirInfo = await fs.getInfoAsync(mapNameDir);
+  const dirInfo = await createIfNotExists(mapNameDir, { isFile: false });
   const currentUser = await GoogleSignin.getCurrentUser();
   console.log(dirInfo);
   let existingInfo = undefined;
-  if (!dirInfo.exists) {
-    console.log(`Mapdirectory ${map} doesn't exist, creating...`);
-    await fs.makeDirectoryAsync(mapNameDir, { intermediates: true });
-  } else {
-    existingInfo = await loadMapInfo(map.map_id);
-  }
   console.log("map::: ", map);
 
   createIfNotExists(mapNameDir + "audios/");
@@ -432,12 +423,7 @@ async function UploadMapFolder(id: string) {
 
     saveMapInfo({ ...mapinfo }, id);
 
-    const dirInfo = await fs.getInfoAsync(cacheDir);
-    console.log(dirInfo);
-    if (!dirInfo.exists) {
-      console.log("Cache directory doesn't exist, creating...");
-      await fs.makeDirectoryAsync(cacheDir, { intermediates: true });
-    }
+    const dirInfo = await createIfNotExists(cacheDir, { isFile: false });
 
     const zipPath = await zip(mapNameDir, target);
     console.log("zipUploadMapPath", zipPath);
@@ -526,14 +512,9 @@ async function listAllMaps(): Promise<HealthPath[]> {
 }
 
 async function createDownloadTrackerIfNotExist() {
-  const dirInfo = await fs.getInfoAsync(mapDir);
-  console.log(dirInfo);
-  if (!dirInfo.exists) {
-    console.log("Mapdir doesn't exist, creating...");
-    await fs.makeDirectoryAsync(mapDir, { intermediates: true });
-  }
+  const dirInfo = await createIfNotExists(mapDir, { isFile: false });
   const target = `${mapDir}downloadTracker.json`;
-  const fileInfo = await fs.getInfoAsync(target);
+  const fileInfo = await createIfNotExists(target, { isFile: true });
   // console.log(fileInfo);
   if (!fileInfo.exists) {
     // console.log("downloadTracker.json doesn't exist, creating...");
@@ -556,13 +537,7 @@ async function loadDownloadTracker() {
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
 
-  const cacheInfo = await fs.getInfoAsync(cacheDir);
-  console.log(cacheInfo);
-  if (!cacheInfo.exists) {
-    console.log("Cache directory doesn't exist, creating...");
-    await fs.makeDirectoryAsync(cacheDir, { intermediates: true });
-  }
-
+  const cacheInfo = await createIfNotExists(cacheDir);
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
   const reference = stor.ref(map.storeRef);
   let refName = reference.name;
