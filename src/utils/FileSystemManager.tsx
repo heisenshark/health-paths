@@ -90,8 +90,7 @@ async function writeToFile(path: string, data: string = "") {
 }
 
 async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path: string) {
-  if (file === undefined || !file || file.media_id === undefined || file.path === undefined)
-    return undefined;
+  if (!file || file.media_id === undefined || file.path === undefined) return undefined;
   console.log("copyExistingFileToMedia 1 ", file);
   console.log(file, mapNameDir, path);
 
@@ -128,16 +127,13 @@ async function checkExistanceOfMedia(stop: Waypoint, mapNameDir: string) {
 
 async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<MediaFile[]> {
   let medias = [];
-  const a = await copyExistingFileToMedia(stop.image, mapNameDir, "images/covers/");
-  a !== undefined && medias.push(a);
-  const b = await copyExistingFileToMedia(
-    stop.introduction_audio,
-    mapNameDir,
-    "audios/introductions/"
-  );
-  b !== undefined && medias.push(b);
-  const c = await copyExistingFileToMedia(stop.navigation_audio, mapNameDir, "audios/navigations/");
-  c !== undefined && medias.push(c);
+  const elo: [MediaFile, string][] = [
+    [stop.introduction_audio, "audios/introductions/"],
+    [stop.navigation_audio, "audios/navigations/"],
+    [stop.image, "images/covers/"],
+  ];
+  for (const [media, path] of elo)
+    (await copyExistingFileToMedia(media, mapNameDir, path)) && medias.push(media);
   return medias;
 }
 async function saveMap(map: HealthPath) {
