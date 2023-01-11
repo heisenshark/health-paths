@@ -12,7 +12,7 @@ interface RatingProps {
   onRatingChange?: (rating: number) => void;
 }
 
-const Rating = ({ onRatingChange, size = 50, style, disabled = true }: RatingProps) => {
+const Rating = ({ onRatingChange, size = 50, style, disabled = false }: RatingProps) => {
   const [number, setNumber] = useState(1);
   return (
     <View style={[tw`flex flex-row`, style]}>

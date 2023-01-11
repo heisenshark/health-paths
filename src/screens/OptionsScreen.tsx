@@ -1,18 +1,18 @@
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Text, View, Image, ScrollView } from "react-native";
+import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Button } from "react-native-elements";
 import tw from "../lib/tailwind";
 import { useUserStore } from "../stores/store";
 import firestore from "@react-native-firebase/firestore";
 import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
 import { firebase } from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
-  const [logIn, logOut, user, checkLogged] = useUserStore((state) => [
-    state.logIn,
+  const [logOut, user, checkLogged] = useUserStore((state) => [
     state.logOut,
     state.user,
     state.checkLogged,
@@ -39,7 +39,26 @@ const OptionsScreen = ({ navigation, route }) => {
     return users;
   };
 
+  const logIn = async () => {
+    try {
+      const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const { idToken } = await GoogleSignin.signIn();
+      // Create a Google credential with the token
+      const googleCredential = await auth.GoogleAuthProvider.credential(idToken);
+      await GoogleSignin.clearCachedAccessToken(idToken);
+      await GoogleSignin.getTokens();
+      // Sign-in the user with the credential
+      await auth().signInWithCredential(googleCredential);
+      const usr = await GoogleSignin.getCurrentUser();
+    } catch (e) {
+      console.log("err");
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
+    console.log("navchange options");
+
     const unsub = Pathes.onSnapshot((querySnapshot) => {
       const list = [];
       querySnapshot.forEach((doc) => {
@@ -53,7 +72,7 @@ const OptionsScreen = ({ navigation, route }) => {
     });
 
     return unsub;
-  }, []);
+  }, [route.key]);
 
   return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
@@ -66,7 +85,7 @@ const OptionsScreen = ({ navigation, route }) => {
         onPress={async () => {
           await firebase.auth().signOut();
           // console.log(DbUser());
-          // GoogleSignin.signOut();
+          GoogleSignin.signOut();
           setIsLogged(false);
           // logOut();
         }}
@@ -144,12 +163,26 @@ const OptionsScreen = ({ navigation, route }) => {
     <View style={tw`flex items-center`}>
       <Text style={tw`text-3xl p-10 pb-2`}>Opcje Użytkownika</Text>
       <Text style={tw`text-3xl pb-10`}>Zaloguj się aby korzystać z opcji</Text>
-      <Button
+      {/* <Button
         title="Zaloguj"
         onPress={() => {
           navigation.navigate("LogIn");
         }}
-      />
+      /> */}
+      <TouchableOpacity
+        style={tw`w-10/12 h-4/12 bg-red-100 flex items-center justify-center border-4 rounded-2xl`}
+        onPress={() =>
+          logIn()
+            .then(() => {
+              console.log("Signed in with Google!");
+              setIsLogged(true);
+            })
+            .catch((err) => {
+              console.log(err);
+            })
+        }>
+        <Text style={tw`text-xl text-center p-6`}>Zaloguj się przez google</Text>
+      </TouchableOpacity>
     </View>
   );
 };

@@ -21,6 +21,8 @@ export const calculateDistance = (path: LatLng[]) => {
   }
   return distance;
 };
+export const imagePlaceholder =
+  "https://cdn.discordapp.com/attachments/989095141874749470/1060571824385163384/800px-Question_mark_28black29.png";
 
 export const getCityAdress = (location: string) => {
   if (location === undefined) return "";

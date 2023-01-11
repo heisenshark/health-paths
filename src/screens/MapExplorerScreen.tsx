@@ -13,14 +13,12 @@ import {
   loadMap,
   zipUploadMapFolder,
 } from "../utils/FileSystemManager";
-import { getCityAdress } from "../utils/HelperFunctions";
+import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
 //TODO uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
 
 const MapExplorerScreen = ({ navigation, route }) => {
-  const imagePlaceholder =
-    "https://cdn.discordapp.com/attachments/989095141874749470/1060571824385163384/800px-Question_mark_28black29.png";
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
   const [maps, setMaps] = useState<HealthPath[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

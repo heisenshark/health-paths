@@ -20,9 +20,9 @@ package Aplikacja {
  together {
   together {
    usecase "Logowanie przez konto google" as u1
-   usecase "Rejestracja przez konto google" as u2
+   ' usecase "Rejestracja przez konto google" as u2
   }
-  usecase "Ocenianie/komentowanie ścieżek" as u3
+  usecase "Ocenianie ścieżek" as u3
   usecase "Tworzenie ścieżek" as u4
   usecase "Przeglądanie ścieżek" as u5
   usecase "Zarządzanie lokalnymi ścieżkami" as u8
@@ -36,11 +36,11 @@ package Aplikacja {
   usecase "poprzez nagrywanie lokalizacji" as u14
  }
 
- usecase "filtrowanie i sortowanie ścieżek" as u9
+ ' usecase "filtrowanie i sortowanie ścieżek" as u9
  usecase "edycja punktów stopu" as u15
  usecase "edycja opisu" as u16
  usecase "ustawianie prywatności ścieżki" as u17
- usecase "usuwanie" as u18
+ usecase "usuwanie/edycja" as u18
 }
 ' layout
 ' u <|-- admin
@@ -50,7 +50,7 @@ package Aplikacja {
 ' admin--u-|>u
 
 uu --> u1
-uu --> u2
+' uu --> u2
 uu --> u4
 uu --> u5
 uu --> u8
@@ -69,7 +69,7 @@ u15 .u.>  u4 : <<extend>>
 u16 .u.>  u4 : <<extend>>
 u12 .u.> u4 : <<extend>>
 
-u9 .u.> u5 : <<extend>>
+' u9 .u.> u5 : <<extend>>
 
 u17 .u.> u6 : <<extend>>
 u18 .u.> u6 : <<extend>>

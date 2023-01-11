@@ -7,17 +7,17 @@ import SquareButton from "./../components/SquareButton";
 import { FirebaseStorageTypes } from "@react-native-firebase/storage";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { formatDistance, getCityAdress } from "./../utils/HelperFunctions";
+import { formatDistance, getCityAdress, imagePlaceholder } from "./../utils/HelperFunctions";
 import { map } from "@firebase/util";
 import { firebase } from "@react-native-firebase/auth";
 import { Card } from "react-native-paper";
 import Rating from "../components/Rating";
 import { Pathes } from "../config/firebase";
+import { downloadMap } from "../utils/FileSystemManager";
 //TODO make this screen work
 const MapWebPreview = ({ navigation, route }) => {
   const [mapa, setMapa] = useState<MapDocument>({});
-  const [ratingsList, setRatingsList] = useState([]);
-  const rating = useRef<Rating>();
+  const rate = useRef<number>(0);
   console.log(mapa);
   const formatTime = (time: number) => {
     if (time === undefined) return "";
@@ -54,7 +54,7 @@ const MapWebPreview = ({ navigation, route }) => {
         <View style={tw` flex flex-row mx-4 mt-4`}>
           <Image
             style={tw`flex-0 h-30 w-30 bg-white mr-2 rounded-md`}
-            source={{ uri: mapa?.iconRef }}></Image>
+            source={{ uri: mapa.iconRef !== "" ? mapa.iconRef : imagePlaceholder }}></Image>
           <View>
             <Text style={tw`text-2xl mt-2 flex-1`} numberOfLines={2}>
               {mapa.name}
@@ -72,7 +72,12 @@ const MapWebPreview = ({ navigation, route }) => {
         </Text>
         <View
           style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300 `}>
-          <SquareButton style={tw`flex-1 mr-4 h-10`} label={"pobierz"}></SquareButton>
+          <SquareButton
+            style={tw`flex-1 mr-4 h-10`}
+            label={"pobierz"}
+            onPress={async () => {
+              downloadMap(mapa);
+            }}></SquareButton>
           <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
         </View>
 
@@ -104,15 +109,43 @@ const MapWebPreview = ({ navigation, route }) => {
           <View style={tw`flex flex-col justify-center items-center`}>
             <Text style={tw`text-3xl text-center`}>Oceń mape</Text>
             <Rating
-              style={tw`w-full justify-around`}
+              style={tw`w-full justify-around mb-4`}
               onRatingChange={(rating) => {
-                console.log(rating);
+                rate.current = rating;
               }}></Rating>
             <View style={tw`flex-row`}>
               <SquareButton
-                style={tw`flex-1 mx-4 h-10 mb-4`}
+                style={tw`flex-1 mx-4 h-10 mb-10`}
                 label={"Zrób cokolwiek"}
-                onPress={() => {
+                onPress={async () => {
+                  // console.log("rate", rate.current);
+                  const r = rate.current as number;
+
+                  const prevValue = await db
+                    .collection("Ratings")
+                    .doc(mapa.id + DbUser())
+                    .get();
+
+                  const dta = prevValue.data();
+
+                  const elo = await db
+                    .collection("Ratings")
+                    .doc(mapa.id + DbUser())
+                    .set({
+                      mapId: mapa.id,
+                      userId: DbUser(),
+                      rating: r,
+                    });
+                  console.log("ssss");
+
+                  let ratingSum = rate.current;
+                  if (dta && dta.rating) ratingSum -= dta.rating;
+                  const addition = dta ? 0 : 1;
+                  console.log("ratingSum", ratingSum, mapa.id);
+                  await Pathes.doc(mapa.id).update({
+                    rating: firebase.firestore.FieldValue.increment(ratingSum),
+                    ratingCount: firebase.firestore.FieldValue.increment(addition),
+                  });
                   fetchMap();
                 }}></SquareButton>
             </View>

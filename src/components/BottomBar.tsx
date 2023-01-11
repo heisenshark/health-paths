@@ -17,7 +17,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
     <View
       style={tw`h-[28] bg-white flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
       <SquareButton
-        label={"Trasy"}
+        label={"Pulpit"}
         uberActive={currentRoute === "Trasy"}
         onPress={() => {
           navigationRef.navigate("Trasy");

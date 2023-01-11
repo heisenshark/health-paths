@@ -23,7 +23,7 @@ export function WaypointsList({ waypoints, onDelete }: WaypointsListProps) {
               <TouchableOpacity
                 style={tw`w-2/6 flex-1 flex items-center justify-center`}
                 onPress={() => onDelete(index)}>
-                <Text style={tw`h-max text-2xl text-center align-middle`}>X</Text>
+                <Text style={tw`h-max text-2xl text-center`}>X</Text>
               </TouchableOpacity>
             </View>
           </Card>

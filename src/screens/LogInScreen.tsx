@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { Alert, Text, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import tw from "../lib/tailwind";
 
 import { makeRedirectUri, startAsync } from "expo-auth-session";
@@ -7,12 +8,13 @@ import { useEffect, useState } from "react";
 import { Input, Button } from "react-native-elements";
 
 import auth from "@react-native-firebase/auth";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { useUserStore } from "./../stores/store";
+import { DbUser } from "./../config/firebase";
+import SquareButton from "../components/SquareButton";
 
 const LogInScreen = ({ navigation }) => {
-  const [logIn, logOut, user, checkUser] = useUserStore((state) => [
-    state.logIn,
+  const [logOut, user, checkUser] = useUserStore((state) => [
     state.logOut,
     state.user,
     state.checkLogged,
@@ -27,76 +29,41 @@ const LogInScreen = ({ navigation }) => {
       setIsLogged(res);
     });
   }, []);
+  const logIn = async () => {
+    try {
+      const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const { idToken } = await GoogleSignin.signIn();
+      // Create a Google credential with the token
+      const googleCredential = await auth.GoogleAuthProvider.credential(idToken);
+      await GoogleSignin.clearCachedAccessToken(idToken);
+      await GoogleSignin.getTokens();
+      // Sign-in the user with the credential
+      await auth().signInWithCredential(googleCredential);
+      const usr = await GoogleSignin.getCurrentUser();
+    } catch (e) {
+      console.log("err");
+      console.log(e);
+    }
+  };
 
-  async function signInWithGoogle() {}
-
-  GoogleSignin.configure({
-    webClientId: "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
-  });
-
-  function GoogleSignIn() {
-    return (
-      <Button
-        title="Google Sign-In"
+  return (
+    <View style={tw`flex flex-col h-full items-center justify-around`}>
+      {DbUser() && <Text>Zalogowano</Text>}
+      <TouchableOpacity
+        style={tw`w-10/12 h-2/12 bg-red-100 flex items-center justify-center border-4 rounded-2xl`}
         onPress={() =>
           logIn()
             .then(() => {
               console.log("Signed in with Google!");
+              navigation.goBack();
             })
             .catch((err) => {
               console.log(err);
             })
-        }
-      />
-    );
-  }
-  async function onGoogleButtonPress() {
-    // Check if your device supports Google Play
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    // Get the users ID token
-    const { idToken } = await GoogleSignin.signIn();
-    console.log(idToken);
-
-    // Create a Google credential with the token
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-    // Sign-in the user with the credential
-    return auth().signInWithCredential(googleCredential);
-  }
-
-  return (
-    <View style={tw`flex flex-col h-full justify-around`}>
-      <View>
-        <Input
-          label="Email"
-          leftIcon={{ type: "font-awesome", name: "envelope" }}
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={"none"}
-        />
-        <Input
-          label="Password"
-          leftIcon={{ type: "font-awesome", name: "lock" }}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={"none"}
-        />
-      </View>
-      <View>
-        <Button title="Sign up" onPress={() => signInWithGoogle()} />
-        <Button
-          title="Sign outta there "
-          onPress={() => {
-            logOut();
-          }}
-        />
-        {GoogleSignIn()}
-        {user && <Text>Logged in as {user.user.name}</Text>}
-      </View>
-      <Button title="Go Back" onPress={() => navigation.goBack()} />
+        }>
+        <Text style={tw`text-xl text-center p-6`}>Zaloguj się przez google</Text>
+      </TouchableOpacity>
+      <Button title="Wróć" onPress={() => navigation.goBack()} />
     </View>
   );
 };

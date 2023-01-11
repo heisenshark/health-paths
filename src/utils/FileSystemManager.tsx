@@ -10,7 +10,7 @@ import storage from "@react-native-firebase/storage";
 import { useUserStore } from "./../stores/store";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import { db, stor, addMap, MapDocument, Pathes } from "../config/firebase";
+import { db, stor, addMap, MapDocument, Pathes, Users } from "../config/firebase";
 import { calculateDistance } from "./HelperFunctions";
 import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
@@ -35,7 +35,6 @@ export {
   loadMap,
   deleteMap,
   UploadMapFolder as zipUploadMapFolder,
-  cloudCheck,
   downloadMap,
   moveMap,
 };
@@ -390,12 +389,41 @@ async function deleteMap(id: string) {
 }
 
 async function UploadMapFolder(id: string) {
-  const mapNameDir = `${mapDir}_${id}/`;
-  const target = `${cacheDir}_${id}.zip`;
+  let mapNameDir = `${mapDir}_${id}/`;
+  let target = `${cacheDir}_${id}.zip`;
   try {
-    const mapinfo = await loadMapInfo(id);
-    const user = await GoogleSignin.getCurrentUser();
+    let mapinfo = await loadMapInfo(id);
     // console.log(user.user.);
+
+    //Tutaj jest kawałek kodu odopowiadający za sprawdzenie wlasciciela mapy
+    //jeśli właścicielem jest użytkownik uploadujący mapę to updateujemy ją
+    //jeśli nie to tworzymy nową mapę i uploadujemy
+    //jeśli nie ma webId to zakładamy że wszystko git
+
+    const isPresentInWeb = mapinfo.webId !== undefined;
+    let createNewInstance = true;
+    if (isPresentInWeb) {
+      const m = await Pathes.doc(mapinfo.webId).get();
+      const md = m.data() as MapDocument;
+      if (md.ownerId === DbUser()) {
+        createNewInstance = false;
+      } else {
+        // przypadek jeśli user nie jest właścicielem
+      }
+    }
+
+    if (createNewInstance) {
+      const newId = uuid.v4().toString();
+      await moveMap(id, newId);
+      id = newId;
+      mapinfo = await loadMapInfo(id);
+      console.log("new mapinfo", id, mapinfo);
+      mapNameDir = `${mapDir}_${id}/`;
+      target = `${cacheDir}_${id}.zip`;
+      if (mapinfo.webId !== undefined) mapinfo.webId = undefined;
+    }
+
+    const user = await GoogleSignin.getCurrentUser();
     mapinfo.authorId = DbUser();
     mapinfo.authorName = user.user.name;
     console.log(mapinfo);
@@ -414,6 +442,7 @@ async function UploadMapFolder(id: string) {
     const zipPath = await zip(mapNameDir, target);
     console.log("zipUploadMapPath", zipPath);
     console.log(DbUser(), mapinfo);
+    const u = Users.doc(DbUser()).get();
 
     const stor = firebase.storage();
     // stor.getActiveUploadTasks();
@@ -426,7 +455,7 @@ async function UploadMapFolder(id: string) {
       console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
     });
     task.then(() => {
-      console.log("Image uploaded to the bucket!");
+      console.log("HealthPath uploaded to the bucket!");
     });
     task.catch((e) => {
       console.log(e);
@@ -462,8 +491,8 @@ async function UploadMapFolder(id: string) {
       ratingCount: 0,
       distance: mapinfo.distance,
       visibility: "public",
-      iconRef: iconURL,
-      previewRef: previewURL,
+      iconRef: iconURL !== undefined ? iconURL : "",
+      previewRef: previewURL !== undefined ? previewURL : "",
       storeRef: reference.fullPath,
       location: mapinfo.location,
       createdAt: firestore.FieldValue.serverTimestamp(),
@@ -496,11 +525,11 @@ async function listAllMaps(): Promise<HealthPath[]> {
   return maps;
 }
 
-async function createDownloadTracker() {
+async function createDownloadTrackerIfNotExist() {
   const dirInfo = await fs.getInfoAsync(mapDir);
   console.log(dirInfo);
   if (!dirInfo.exists) {
-    console.log("Cache directory doesn't exist, creating...");
+    console.log("Mapdir doesn't exist, creating...");
     await fs.makeDirectoryAsync(mapDir, { intermediates: true });
   }
   const target = `${mapDir}downloadTracker.json`;
@@ -514,18 +543,26 @@ async function createDownloadTracker() {
 
 async function saveDownloadTracker(xd: { [id: string]: DownloadTrackerRecord }) {
   const target = `${mapDir}downloadTracker.json`;
-  await createDownloadTracker();
+  await createDownloadTrackerIfNotExist();
   await fs.writeAsStringAsync(target, JSON.stringify(xd));
 }
 async function loadDownloadTracker() {
   const target = `${mapDir}downloadTracker.json`;
-  await createDownloadTracker();
+  await createDownloadTrackerIfNotExist();
   const data = await fs.readAsStringAsync(target);
   return JSON.parse(data) as DownloadTracker;
 }
 
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
+
+  const cacheInfo = await fs.getInfoAsync(cacheDir);
+  console.log(cacheInfo);
+  if (!cacheInfo.exists) {
+    console.log("Cache directory doesn't exist, creating...");
+    await fs.makeDirectoryAsync(cacheDir, { intermediates: true });
+  }
+
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
   const reference = stor.ref(map.storeRef);
   let refName = reference.name;
@@ -567,29 +604,6 @@ async function downloadMap(map: MapDocument) {
   await saveDownloadTracker(tracker);
 }
 
-async function cloudCheck(id: string) {
-  const user = DbUser();
-  console.log(user);
-
-  const reference = stor.ref(`Maps/${user}/_${id}/test`);
-  const task = reference.putString("test");
-  task.on("state_changed", (taskSnapshot) => {
-    console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
-  });
-
-  task.then(() => {
-    console.log("Image uploaded to the bucket!");
-  });
-
-  task.catch((e) => {
-    console.log(e);
-  });
-  setTimeout(() => {
-    console.log("task cancelled");
-    task.cancel();
-  }, 3000);
-}
-
 async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {
   // Get a list of all the files in the directory
 
@@ -627,9 +641,9 @@ async function clearMapDir(map: HealthPath) {
   const stopImages = [];
 
   for (const a of map.stops) {
-    intros.push(getNameFromUri(a.introduction_audio.path));
-    navs.push(getNameFromUri(a.navigation_audio.path));
-    stopImages.push(getNameFromUri(a.image.path));
+    intros.push(getNameFromUri(a.introduction_audio?.path));
+    navs.push(getNameFromUri(a.navigation_audio?.path));
+    stopImages.push(getNameFromUri(a.image?.path));
   }
   deleteUnwantedFiles(mapNameDir + "audios/introductions", intros);
   deleteUnwantedFiles(mapNameDir + "audios/navigations", navs);

@@ -55,7 +55,10 @@ export interface RatingDocument {
 }
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const signinApp = initializeApp(firebaseConfig);
+GoogleSignin.configure({
+  webClientId: "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
+});
 
 export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator

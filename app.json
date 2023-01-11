@@ -43,6 +43,11 @@
       ],
       "expo-build-properties",
       "@react-native-google-signin/google-signin"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5149282b-591f-45e6-9f16-659659600a65"
+      }
+    }
   }
 }

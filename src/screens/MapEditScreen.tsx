@@ -150,7 +150,7 @@ const MapEditScreen = ({ navigation, route }) => {
       path: uri,
     } as MediaFile;
     console.log("printing preview and icon onSaveEvent");
-    
+
     console.log(xd.imagePreview);
     console.log(xd.imageIcon);
 
@@ -252,7 +252,8 @@ const MapEditScreen = ({ navigation, route }) => {
           {
             text: "Opusć",
             style: "destructive",
-            onPress: () => navigation.dispatch(e.data.action),
+            onPress: () => {
+              navigation.dispatch(e.data.action)},
           },
         ]
       );
@@ -353,6 +354,8 @@ const MapEditScreen = ({ navigation, route }) => {
               apikey={API_KEY}
               strokeWidth={3}
               strokeColor="red"
+              lineDashPattern={[0]}
+              precision={"low"}
               onReady={(n) => {
                 console.log(n);
                 console.log(n.legs[0].start_address);
@@ -401,12 +404,12 @@ const MapEditScreen = ({ navigation, route }) => {
         />
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
-          label={"save"}
+          label={"zapisz"}
           onPress={() => {
             setMapInfoModalVisible(true);
             setShowUserLocation(false);
           }}
-          disabled={fullPath !== undefined && fullPath.length < 2}
+          // disabled={!isRecording && fullPath !== undefined && fullPath.length < 2}
           icon="save"
         />
 

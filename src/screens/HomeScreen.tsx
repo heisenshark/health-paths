@@ -1,6 +1,7 @@
-import { firebase } from "@react-native-firebase/auth"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { firebase } from "@react-native-firebase/auth";
 import React, { useEffect, useState } from "react";
-import { Text, View, Button } from "react-native";
+import { Text, View, Button, FlatList } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import PaletteTest from "../components/PaletteTest";
 import SquareButton from "../components/SquareButton";
@@ -8,6 +9,7 @@ import { DbUser } from "../config/firebase";
 import tw from "../lib/tailwind";
 import { HealthPath } from "../utils/interfaces";
 import { useMapStore } from "./../stores/store";
+import LogInScreen from "./LogInScreen";
 
 const HomeScreen = ({ navigation }) =>
 //TODO przycisk podłóżny
@@ -18,6 +20,36 @@ const HomeScreen = ({ navigation }) =>
 
   const [lol, setLol] = useState(1);
   //generate random number
+
+  const data = [
+    {
+      id: 1,
+      label: "Lokalne mapy",
+      onPress: () => navigation.navigate("PrzegladanieMap"),
+    },
+    {
+      id: 2,
+      label: "Przeglądaj",
+      onPress: () => navigation.navigate("PrzegladanieWebMap"),
+    },
+    {
+      id: 3,
+      label: "Zaloguj się",
+      onPress: () => navigation.navigate("LogIn"),
+    },
+  ];
+
+  const renderItem = ({ label, onPress }) => {
+    return (
+      <SquareButton
+        style={tw`flex border-2 mx-1 my-1`}
+        size={30}
+        label={label}
+        icon="check"
+        onPress={onPress}></SquareButton>
+    );
+  };
+
   return (
     <View>
       {/* <View className="flex-row flex-wrap">
@@ -29,9 +61,21 @@ const HomeScreen = ({ navigation }) =>
         <SquareButton label="Zapisz" icon="save"></SquareButton>
         <SquareButton label="Zapisz" icon="save"></SquareButton>
       </View> */}
-      <Button
+      <Text style={tw`text-center p-5 text-3xl pt-5 pb-2 mb-3 font-bold bg-main-5 `}>
+          EKRAN GŁÓWNY
+      </Text>
+      <View style={tw`flex flex-col justify-center`}>
+        <FlatList
+          style={tw`flex `}
+          columnWrapperStyle={tw`flex flex-row justify-center`}
+          numColumns={2}
+          data={data}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.id}></FlatList>
+      </View>
+      {/* <Button
         title="Go to map screen"
-        onPress={() => navigation.navigate("Nagraj", { name: "Jane" })}
+        onPress={() => navigation.navigate("Nagraj")}
       />
       <Button
         title="Go to AudioRecord"
@@ -49,10 +93,9 @@ const HomeScreen = ({ navigation }) =>
         onPress={() => {
           useMapStore.getState().clearMap();
         }}
-      />
-      <Button title="lol" onPress={() => setLol(lol + 1)} />
-      <Button title="signout" onPress={() => firebase.auth().signOut()} />
-      <Button title="printuser" onPress={() => console.log(DbUser())} />
+      /> */}
+      {/* <Button title="signout" onPress={() => firebase.auth().signOut()} /> */}
+      {/* <Button title="printuser" onPress={() => console.log(DbUser())} /> */}
     </View>
   );
 };
