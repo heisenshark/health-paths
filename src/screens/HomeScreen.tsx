@@ -95,7 +95,7 @@ const HomeScreen = ({ navigation }) =>
         }}
       /> */}
       {/* <Button title="signout" onPress={() => firebase.auth().signOut()} /> */}
-      {/* <Button title="printuser" onPress={() => console.log(DbUser())} /> */}
+      <Button title="printuser" onPress={() => console.log(DbUser())} />
     </View>
   );
 };

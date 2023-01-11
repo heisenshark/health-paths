@@ -259,7 +259,6 @@ async function saveMap(map: HealthPath) {
   await writeToFile(mapNameDir + "urban_paths.json", JSON.stringify(urban));
   clearMapDir(map);
   //[x] write code that clears the rest of files in mapdir, to stop local storage from leaking
-
   return mapNameDir;
 }
 
@@ -342,6 +341,8 @@ async function deleteMap(id: string) {
 async function UploadMapFolder(id: string) {
   let mapNameDir = `${mapDir}_${id}/`;
   let target = `${cacheDir}_${id}.zip`;
+  const tracker = (await loadDownloadTracker()) as DownloadTracker;
+
   try {
     let mapinfo = await loadMapInfo(id);
     // console.log(user.user.);
@@ -356,14 +357,15 @@ async function UploadMapFolder(id: string) {
     if (isPresentInWeb) {
       const m = await Pathes.doc(mapinfo.webId).get();
       const md = m.data() as MapDocument;
-      if (md.ownerId === DbUser()) {
+      if (md && md.ownerId === DbUser()) {
         createNewInstance = false;
       } else {
         // przypadek jeśli user nie jest właścicielem
       }
     }
 
-    if (createNewInstance) {
+    //przeniesienie mapy pod nowe ID oraz zmiana ID webowego
+    if (createNewInstance && isPresentInWeb) {
       const newId = uuid.v4().toString();
       await moveMap(id, newId);
       id = newId;
@@ -443,10 +445,21 @@ async function UploadMapFolder(id: string) {
       location: mapinfo.location,
       createdAt: firestore.FieldValue.serverTimestamp(),
     } as MapDocument;
+    let docid = undefined;
+    if (mapinfo.webId) docid = await addMap(data, mapinfo.webId);
+    else docid = await addMap(data);
+    console.log(docid, id);
 
-    console.log(data);
-    const doc = await addMap(data);
-    await saveMapInfo({ ...mapinfo, webId: doc.id }, id);
+    await saveMapInfo({ ...mapinfo, webId: docid }, id);
+
+    tracker[docid] = {
+      mapId: mapinfo.map_id,
+      webId: docid,
+      downloadDate: firestore.Timestamp.now(),
+    };
+
+    console.log(tracker);
+    await saveDownloadTracker(tracker);
   } catch (err) {
     console.log(err);
     return;
@@ -488,6 +501,24 @@ async function loadDownloadTracker() {
   await createDownloadTrackerIfNotExist();
   const data = await fs.readAsStringAsync(target);
   return JSON.parse(data) as DownloadTracker;
+}
+
+export async function validateDownloadTracker() {
+  console.log("Validating download tracker");
+
+  const tracker = await loadDownloadTracker();
+  Object.entries(tracker).map(async (entry) => {
+    let key = entry[0];
+    let value = entry[1];
+    const path = value.mapId;
+    const mapInfo = await loadMapInfo(path);
+    if (mapInfo === undefined) {
+      console.log("MapInfo is undefined");
+      delete tracker[key];
+    }
+    // console.log(key, value);
+  });
+  await saveDownloadTracker(tracker);
 }
 
 async function downloadMap(map: MapDocument) {

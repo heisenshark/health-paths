@@ -21,7 +21,7 @@ import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
-import { createNewMap, ensureMapDirExists, listAllMaps } from "./src/utils/FileSystemManager";
+import { createNewMap, ensureMapDirExists, listAllMaps, validateDownloadTracker } from "./src/utils/FileSystemManager";
 
 import * as TaskManager from "expo-task-manager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
@@ -35,6 +35,7 @@ import MapWebPreview from "./src/screens/MapWebPreviewScreen";
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
 
 const Navigator = createNativeStackNavigator();
+validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
 export default function App() {

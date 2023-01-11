@@ -108,10 +108,23 @@ export async function deleteQueryBatch(query, resolve) {
   });
 }
 
-export const addMap = async (map: MapDocument) => {
-  // if(map.)
-  const doc = await Pathes.add(map);
-  console.log(doc);
+export const addMap = async (map: MapDocument, webId: string = undefined) => {
+  let doc = null;
+  let id = "";
+  console.log(map);
+
+  if (webId === undefined) {
+    console.log("elo");
+    
+    doc = await Pathes.add(map);
+    id = doc.id;
+  } else {
+    await Pathes.doc(webId).set(map);
+    doc = map
+    id = webId;
+    doc["id"] = webId;
+  }
+  console.log(id);
 
   const userId = firebase.auth().currentUser?.uid;
   const user = await Users.doc(userId).get();
@@ -119,12 +132,12 @@ export const addMap = async (map: MapDocument) => {
   if (user.data()?.maps.length >= 20) throw new Error("You have reached the limit of 20 maps");
   await Users.doc(userId).set(
     {
-      maps: firestore.FieldValue.arrayUnion(doc.id),
+      maps: firestore.FieldValue.arrayUnion(id),
     },
     { merge: true }
   );
   console.log("chuj");
-  return doc;
+  return id;
 };
 
 export const addRating = async (rating: RatingDocument) => {
