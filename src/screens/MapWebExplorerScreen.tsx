@@ -1,3 +1,4 @@
+import { useFocusEffect } from "@react-navigation/native"
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
@@ -46,6 +47,13 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
     console.log("elo");
     listAllMaps();
   }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("On Focus, fetching the maps");
+      listAllMaps();
+    }, [])
+  );
 
   return (
     <View style={tw`h-full`}>
