@@ -19,6 +19,7 @@ const Rating = ({ onRatingChange, size = 50, style, disabled = false }: RatingPr
       {[1, 2, 3, 4, 5].map((index) => {
         return (
           <Icon
+            key={index}
             style={tw`${disabled ? "text-main-9 " : "text-main-6"} flex`}
             name={"star"}
             size={size}
