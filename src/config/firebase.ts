@@ -65,7 +65,7 @@ export const stor = firebase.storage();
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
 if (__DEV__) {
   firestore().useEmulator("localhost", 8081);
-  firebase.storage().useEmulator("10.0.2.2", 9199);
+  firebase.storage().useEmulator("localhost", 9199);
   console.log("elo firebase devmode");
 }
 
@@ -115,12 +115,12 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
 
   if (webId === undefined) {
     console.log("elo");
-    
+
     doc = await Pathes.add(map);
     id = doc.id;
   } else {
     await Pathes.doc(webId).set(map);
-    doc = map
+    doc = map;
     id = webId;
     doc["id"] = webId;
   }
@@ -138,6 +138,33 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
   );
   console.log("chuj");
   return id;
+};
+
+async function deleteFile(fileRef) {
+  try {
+    await fileRef.delete();
+    console.log("File deleted successfully");
+  } catch (error) {
+    if (error.code === "storage/object-not-found") {
+      console.log("File not found");
+    } else {
+      console.log("Error deleting file:", error);
+    }
+  }
+}
+
+export const deleteMapWeb = async (webId: string) => {
+  const docref = Pathes.doc(webId);
+  let doc = await docref.get();
+  if (!doc.exists) return;
+  await deleteFile(stor.ref(doc.data().storeRef));
+  if (!__DEV__) {
+    const iconRef = stor.refFromURL(doc.data().iconRef);
+    const previewRef = stor.refFromURL(doc.data().previewRef);
+    await deleteFile(iconRef);
+    await deleteFile(previewRef);
+  }
+  await docref.delete();
 };
 
 export const addRating = async (rating: RatingDocument) => {

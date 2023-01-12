@@ -27,7 +27,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   const listAllMaps = () => {
     db.collection("Pathes")
-      // .where("visibility", "==", "public")
+      .where("visibility", "==", "public")
       .get()
       .then((querySnapshot) => {
         let maps = [];

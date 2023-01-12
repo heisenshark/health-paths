@@ -36,7 +36,10 @@ const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalP
                 <TouchableRipple
                   key={index}
                   style={tw`bg-white h-20`}
-                  onPress={() => action.onPress()}
+                  onPress={() => {
+                    action.onPress();
+                    onRequestClose();
+                  }}
                   rippleColor="rgba(0, 0, 0, .32)">
                   <View style={tw`flex flex-row items-center w-full h-full`}>
                     {action.icon !== undefined && (

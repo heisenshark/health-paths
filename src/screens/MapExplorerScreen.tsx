@@ -5,7 +5,14 @@ import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import OptionsModal from "../components/OptionsModal";
 import SquareButton from "../components/SquareButton";
-import { DbUser, MapDocument, Pathes, Users } from "../config/firebase";
+import {
+  DbUser,
+  deleteMapWeb,
+  MapDocument,
+  Pathes,
+  togglePrivate,
+  Users,
+} from "../config/firebase";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import {
@@ -28,6 +35,8 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(true);
   const [additionalOptions, setAdditionalOptions] = useState([]);
   const [mapsState, setMapsState] = useState("local");
+
+  const [webDisabled, setWebDisabled] = useState(false);
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   const refreshMaps = async () => {
@@ -58,8 +67,11 @@ const MapExplorerScreen = ({ navigation, route }) => {
   useFocusEffect(
     React.useCallback(() => {
       if (DbUser() === undefined) {
+        setWebDisabled(true);
         setMapsState("local");
         setAdditionalOptions(localOptions());
+      } else {
+        setWebDisabled(false);
       }
       console.log("aaaaaa");
     }, [])
@@ -121,21 +133,21 @@ const MapExplorerScreen = ({ navigation, route }) => {
     ];
   }
 
-  function webOptions(isPrivate: boolean) {
+  function webOptions(map: MapDocument, isPrivate: boolean) {
     return [
       {
         label: "pokaż",
         icon: "minus-circle",
         onPress: async () => {
-          console.log("mocked");
+          navigation.navigate("MapWebPreviewScreen", { webMap: map });
         },
-        disabled: isPrivate,
       },
       {
         label: "ustaw na prywatną",
         icon: "minus-circle",
         onPress: async () => {
-          console.log("mocked");
+          await togglePrivate(map.id, true);
+          map.visibility = "private";
         },
         disabled: isPrivate,
       },
@@ -143,7 +155,8 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "ustaw na publiczną",
         icon: "minus-circle",
         onPress: async () => {
-          console.log("mocked");
+          await togglePrivate(map.id, false);
+          map.visibility = "public";
         },
         disabled: !isPrivate,
       },
@@ -151,9 +164,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "usuń",
         icon: "minus-circle",
         onPress: async () => {
-          console.log("mocked");
+          await deleteMapWeb(map.id);
+          console.log("usunieto");
+          await fetchUserMaps();
         },
-        disabled: isPrivate,
       },
     ];
   }
@@ -199,45 +213,38 @@ const MapExplorerScreen = ({ navigation, route }) => {
   }
 
   function renderUserMaps() {
-    return (
-      userMaps
-        // .filter((map) => {
-        //   return (
-        //     map.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        //     map.location.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        //   );
-        // })
-        .map((map) => {
-          if (map.previewRef) console.log({ aa: map.previewRef });
+    return userMaps.map((map) => {
+      if (map.previewRef) console.log({ aa: map.previewRef });
 
-          return (
-            <Card
-              key={map.id}
-              style={tw`flex flex-row my-1 mx-2`}
-              onPress={() => {
-                selectedMap.current = map;
-                setModalVisible(true);
-                setAdditionalOptions(webOptions(map.visibility === "private"));
-              }}>
-              <Card.Content style={tw`flex flex-row`}>
-                <Image
-                  style={tw`flex-0 h-20 w-20 bg-white mr-2`}
-                  source={{
-                    uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
-                  }}></Image>
+      return (
+        <Card
+          key={map.id}
+          style={tw`flex flex-row my-1 mx-2`}
+          onPress={() => {
+            selectedMap.current = map;
+            console.log({ map, modalVisible });
 
-                <View style={tw`flex-1`}>
-                  <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
-                    {map.name}
-                  </Text>
-                  <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
-                  <Text style={tw`text-xl`}>{map.id}</Text>
-                </View>
-              </Card.Content>
-            </Card>
-          );
-        })
-    );
+            setAdditionalOptions(webOptions(map, map.visibility === "private"));
+            setModalVisible(true);
+          }}>
+          <Card.Content style={tw`flex flex-row`}>
+            <Image
+              style={tw`flex-0 h-20 w-20 bg-white mr-2`}
+              source={{
+                uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
+              }}></Image>
+
+            <View style={tw`flex-1`}>
+              <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
+                {map.name}
+              </Text>
+              <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
+              <Text style={tw`text-xl`}>{map.id}</Text>
+            </View>
+          </Card.Content>
+        </Card>
+      );
+    });
   }
 
   return (
@@ -268,18 +275,22 @@ const MapExplorerScreen = ({ navigation, route }) => {
           style={tw`flex flex-1 h-10 mx-4 my-2`}
           uberActive={mapsState === "web"}
           label="web"
-          disabled={DbUser() === undefined}
+          disabled={webDisabled}
           onPress={() => {
             fetchUserMaps();
             setMapsState("web");
           }}
         />
       </View>
-      <Searchbar
-        placeholder="Wyszukaj ścieżkę"
-        style={tw`shadow-md`}
-        value={searchQuery}
-        onChangeText={onChangeSearch}></Searchbar>
+
+      {mapsState === "local" && (
+        <Searchbar
+          placeholder="Wyszukaj ścieżkę"
+          style={tw`shadow-md`}
+          value={searchQuery}
+          onChangeText={onChangeSearch}></Searchbar>
+      )}
+
       <ScrollView>
         {mapsState === "local" && renderMaps()}
         {mapsState === "web" && renderUserMaps()}
