@@ -37,7 +37,7 @@ export {
   moveMap,
 };
 
-interface DownloadTrackerRecord {
+export interface DownloadTrackerRecord {
   mapId: string;
   webId: string;
   downloadDate: FirebaseFirestoreTypes.Timestamp;
@@ -519,6 +519,11 @@ export async function validateDownloadTracker() {
     // console.log(key, value);
   });
   await saveDownloadTracker(tracker);
+}
+
+export async function getdownloadTrackerKey(key: string) {
+  const tracker = await loadDownloadTracker();
+  return tracker[key];
 }
 
 async function downloadMap(map: MapDocument) {

@@ -13,10 +13,15 @@ import { firebase } from "@react-native-firebase/auth";
 import { Card } from "react-native-paper";
 import Rating from "../components/Rating";
 import { Pathes } from "../config/firebase";
-import { downloadMap } from "../utils/FileSystemManager";
+import {
+  downloadMap,
+  DownloadTrackerRecord,
+  getdownloadTrackerKey,
+} from "../utils/FileSystemManager";
 //TODO make this screen work
 const MapWebPreview = ({ navigation, route }) => {
   const [mapa, setMapa] = useState<MapDocument>({});
+  const [optionsState, setOptionsState] = useState("download");
   const rate = useRef<number>(0);
   console.log(mapa);
   const formatTime = (time: number) => {
@@ -27,7 +32,21 @@ const MapWebPreview = ({ navigation, route }) => {
   const fetchMap = async () => {
     const newMap = await Pathes.doc(mapa.id).get();
     console.log("aaaaaa", newMap.data());
-    setMapa({ id: mapa.id, ...newMap.data() });
+    setMapa({ id: mapa.id, ...newMap.data() } as MapDocument);
+  };
+
+  //jakie są stany
+  //1. mapa nie istnieje na dysku(download)
+  //2. mapa istnieje na dysku ale jest nieaktualna(update, usuń)
+  //3. mapa istnieje na dysku i jest aktualna (pokaż, usuń)
+  const compareInfo = (map: MapDocument, record: DownloadTrackerRecord): string => {
+    // const downloadDate = new Date(record.downloadDate.seconds * 1000);
+    // const uploadDate = new Date(map.createdAt.seconds * 1000);
+    console.log(map.createdAt, record.downloadDate);
+
+    if (record === undefined) return "download";
+    if (record.downloadDate.seconds + 10 < map.createdAt.seconds) return "update";
+    else return "delete";
   };
 
   useEffect(() => {
@@ -37,7 +56,40 @@ const MapWebPreview = ({ navigation, route }) => {
     const date = new Date(m.createdAt.seconds * 1000);
     const dateString = format(m.createdAt.seconds * 1000, "do LLLL yyyy", { locale: pl });
     console.log(dateString, "");
+
+    getdownloadTrackerKey(m.id).then((key) => {
+      console.log("key", key);
+      if (key !== undefined) {
+        const state = compareInfo(m, key);
+        console.log("state", state);
+        setOptionsState(state);
+      }
+    });
   }, []);
+
+  function renderOptions() {
+    switch (optionsState) {
+    case "download":
+      return (
+        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pobierz"}></SquareButton>
+    );
+    case "update":
+      return (
+        <>
+        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"zaktualizuj"}></SquareButton>
+        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
+        </>
+    );
+    case "delete":
+      return (
+        <>
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pokaż"}></SquareButton>
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
+        </>
+      );
+    }
+  }
+
   return (
     <>
       <View style={tw`bg-slate-300`}>
@@ -72,13 +124,7 @@ const MapWebPreview = ({ navigation, route }) => {
         </Text>
         <View
           style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300 `}>
-          <SquareButton
-            style={tw`flex-1 mr-4 h-10`}
-            label={"pobierz"}
-            onPress={async () => {
-              downloadMap(mapa);
-            }}></SquareButton>
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
+          {renderOptions()}
         </View>
 
         <View style={tw`flex flex-col items-center`}>
