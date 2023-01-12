@@ -1,10 +1,10 @@
-import { useFocusEffect } from "@react-navigation/native"
+import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Card } from "react-native-paper";
 import SquareButton from "../components/SquareButton";
-import { db, Pathes, MapDocument, togglePrivate } from "../config/firebase";
+import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import { downloadMap } from "../utils/FileSystemManager";
@@ -27,7 +27,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   const listAllMaps = () => {
     db.collection("Pathes")
-      .where("visibility", "==", "public")
+      // .where("visibility", "==", "public")
       .get()
       .then((querySnapshot) => {
         let maps = [];
@@ -90,19 +90,21 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
                     </Text> */}
                     <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
                   </View>
-                  <SquareButton
-                    label="Download"
-                    style={tw`ml-auto flex-1`}
-                    size={10}
-                    disabled={false}
-                    onPress={() => {
-                      console.log("map.visibility === \"public\"", map.visibility === "public");
-                      downloadMap(map);
-                      // togglePrivate(map.id, map.visibility === "public").then(() => {
-                      //   listAllMaps();
-                      //   console.log("end");
-                      // });
-                    }}></SquareButton>
+                  {map.ownerId === DbUser() && (
+                    <SquareButton
+                      label="Privacy"
+                      style={tw`ml-auto flex-1`}
+                      size={10}
+                      disabled={false}
+                      onPress={() => {
+                        console.log("map.visibility === \"public\"", map.visibility === "public");
+
+                        // downloadMap(map);
+                        togglePrivate(map.id, map.visibility === "public").then(() => {
+                          console.log("end");
+                        });
+                      }}></SquareButton>
+                  )}
                   <SquareButton
                     label="Go to Preview"
                     style={tw`ml-auto flex-1`}

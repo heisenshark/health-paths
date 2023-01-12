@@ -49,7 +49,7 @@ type DownloadTracker = {
 
 //TODO upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
 //TODO zrobić tak aby można było ustawić prywatność przed uploadem mapy
-//TODO upewnić się że na pewno usuwamy pliki po edycji mapki takie jak zdjęcia które zostały zedytowane itp
+//[x] upewnić się że na pewno usuwamy pliki po edycji mapki takie jak zdjęcia które zostały zedytowane itp
 
 const getNameFromUri = (uri: string) => {
   if (!uri) return undefined;
@@ -338,7 +338,7 @@ async function deleteMap(id: string) {
   await fs.deleteAsync(mapNameDir);
 }
 
-async function UploadMapFolder(id: string) {
+async function UploadMapFolder(id: string, privacy: "public"|"private" = "public") {
   let mapNameDir = `${mapDir}_${id}/`;
   let target = `${cacheDir}_${id}.zip`;
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
@@ -397,7 +397,7 @@ async function UploadMapFolder(id: string) {
     const reference = stor.ref(`Maps/${DbUser()}/_${id}`);
     const task = reference.putFile(zipPath, {
       cacheControl: "no-store", // disable caching
-      customMetadata: { visibility: "public" },
+      customMetadata: { visibility: privacy },
     });
     task.on("state_changed", (taskSnapshot) => {
       console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
@@ -438,7 +438,7 @@ async function UploadMapFolder(id: string) {
       rating: 0,
       ratingCount: 0,
       distance: mapinfo.distance,
-      visibility: "public",
+      visibility: privacy,
       iconRef: iconURL !== undefined ? iconURL : "",
       previewRef: previewURL !== undefined ? previewURL : "",
       storeRef: reference.fullPath,

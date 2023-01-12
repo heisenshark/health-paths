@@ -1,7 +1,7 @@
 //[x] learn zutshand and try to think about it
 //[x] learn firestore
 //TODO finish firestore database
-//TODO finish presentation about the project
+//[x] finish presentation about the project
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
 //TODO make GUI of adding map points so clunky it makes less requests to api
