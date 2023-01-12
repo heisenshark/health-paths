@@ -14,12 +14,18 @@ import { Card } from "react-native-paper";
 import Rating from "../components/Rating";
 import { Pathes } from "../config/firebase";
 import {
+  deleteMap,
   downloadMap,
   DownloadTrackerRecord,
   getdownloadTrackerKey,
+  loadMap,
 } from "../utils/FileSystemManager";
+import { useMapStore } from "../stores/store";
 //TODO make this screen work
+//TODO maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
+  const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
+
   const [mapa, setMapa] = useState<MapDocument>({});
   const [optionsState, setOptionsState] = useState("download");
   const rate = useRef<number>(0);
@@ -71,20 +77,54 @@ const MapWebPreview = ({ navigation, route }) => {
     switch (optionsState) {
     case "download":
       return (
-        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pobierz"}></SquareButton>
-    );
+        <SquareButton
+          style={tw`flex-1 ml-4 h-10`}
+          label={"pobierz"}
+          onPress={async () => {
+            await downloadMap(mapa);
+            setOptionsState("delete");
+          }}></SquareButton>
+      );
     case "update":
       return (
         <>
-        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"zaktualizuj"}></SquareButton>
-        <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
+          <SquareButton
+            style={tw`flex-1 ml-4 h-10`}
+            label={"zaktualizuj"}
+            onPress={async () => {
+              await downloadMap(mapa);
+              setOptionsState("delete");
+            }}></SquareButton>
+          <SquareButton
+            style={tw`flex-1 ml-4 h-10`}
+            label={"usuń"}
+            onPress={async () => {
+              const info = await getdownloadTrackerKey(mapa.id);
+              await deleteMap(info.mapId);
+              setOptionsState("download");
+            }}></SquareButton>
         </>
-    );
+      );
     case "delete":
       return (
         <>
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pokaż"}></SquareButton>
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"}></SquareButton>
+          <SquareButton
+            style={tw`flex-1 ml-4 h-10`}
+            label={"pokaż"}
+            onPress={async () => {
+              const info = await getdownloadTrackerKey(mapa.id);
+              const m = await loadMap("", info.mapId);
+              setCurrentMap(m);
+              navigation.navigate("PodgladMap");
+            }}></SquareButton>
+          <SquareButton
+            style={tw`flex-1 ml-4 h-10`}
+            label={"usuń"}
+            onPress={async () => {
+              const info = await getdownloadTrackerKey(mapa.id);
+              await deleteMap(info.mapId);
+              setOptionsState("download");
+            }}></SquareButton>
         </>
       );
     }

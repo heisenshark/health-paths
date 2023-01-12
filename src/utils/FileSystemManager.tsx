@@ -335,10 +335,15 @@ async function saveMapInfo(data: HealthPath, id: string): Promise<boolean> {
 
 async function deleteMap(id: string) {
   const mapNameDir = `${mapDir}_${id}/`;
+  const info = await loadMapInfo(id);
+  if (info.webId) {
+    const val = await getdownloadTrackerKey(info.webId);
+    if (val) await deleteDownloadTrackerKey(val.webId);
+  }
   await fs.deleteAsync(mapNameDir);
 }
 
-async function UploadMapFolder(id: string, privacy: "public"|"private" = "public") {
+async function UploadMapFolder(id: string, privacy: "public" | "private" = "public") {
   let mapNameDir = `${mapDir}_${id}/`;
   let target = `${cacheDir}_${id}.zip`;
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
@@ -352,15 +357,18 @@ async function UploadMapFolder(id: string, privacy: "public"|"private" = "public
     //jeśli nie to tworzymy nową mapę i uploadujemy
     //jeśli nie ma webId to zakładamy że wszystko git
 
-    const isPresentInWeb = mapinfo.webId !== undefined;
+    let isPresentInWeb = mapinfo.webId !== undefined;
     let createNewInstance = true;
     if (isPresentInWeb) {
       const m = await Pathes.doc(mapinfo.webId).get();
-      const md = m.data() as MapDocument;
-      if (md && md.ownerId === DbUser()) {
-        createNewInstance = false;
-      } else {
-        // przypadek jeśli user nie jest właścicielem
+      if (!m.exists) isPresentInWeb = false;
+      else {
+        const md = m.data() as MapDocument;
+        if (md && md.ownerId === DbUser()) {
+          createNewInstance = false;
+        } else {
+          // przypadek jeśli user nie jest właścicielem
+        }
       }
     }
 
@@ -524,6 +532,12 @@ export async function validateDownloadTracker() {
 export async function getdownloadTrackerKey(key: string) {
   const tracker = await loadDownloadTracker();
   return tracker[key];
+}
+
+export async function deleteDownloadTrackerKey(key: string) {
+  const tracker = await loadDownloadTracker();
+  delete tracker[key];
+  saveDownloadTracker(tracker);
 }
 
 async function downloadMap(map: MapDocument) {
