@@ -53,11 +53,11 @@ export default function App() {
 
   return (
     //TODO finish settings screen
-    //TODO finish mapselect screen
-    //TODO finish info screen
-    //TODO finish mymaps screen
-    //TODO add tracking position and making tracks by gps
-    //TODO dodać możliwość eksportu mapy
+    //[x] finish mapselect screen
+    //[x] finish info screen
+    //[x] finish mymaps screen
+    //[x] add tracking position and making tracks by gps
+    //[x] dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
     <>
       {isTunnel && <StatusBar style="auto" />}

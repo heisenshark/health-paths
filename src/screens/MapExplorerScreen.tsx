@@ -1,7 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import OptionsModal from "../components/OptionsModal";
 import SquareButton from "../components/SquareButton";
@@ -115,7 +115,22 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "Prześlij do internetu",
         icon: "minus-circle",
         onPress: async () => {
-          if (DbUser() !== undefined) await zipUploadMapFolder(selectedMap.current.map_id);
+          if (DbUser() === undefined) {
+            setModalVisible(false);
+            return;
+          }
+
+          Alert.alert("Przesyłanie mapy", "Wybierz prywatność", [
+            {
+              text: "Publiczna",
+              onPress: async () => await zipUploadMapFolder(selectedMap.current.map_id, "public"),
+            },
+            {
+              text: "Prywatna",
+              onPress: async () => await zipUploadMapFolder(selectedMap.current.map_id, "private"),
+            },
+            { text: "Anuluj", onPress: () => console.log("OK Pressed") },
+          ]);
           setModalVisible(false);
         },
         disabled: DbUser() === undefined,

@@ -21,7 +21,7 @@ import {
   loadMap,
 } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
-//TODO make this screen work
+//[x] make this screen work
 //TODO maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
