@@ -362,3 +362,128 @@ Java(TM) SE Runtime Environment (build 18.0.2+9-61)
 
 Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
  
+[info] {"result":{"permit":true},"id":150,"status":"ok"}
+{"result":{"permit":true},"id":151,"status":"ok"} {"metadata":{"emulator":{"name":"storage"},"message":"{\"result\":{\"permit\":true},\"id\":150,\"status\":\"ok\"}\r\n{\"result\":{\"permit\":true},\"id\":151,\"status\":\"ok\"}"}}
+[debug] [2023-01-12T12:58:41.955Z] ----------------------------------------------------------------------
+[debug] [2023-01-12T12:58:41.957Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Sylay\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2023-01-12T12:58:41.958Z] CLI Version:   11.20.0
+[debug] [2023-01-12T12:58:41.958Z] Platform:      win32
+[debug] [2023-01-12T12:58:41.958Z] Node Version:  v16.14.2
+[debug] [2023-01-12T12:58:41.968Z] Time:          Thu Jan 12 2023 13:58:41 GMT+0100 (Central European Standard Time)
+[debug] [2023-01-12T12:58:41.968Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-01-12T12:58:41.972Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2023-01-12T12:58:42.055Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"react-native"}
+[debug] [2023-01-12T12:58:42.061Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] Failed to authenticate, have you run firebase login?
+[warn] !  emulators: You are not currently authenticated so some features may not work correctly. Please run firebase login to authenticate the CLI. 
+[debug] [2023-01-12T12:58:42.196Z] java version "18.0.2" 2022-07-19
+
+[debug] [2023-01-12T12:58:42.197Z] Java(TM) SE Runtime Environment (build 18.0.2+9-61)
+Java HotSpot(TM) 64-Bit Server VM (build 18.0.2+9-61, mixed mode, sharing)
+
+[debug] [2023-01-12T12:58:42.209Z] Parsed Java major version: 18
+[info] i  emulators: Starting emulators: auth, firestore, database, hosting, storage {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, firestore, database, hosting, storage"}}
+[debug] [2023-01-12T12:58:42.229Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [database] Database Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.229Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-12T12:58:42.230Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":9999},{"address":"::1","family":"IPv6","port":9999}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"database":[{"address":"127.0.0.1","family":"IPv4","port":9000}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[warn] !  emulators: It seems that you are running multiple instances of the emulator suite for project ***REMOVED***. This may result in unexpected behavior. 
+[debug] [2023-01-12T12:58:42.235Z] [hub] writing locator at C:\Users\Sylay\AppData\Local\Temp\hub-***REMOVED***.json
+[debug] [2023-01-12T12:58:42.244Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-12T12:58:42.245Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2023-01-12T12:58:42.245Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Sylay\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.15.1.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","***REMOVED***","--rules","C:\\Users\\Sylay\\Documents\\GitHub\\geolocationtest\\health-pathes\\firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Sylay\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.15.1.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"***REMOVED***\",\"--rules\",\"C:\\\\Users\\\\Sylay\\\\Documents\\\\GitHub\\\\geolocationtest\\\\health-pathes\\\\firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
+[debug] [2023-01-12T12:58:42.408Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2023-01-12T12:58:42.409Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
+[debug] [2023-01-12T12:58:44.522Z] > refreshing access token with scopes: []
+[debug] [2023-01-12T12:58:44.523Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2023-01-12T12:58:44.523Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:44.651Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2023-01-12T12:58:44.651Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:44.652Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
+[debug] [2023-01-12T12:58:44.771Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 401
+[debug] [2023-01-12T12:58:44.771Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"error":{"code":401,"message":"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"CREDENTIALS_MISSING","domain":"googleapis.com","metadata":{"method":"google.firebase.service.v1beta1.FirebaseProjectService.GetFirebaseProject","service":"firebase.googleapis.com"}}]}}
+[debug] [2023-01-12T12:58:44.772Z] HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2023-01-12T12:58:44.772Z] Failed to retrieve default database instance: {"name":"FirebaseError","children":[],"exit":2,"message":"Failed to get Firebase project ***REMOVED***. Please make sure the project exists and your account has permission to access it.","original":{"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":401,"message":"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"CREDENTIALS_MISSING","domain":"googleapis.com","metadata":{"method":"google.firebase.service.v1beta1.FirebaseProjectService.GetFirebaseProject","service":"firebase.googleapis.com"}}]}},"response":{"statusCode":401}},"exit":1,"message":"HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":401},"status":500} {"metadata":{"emulator":{"name":"database"},"message":"Failed to retrieve default database instance: {\"name\":\"FirebaseError\",\"children\":[],\"exit\":2,\"message\":\"Failed to get Firebase project ***REMOVED***. Please make sure the project exists and your account has permission to access it.\",\"original\":{\"name\":\"FirebaseError\",\"children\":[],\"context\":{\"body\":{\"error\":{\"code\":401,\"message\":\"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":\"UNAUTHENTICATED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"CREDENTIALS_MISSING\",\"domain\":\"googleapis.com\",\"metadata\":{\"method\":\"google.firebase.service.v1beta1.FirebaseProjectService.GetFirebaseProject\",\"service\":\"firebase.googleapis.com\"}}]}},\"response\":{\"statusCode\":401}},\"exit\":1,\"message\":\"HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":401},\"status\":500}"}}
+[debug] [2023-01-12T12:58:44.772Z] database rules config:  [{"instance":"***REMOVED***-default-rtdb","rules":"C:\\Users\\Sylay\\Documents\\GitHub\\geolocationtest\\health-pathes\\database.rules.json"}]
+[debug] [2023-01-12T12:58:44.773Z] Ignoring unsupported arg: projectId {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: projectId"}}
+[debug] [2023-01-12T12:58:44.774Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-12T12:58:44.774Z] Ignoring unsupported arg: rules {"metadata":{"emulator":{"name":"database"},"message":"Ignoring unsupported arg: rules"}}
+[debug] [2023-01-12T12:58:44.774Z] Starting Database Emulator with command {"binary":"java","args":["-Duser.language=en","-jar","C:\\Users\\Sylay\\.cache\\firebase\\emulators\\firebase-database-emulator-v4.11.0.jar","--host","127.0.0.1","--port",9000,"--single_project_mode","Warning"],"optionalArgs":["port","host","functions_emulator_port","functions_emulator_host","single_project_mode"],"joinArgs":false} {"metadata":{"emulator":{"name":"database"},"message":"Starting Database Emulator with command {\"binary\":\"java\",\"args\":[\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Sylay\\\\.cache\\\\firebase\\\\emulators\\\\firebase-database-emulator-v4.11.0.jar\",\"--host\",\"127.0.0.1\",\"--port\",9000,\"--single_project_mode\",\"Warning\"],\"optionalArgs\":[\"port\",\"host\",\"functions_emulator_port\",\"functions_emulator_host\",\"single_project_mode\"],\"joinArgs\":false}"}}
+[info] i  database: Database Emulator logging to database-debug.log {"metadata":{"emulator":{"name":"database"},"message":"Database Emulator logging to \u001b[1mdatabase-debug.log\u001b[22m"}}
+[debug] [2023-01-12T12:58:53.869Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2023-01-12T12:58:54.763Z] Temp file directory for storage emulator: C:\Users\Sylay\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Sylay\\AppData\\Local\\Temp/firebase/storage/blobs"}}
+[debug] [2023-01-12T12:58:54.769Z] > refreshing access token with scopes: []
+[debug] [2023-01-12T12:58:54.769Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2023-01-12T12:58:54.769Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:54.893Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2023-01-12T12:58:54.893Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:54.893Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 
+[debug] [2023-01-12T12:58:55.775Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites 401
+[debug] [2023-01-12T12:58:55.775Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/***REMOVED***/sites {"error":{"code":401,"message":"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"CREDENTIALS_MISSING","domain":"googleapis.com","metadata":{"service":"firebasehosting.googleapis.com","method":"google.firebase.hosting.v1beta1.MetadataService.ListSites"}}]}}
+[debug] [2023-01-12T12:58:55.776Z] Failed to list hosting sites
+[debug] HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2023-01-12T12:58:55.776Z] > refreshing access token with scopes: []
+[debug] [2023-01-12T12:58:55.776Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2023-01-12T12:58:55.776Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:55.890Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2023-01-12T12:58:55.890Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:55.890Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config [none]
+[debug] [2023-01-12T12:58:55.996Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config 401
+[debug] [2023-01-12T12:58:55.996Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED***/webApps/-/config {"error":{"code":401,"message":"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"CREDENTIALS_MISSING","domain":"googleapis.com","metadata":{"method":"google.firebase.service.v1beta1.WebAppService.GetWebAppConfig","service":"firebase.googleapis.com"}}]}}
+[debug] [2023-01-12T12:58:55.996Z] fetchWebSetup error: FirebaseError: HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[warn] !  hosting: Could not fetch web app configuration and there is no cached configuration on this machine. Check your internet connection and make sure you are authenticated. To continue, you must call firebase.initializeApp({...}) in your code before using Firebase. 
+[debug] [2023-01-12T12:58:55.998Z] > refreshing access token with scopes: []
+[debug] [2023-01-12T12:58:55.998Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2023-01-12T12:58:55.998Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:56.120Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2023-01-12T12:58:56.121Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-01-12T12:58:56.121Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** [none]
+[debug] [2023-01-12T12:58:56.224Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** 401
+[debug] [2023-01-12T12:58:56.224Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/***REMOVED*** {"error":{"code":401,"message":"Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"CREDENTIALS_MISSING","domain":"googleapis.com","metadata":{"service":"firebase.googleapis.com","method":"google.firebase.service.v1beta1.FirebaseProjectService.GetFirebaseProject"}}]}}
+[debug] [2023-01-12T12:58:56.224Z] HTTP Error: 401, Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2023-01-12T12:58:56.225Z] Specified "public" directory "public" does not exist; Deploy to Hosting site "***REMOVED***" may fail or be empty.
+[info] i  hosting[***REMOVED***]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
+[info] +  hosting[***REMOVED***]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2023-01-12T12:58:56.246Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-12T12:58:56.246Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2023-01-12T12:58:56.246Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\Sylay\\.cache\\firebase\\emulators\\ui-v1.11.2\\server\\server.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\Sylay\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.2\\\\server\\\\server.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2023-01-12T12:58:56.396Z] Web / API server started at 127.0.0.1:9999
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:9999\n"}}
+[debug] [2023-01-12T12:58:56.396Z] Web / API server started at ::1:9999
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:9999\n"}}
+[debug] [2023-01-12T12:58:56.505Z] >>> [apiv2][query] PUT http://127.0.0.1:9000/.settings/rules.json ns=***REMOVED***-default-rtdb
+[debug] [2023-01-12T12:58:56.505Z] >>> [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json "{\r\n  \"rules\": {\r\n    \".read\": \"now < 1674860400000\",  // 2023-1-28\r\n    \".write\": \"now < 1674860400000\",  // 2023-1-28\r\n  }\r\n}"
+[debug] [2023-01-12T12:58:56.916Z] <<< [apiv2][status] PUT http://127.0.0.1:9000/.settings/rules.json 200
+[debug] [2023-01-12T12:58:56.916Z] <<< [apiv2][body] PUT http://127.0.0.1:9000/.settings/rules.json {"status":"ok"}
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:9999/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬─────────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI             │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:9999/auth      │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:9999/firestore │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Database       │ 127.0.0.1:9000 │ http://127.0.0.1:9999/database  │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Hosting        │ 127.0.0.1:5000 │ n/a                             │
+├────────────────┼────────────────┼─────────────────────────────────┤
+│ Storage        │ 127.0.0.1:9199 │ http://127.0.0.1:9999/storage   │
+└────────────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500, 9150
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 

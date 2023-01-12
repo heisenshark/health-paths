@@ -7,7 +7,7 @@ import tw from "../lib/tailwind";
 interface OptionsModalProps {
   visible: boolean;
   label?: string;
-  actions: { label: string; icon?: string; onPress: () => void; disabled: boolean }[];
+  actions: { label: string; icon?: string; onPress: () => void; disabled?: boolean }[];
   onRequestClose: () => void | Promise<void>;
 }
 
@@ -24,7 +24,7 @@ const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalP
         <View style={tw`bg-white w-full`}>
           <View style={tw`h-[1]  bg-gray-300 rounded-full`}></View>
           <View style={tw`flex flex-row items-center w-full h-12`}>
-            <Text style={tw`text-gray-700 text-3xl mx-4`}>{label}</Text>
+            <Text style={tw`text-gray-700 text-xl mx-4`}>{label}</Text>
           </View>
 
           <View style={tw`h-[0.5] bg-gray-300 rounded-full`}></View>
