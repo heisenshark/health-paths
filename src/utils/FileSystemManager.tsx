@@ -47,8 +47,8 @@ type DownloadTracker = {
   [id: string]: DownloadTrackerRecord;
 };
 
-//TODO upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
-//TODO zrobić tak aby można było ustawić prywatność przed uploadem mapy
+//[x] upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
+//[x] zrobić tak aby można było ustawić prywatność przed uploadem mapy
 //[x] upewnić się że na pewno usuwamy pliki po edycji mapki takie jak zdjęcia które zostały zedytowane itp
 
 const getNameFromUri = (uri: string) => {

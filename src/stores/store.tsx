@@ -82,6 +82,17 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
   setCurrentMap: (map: HealthPath) =>
     set(() => {
+      if (map === undefined)
+        return {
+          currentMap: {
+            name: "",
+            map_id: "",
+            description: "",
+            location: "",
+            waypoints: [],
+            stops: [],
+          },
+        };
       if (map.map_id === undefined || map.map_id === "") map.map_id = uuid.v4().toString();
       return { currentMap: map };
     }),
