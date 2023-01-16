@@ -60,16 +60,19 @@ GoogleSignin.configure({
   webClientId: "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
 });
 
+
 export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
-if (__DEV__) {
-  firestore().useEmulator("localhost", 8081);
-  firebase.storage().useEmulator("localhost", 9199);
-  console.log("elo firebase devmode");
-}
+// if (__DEV__) {
+//   firestore().useEmulator("localhost", 8081);
+//   firebase.storage().useEmulator("localhost", 9199);
+//   console.log("elo firebase devmode");
+// }
+
 
 export const db = firestore();
+
 export const Pathes = db.collection("Pathes");
 export const Users = db.collection("Users");
 export const DbUser = () => firebase.auth().currentUser?.uid;
@@ -165,6 +168,8 @@ export const deleteMapWeb = async (webId: string) => {
     await deleteFile(previewRef);
   }
   await docref.delete();
+  console.log("deleted" , docref.path);
+  
 };
 
 export const addRating = async (rating: RatingDocument) => {

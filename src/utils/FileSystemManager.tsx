@@ -144,7 +144,7 @@ async function saveMap(map: HealthPath) {
   const currentUser = await GoogleSignin.getCurrentUser();
   const isUserLogged = DbUser() !== undefined;
   console.log(dirInfo);
-  let existingInfo = undefined;
+  let existingInfo = await loadMapInfo(map.map_id);
   console.log("map::: ", map);
 
   //Obliczanie dystansu ścieżki

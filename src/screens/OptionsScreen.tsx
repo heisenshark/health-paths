@@ -9,14 +9,12 @@ import firestore from "@react-native-firebase/firestore";
 import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
 import { firebase } from "@react-native-firebase/auth";
 import auth from "@react-native-firebase/auth";
+import { imagePlaceholder } from "../utils/HelperFunctions";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
-  const [logOut, user, checkLogged] = useUserStore((state) => [
-    state.logOut,
-    state.user,
-    state.checkLogged,
-  ]);
+  const [logOut, checkLogged] = useUserStore((state) => [state.logOut, state.checkLogged]);
+  const [user, setUser] = useState(undefined as User | undefined);
   const [pathes, setPathes] = useState([]);
   const addPath = async () => {
     const data = {
@@ -50,6 +48,7 @@ const OptionsScreen = ({ navigation, route }) => {
       // Sign-in the user with the credential
       await auth().signInWithCredential(googleCredential);
       const usr = await GoogleSignin.getCurrentUser();
+      setUser(usr);
     } catch (e) {
       console.log("err");
       console.log(e);
@@ -58,28 +57,21 @@ const OptionsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     console.log("navchange options");
-
-    const unsub = Pathes.onSnapshot((querySnapshot) => {
-      const list = [];
-      querySnapshot.forEach((doc) => {
-        const { name, age } = doc.data();
-        list.push({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-      setPathes(list);
+    if (DbUser() === undefined) return;
+    GoogleSignin.getCurrentUser().then((u) => {
+      setUser(u);
     });
-
-    return unsub;
   }, [route.key]);
 
   return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
       <Text style={tw`text-3xl p-10 pb-2`}>Opcje Użytkownika</Text>
       <Text style={tw`text-3xl pb-10`}>Zalogowany jako</Text>
-      {/* <Image style={tw`h-40 aspect-square rounded-full `} source={{ uri: user.user.photo }} /> */}
-      {/* <Text style={tw`text-3xl `}>{user.user.name}</Text> */}
+      <Image
+        style={tw`h-40 aspect-square rounded-full `}
+        source={{ uri: user ? user.user.photo : imagePlaceholder }}
+      />
+      <Text style={tw`text-3xl `}>{user?.user?.name}</Text>
       <Button
         title="Wyloguj"
         onPress={async () => {

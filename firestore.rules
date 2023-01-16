@@ -1,26 +1,37 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2023, 1, 14);
-    }
+    // match /{document=**} {
+    //   allow read, write: if
+    //       request.time < timestamp.date(2023, 1, 14);
+    // }
     match /Users/{userId} {
-      allow read, write: if
-          request.time < timestamp.date(2023, 1, 14) &&
-          request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId;
     }
-    match /Paths/{pathId} {
-      allow read, write: if
-          request.time < timestamp.date(2023, 1, 14) &&
-          request.auth.uid == resource.data.userId&&
-          resource.data.userId == request.auth.uid;
+    match /Pathes/{pathId} {
+      allow read: if resource.data.visibility == 'public'||resource == null;
+      allow read: if resource.data.ownerId == request.auth.uid;
+      allow delete: if resource.data.ownerId == request.auth.uid;
+
+      allow read, write, update:
+          if (resource == null && request.resource.data.ownerId == request.auth.uid);
+
+      allow write, update:
+          if (resource != null && request.resource.data.ownerId == resource.data.ownerId &&
+           request.auth.uid == resource.data.ownerId);
+
+      allow update: if (request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['rating', 'ratingCount'])&&
+        (resource==null||
+        (resource.data.ratingCount>=resource.data.ratingCount)));
     }
-    match /Ratings/{ratingId} {
+    match /Ratings/{ratingId}  {
+      allow read: if true;
       allow read, write: if
-          request.time < timestamp.date(2023, 1, 14) &&
-          request.auth.uid == resource.data.userId||
-          request.auth.uid == resource.data.pathOwnerId;
+          ratingId.replace('^.{20}','') == request.auth.uid&&
+          ratingId.replace('.{28}$','') == request.resource.data.mapId &&
+           ((resource == null&&request.auth.uid == request.resource.data.userId)||
+          (request.auth.uid == resource.data.userId))
     }
   }
 }

@@ -69,7 +69,7 @@ const MapEditScreen = ({ navigation, route }) => {
   ]);
   const mapRef = useRef<MapView>();
   const initialRegion = {
-    latitude: 52,
+    latitude: 51,
     longitude: 19,
     latitudeDelta: 5,
     longitudeDelta: 10,
@@ -216,6 +216,22 @@ const MapEditScreen = ({ navigation, route }) => {
           path: [],
         } as HealthPath);
       console.log(currentCamera);
+      setTimeout(async () => {
+        console.log("elo3");
+
+        const loc = await Location.getCurrentPositionAsync();
+        console.log(loc);
+
+        mapRef.current.animateToRegion(
+          {
+            latitude: loc.coords.latitude,
+            longitude: loc.coords.longitude,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.2,
+          },
+          50
+        );
+      }, 50);
     } else {
       setWaypoints(currentMap.waypoints);
       setStopPoints(currentMap.stops);
@@ -223,8 +239,10 @@ const MapEditScreen = ({ navigation, route }) => {
       console.log("elo2");
       console.log(currentMap);
 
-      setTimeout(() => {
-        mapRef.current.fitToCoordinates(currentMap.path, {
+      setTimeout(async () => {
+        console.log("elo4");
+
+        await mapRef.current.fitToCoordinates(currentMap.path, {
           edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
           animated: true,
         });
