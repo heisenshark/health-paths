@@ -28,7 +28,7 @@ const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
   //TODO Dodać możliwość tworzenia waypointów
-
+  //TODO zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync("location_tracking", {
       accuracy: Location.Accuracy.Highest,
@@ -48,7 +48,6 @@ const MapEditScreen = ({ navigation, route }) => {
   const [mapInfoModalVisible, setMapInfoModalVisible] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [isWatchingposition, setIsWatchingposition] = useState(false);
-
   const [isRecording, setIsRecording] = useState(false);
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [isRecordingDone, setIsRecordingDone] = useState(false);
@@ -175,6 +174,18 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   const startBackgroundTracking = async () => {
+    const startBckg = () =>
+      Location.startLocationUpdatesAsync("location_tracking", {
+        accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 1000,
+        showsBackgroundLocationIndicator: true,
+        foregroundService: {
+          notificationTitle: "Ścieżki Zdrowia",
+          notificationBody: "Trasa ścieżki zdrowia nagrywa się w tle",
+          notificationColor: "#fff",
+        },
+      });
+
     setIsRecording(true);
     const perms = await getPermissions();
     if (!perms) return;
@@ -183,43 +194,47 @@ const MapEditScreen = ({ navigation, route }) => {
     const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
     if (!startedTracking) console.log("starting tracking");
 
-    const end = useLocationTrackingStore.getState().currentLine.end;
-    if (end) {
+    const start = useLocationTrackingStore.getState().currentLine.end;
+    let end = {} as LatLng;
+    let distance = 0;
+    if (start) {
       const loc = await Location.getCurrentPositionAsync();
-      const cordloc = { longitude: loc.coords.longitude, latitude: loc.coords.latitude } as LatLng;
-      const aaa = headingDistanceTo(cordloc, end);
-      let locs = [] as LatLng[];
-
-      // console.log(Date.now()/1000,useLocationTrackingStore.getState());
-
-      if (aaa.distance > 100) {
-        locs = await getRoute(end, cordloc);
-        console.log("got route", locs);
-        useLocationTrackingStore.getState().addLocations(locs, Date.now());
-      }
-      console.log("start Background Location", cordloc, end, aaa);
+      end = { longitude: loc.coords.longitude, latitude: loc.coords.latitude } as LatLng;
+      distance = headingDistanceTo(start, end).distance;
     }
 
-    Location.startLocationUpdatesAsync("location_tracking", {
-      // The following notification options will help keep tracking consistent
-      accuracy: Location.Accuracy.BestForNavigation,
-      timeInterval: 1000,
-      showsBackgroundLocationIndicator: true,
-      foregroundService: {
-        notificationTitle: "Ścieżki Zdrowia",
-        notificationBody: "Trasa ścieżki zdrowia nagrywa się w tle",
-        notificationColor: "#fff",
-      },
-    });
+    if (distance > 100) {
+      Alert.alert("wypełnić brakującą trasę?", "", [
+        {
+          text: "Nie",
+          style: "cancel",
+          onPress: () => {
+            startBckg();
+          },
+        },
+        {
+          text: "Tak",
+          onPress: async () => {
+            const locs = await getRoute(start, end);
+            useLocationTrackingStore.getState().addLocations(locs, Date.now());
+            startBckg();
+          },
+        },
+      ]);
+      return;
+    }
+    startBckg();
   };
 
   const stopBackgroundTracking = async () => {
+    console.log("isRec: ", isRecording);
+
     Location.hasStartedLocationUpdatesAsync("location_tracking")
       .then((res) => {
+        setIsRecording(false);
         if (!res) return;
         console.log("stopping tracking");
         Location.stopLocationUpdatesAsync("location_tracking");
-        setIsRecording(false);
       })
       .catch((e) => console.log(e));
   };
