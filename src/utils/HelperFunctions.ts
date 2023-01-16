@@ -38,3 +38,89 @@ export const formatDistance = (distance: number) => {
   if (distance < 1000) return `${Math.round(distance)} m`;
   return `${(distance / 1000).toFixed(2)} km`;
 };
+
+function decode(t) {
+  let points = [];
+  for (let step of t) {
+    let encoded = step.polyline.points;
+    let index = 0,
+      len = encoded.length;
+    let lat = 0,
+      lng = 0;
+    while (index < len) {
+      let b,
+        shift = 0,
+        result = 0;
+      do {
+        b = encoded.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+
+      let dlat = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+      lat += dlat;
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      let dlng = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+      lng += dlng;
+
+      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
+    }
+  }
+  return points;
+}
+
+export function getRoute(origin: LatLng, destination: LatLng, apikey = "***REMOVED***",  mode = "WALKING") {
+  const directionsServiceBaseUrl = "https://maps.googleapis.com/maps/api/directions/json";
+  mode = "WALKING";
+  // Define the URL to call. Only add default parameters to the URL if it's a string.
+  let url = directionsServiceBaseUrl;
+  if (typeof directionsServiceBaseUrl === "string") {
+    url += `?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${
+      destination.longitude
+    }&key=${apikey}&mode=${mode.toLowerCase()}`;
+  }
+  console.log(url);
+
+  return fetch(url)
+    .then((response) => response.json())
+    .then((json) => {
+      if (json.status !== "OK") {
+        const errorMessage = json.error_message || json.status || "Unknown error";
+        return Promise.reject(errorMessage);
+      }
+
+      if (json.routes.length) {
+        const route = json.routes[0];
+
+        return Promise.resolve(
+          route.legs.reduce((carry, curr) => {
+            return [...carry, ...decode(curr.steps)];
+          }, [])
+        );
+      } else {
+        return Promise.reject();
+      }
+    })
+    .catch((err) => {
+      return Promise.reject(`Error: ${err}`);
+    });
+}
+// console.log("elo from helper functions");
+// getRoute(
+//   {
+//     latitude: 50.23488,
+//     longitude: 19.16162,
+//   },
+//   {
+//     latitude: 50.22781,
+//     longitude: 19.17179,
+//   },
+//   "***REMOVED***",
+//   "WALKING"
+// ).then((res) => console.log(res));

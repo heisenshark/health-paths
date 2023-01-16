@@ -18,6 +18,8 @@ import * as Location from "expo-location";
 import TrackLine from "../components/TrackLine";
 import { useFocusEffect } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
+import { headingDistanceTo } from "geolocation-utils";
+import { getRoute } from "../utils/HelperFunctions";
 //[x] make the alert for saving the map normal and functional
 //TODO make option to fill the path with google directions if the path was stopped and resumed
 //TODO make waypoint edit screen basically a modal with a form
@@ -118,7 +120,9 @@ const MapEditScreen = ({ navigation, route }) => {
     mapIcon: MediaFile
   ): Promise<boolean> => {
     console.log(mapIcon);
-    let p = isInRecordingState ? useLocationTrackingStore.getState().outputLocations : fullPath;
+    let p = isInRecordingState
+      ? useLocationTrackingStore.getState().getOutputLocations()
+      : fullPath;
     if (p.length <= 0) return false;
     let xd = {
       ...currentMap,
@@ -174,8 +178,28 @@ const MapEditScreen = ({ navigation, route }) => {
     setIsRecording(true);
     const perms = await getPermissions();
     if (!perms) return;
+    console.log("have permissions");
+
     const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
     if (!startedTracking) console.log("starting tracking");
+
+    const end = useLocationTrackingStore.getState().currentLine.end;
+    if (end) {
+      const loc = await Location.getCurrentPositionAsync();
+      const cordloc = { longitude: loc.coords.longitude, latitude: loc.coords.latitude } as LatLng;
+      const aaa = headingDistanceTo(cordloc, end);
+      let locs = [] as LatLng[];
+
+      // console.log(Date.now()/1000,useLocationTrackingStore.getState());
+
+      if (aaa.distance > 100) {
+        locs = await getRoute(end, cordloc);
+        console.log("got route", locs);
+        useLocationTrackingStore.getState().addLocations(locs, Date.now());
+      }
+      console.log("start Background Location", cordloc, end, aaa);
+    }
+
     Location.startLocationUpdatesAsync("location_tracking", {
       // The following notification options will help keep tracking consistent
       accuracy: Location.Accuracy.BestForNavigation,
@@ -190,12 +214,14 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   const stopBackgroundTracking = async () => {
-    Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
-      if (!res) return;
-      console.log("stopping tracking");
-      Location.stopLocationUpdatesAsync("location_tracking");
-      setIsRecording(false);
-    });
+    Location.hasStartedLocationUpdatesAsync("location_tracking")
+      .then((res) => {
+        if (!res) return;
+        console.log("stopping tracking");
+        Location.stopLocationUpdatesAsync("location_tracking");
+        setIsRecording(false);
+      })
+      .catch((e) => console.log(e));
   };
 
   //Use to display renders

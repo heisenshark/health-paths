@@ -119,11 +119,11 @@ export const useLocationTrackingStore = create<LocationTrackingStore>((set, get)
   locations: { coords: [] },
   addLocations: (location: LatLng[], timestamp: number) => {
     //function is optimizing the path generation by removing points that are in a straight line
-    //or are close to each other
+    //or are close to each other    
     set((state) => {
       const line = state.currentLine;
       let recDistance = 0;
-      if (location.length === 0) return;
+      if (location.length === 0) return {};
       if (line.start === undefined) {
         line.start = line.end = location[0];
         line.distance = line.headingDelta = 0;
