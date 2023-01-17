@@ -20,6 +20,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
+import StopPointPopUp from "../components/StopPointPopUp"
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoints";
@@ -85,13 +86,19 @@ const MapEditScreen = ({ navigation, route }) => {
   const [waypoints, setWaypoints] = useState<LatLng[]>([]);
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [fullPath, setFullPath] = useState([] as LatLng[]);
-
+  const force = useForceUpdate();
   //[x] uprościć funkcje zooma na początku mapy
   //TODO zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
 
   //[x] dodać automatyczne robienie cover photo dla mapy
   //TODO Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
+
+  function useForceUpdate() {
+    const [value, setValue] = useState(0);
+    return () => setValue((value) => value + 1);
+  }
+
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
     waypoints[0] = cords[0];
@@ -100,22 +107,24 @@ const MapEditScreen = ({ navigation, route }) => {
 
   function addNewWaypoint(e: MapPressEvent) {
     //HACK may not work propertly
+    console.log(e.nativeEvent);
+    
     switch (editorState) {
     case EditorState.EDIT:
-      setWaypoints([...waypoints, e.nativeEvent.coordinate]);
+      // setWaypoints([...waypoints, e.nativeEvent.coordinate]);
+      waypoints.push(e.nativeEvent.coordinate);
       setNotSaved(true);
+      force();
       break;
     case EditorState.EDIT_STOP:
-      setStopPoints([
-        ...stopPoints,
-          {
-            waypoint_id: uuid.v4(),
-            displayed_name: "",
-            coordinates: e.nativeEvent.coordinate,
-            description: "",
-          } as Waypoint,
-      ]);
+      stopPoints.push({
+        waypoint_id: uuid.v4(),
+        displayed_name: "",
+        coordinates: e.nativeEvent.coordinate,
+        description: "",
+      } as Waypoint);
       setNotSaved(true);
+      force();
       break;
     default:
       break;
@@ -354,43 +363,17 @@ const MapEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     const backHandler = BackHandler.addEventListener("hardwareBackPress", elo);
     return () => backHandler.remove();
-
-    // const unsub = navigation.addListener("beforeRemove", (e) => {
-    //   console.log("before remove");
-    //   console.log(currentMap);
-    //   let isMapEmpty = waypoints.length === 0 && stopPoints.length === 0;
-    //   console.log({ isMapEmpty, waypoints, stopPoints });
-    //   // If we don't have unsaved changes, then we don't need to do anything
-    //   if (isMapEmpty) return;
-    //   e.preventDefault();
-    //   // Prompt the user before leaving the screen
-    //   Alert.alert(
-    //     "Porzucić zmiany?",
-    //     "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
-    //     [
-    //       { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
-    //       {
-    //         text: "Opusć",
-    //         style: "destructive",
-    //         onPress: () => {
-    //           setCurrentMap(undefined);
-    //           navigation.dispatch(e.data.action);
-    //         },
-    //       },
-    //     ]
-    //   );
-    //   // unsub.current?.remove();
-    //   mapRef.current.getMapBoundaries().then((boundaries) => {
-    //     // console.log(boundaries);
-    //   });
-    //   mapRef.current.getCamera().then((camera) => {
-    //     // console.log(camera);
-    //     setCurrentCamera(camera);
-    //   });
-    //   // console.log(initialRegion);
-    // });
-    // return unsub;
   }, [notSaved]);
+
+  useEffect(() => {
+    const unsub = navigation.addListener("beforeRemove", (e) => {
+      mapRef.current.getMapBoundaries().then((boundaries) => {});
+      mapRef.current.getCamera().then((camera) => {
+        setCurrentCamera(camera);
+      });
+    });
+    return unsub;
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -406,6 +389,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   return (
     <View className="relative border-4">
+      <StopPointPopUp></StopPointPopUp>
       <MapInfoModal
         visible={currentModalOpen === "MapInfo"}
         onRequestClose={() => {
@@ -497,7 +481,8 @@ const MapEditScreen = ({ navigation, route }) => {
             waypoints={waypoints}
             isEdit={editorState === EditorState.EDIT}
             updateWaypoints={() => {
-              setWaypoints([...waypoints]);
+              // setWaypoints([...waypoints]);
+              force();
               setNotSaved(true);
             }}
           />
@@ -506,7 +491,8 @@ const MapEditScreen = ({ navigation, route }) => {
             waypoints={stopPoints}
             isStop={true}
             updateStopPoints={(w: Waypoint[]) => {
-              setStopPoints([...w]);
+              setStopPoints(w);
+              force();
               setNotSaved(true);
             }}
           />
@@ -567,6 +553,14 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"centruj"}
           onPress={() => {
             setIsWatchingposition((p) => !p);
+          }}
+          icon="map"
+        />
+        <SquareButton
+          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
+          label={"centruj"}
+          onPress={() => {
+            force();
           }}
           icon="map"
         />
