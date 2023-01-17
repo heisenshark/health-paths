@@ -33,9 +33,10 @@ import { useMapStore } from "../stores/store";
 //TODO use expo document picker instead of react-native-document-picker
 const StopPointEditScreen = ({ navigation, route }) => {
   const isEdit = route.params.isEdit;
-  const [currentMap, getCurrentMediaURI] = useMapStore((state) => [
+  const [currentMap, getCurrentMediaURI, setNotSaved] = useMapStore((state) => [
     state.currentMap,
     state.getCurrentMediaURI,
+    state.setNotSaved,
   ]);
   let { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
   const [introsoundUri, setIntroSoundUri] = useState();
@@ -338,6 +339,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
             Object.assign(editedWaypoint, waypointDiff);
             console.log(editedWaypoint);
+            setNotSaved(true);
             navigation.goBack();
           }}
           style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>

@@ -18,6 +18,16 @@ interface MapStore {
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (mediaId: string) => void;
+  progress: {
+    emitProgressSaved: boolean;
+    action: () => void;
+  };
+  setProgress: (emitProgressSaved: boolean, action: () => void) => void;
+  navAction: () => void | null;
+  setNavAction: (action: () => void | null) => void;
+  executeNavAction: () => void;
+  notSaved: boolean;
+  setNotSaved: (saved: boolean) => void;
 }
 
 interface MapArray {
@@ -113,13 +123,47 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set(() => ({
       currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
     })),
+  progress: {
+    isProgressSaved: false,
+    emitProgressSaved: false,
+    action: () => {},
+  },
+  setProgress: (emitProgressSaved: boolean, action: () => void) =>
+    set(() => ({
+      progress: {
+        emitProgressSaved: emitProgressSaved,
+        action: action,
+      },
+    })),
+  notSaved: false,
+  setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
+
+  navAction: null,
+  setNavAction: (action: () => void | null) => set(() => ({ navAction: action })),
+  executeNavAction: () => {
+    const state = get();
+    const action = state.navAction;
+    set(() => ({
+      navAction: null,
+      currentMap: {
+        name: "",
+        map_id: "",
+        description: "",
+        location: "",
+        waypoints: [],
+        stops: [],
+      },
+      notSaved: false,
+    }));
+    if (action) action();
+  },
 }));
 
 export const useLocationTrackingStore = create<LocationTrackingStore>((set, get) => ({
   locations: { coords: [] },
   addLocations: (location: LatLng[], timestamp: number) => {
     //function is optimizing the path generation by removing points that are in a straight line
-    //or are close to each other    
+    //or are close to each other
     set((state) => {
       const line = state.currentLine;
       let recDistance = 0;

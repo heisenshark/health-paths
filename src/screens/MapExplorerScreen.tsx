@@ -107,7 +107,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
           setCurrentMap(selectedMap.current);
           loadMap(selectedMap.current.name, selectedMap.current.map_id).then((m) => {
             setCurrentMap(m);
-            navigation.navigate("Nagraj", { isRecording: false, editting: true });
+            navigation.navigate("Planuj", { isRecording: false, editting: true });
           });
         },
       },

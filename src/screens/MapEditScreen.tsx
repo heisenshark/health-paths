@@ -1,4 +1,4 @@
-import { Alert, Text, View } from "react-native";
+import { Alert, BackHandler, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -21,13 +21,12 @@ import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
 //[x] make the alert for saving the map normal and functional
-//TODO make option to fill the path with google directions if the path was stopped and resumed
-//TODO make waypoint edit screen basically a modal with a form
+//[x] make option to fill the path with google directions if the path was stopped and resumed
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
-  //TODO Dodać możliwość tworzenia waypointów
+  //[x] Dodać możliwość tworzenia waypointów
   //TODO zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync("location_tracking", {
@@ -59,7 +58,12 @@ const MapEditScreen = ({ navigation, route }) => {
     getUUID,
     currentCamera,
     setCurrentCamera,
-    clearLocations,
+    progress,
+    setProgress,
+    notSaved,
+    setNotSaved,
+    navAction,
+    executeNavAction,
   ] = useMapStore((state) => [
     state.addMap,
     state.currentMap,
@@ -67,6 +71,12 @@ const MapEditScreen = ({ navigation, route }) => {
     state.getUUID,
     state.currentCamera,
     state.setCurrentCamera,
+    state.progress,
+    state.setProgress,
+    state.notSaved,
+    state.setNotSaved,
+    state.navAction,
+    state.executeNavAction,
   ]);
   const mapRef = useRef<MapView>();
   const initialRegion = {
@@ -96,6 +106,7 @@ const MapEditScreen = ({ navigation, route }) => {
     switch (editorState) {
     case EditorState.EDIT:
       setWaypoints([...waypoints, e.nativeEvent.coordinate]);
+      setNotSaved(true);
       break;
     case EditorState.EDIT_STOP:
       setStopPoints([
@@ -107,6 +118,7 @@ const MapEditScreen = ({ navigation, route }) => {
             description: "",
           } as Waypoint,
       ]);
+      setNotSaved(true);
       break;
     default:
       break;
@@ -239,6 +251,36 @@ const MapEditScreen = ({ navigation, route }) => {
       .catch((e) => console.log(e));
   };
 
+  useEffect(() => {
+    
+    if (!navAction) return;
+    console.log("Event Emitted");
+    if (!notSaved) {
+      setStopPoints([]);
+      executeNavAction();
+      return;
+    }
+    Alert.alert(
+      "Porzucić zmiany?",
+      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+      [
+        {
+          text: "Nie, Zostań",
+          style: "cancel",
+          onPress: () => {},
+        },
+        {
+          text: "Opusć",
+          style: "destructive",
+          onPress: () => {
+            setStopPoints([]);
+            executeNavAction();
+          },
+        },
+      ]
+    );
+  }, [navAction]);
+
   //Use to display renders
   useEffect(() => {
     console.log("render");
@@ -291,47 +333,68 @@ const MapEditScreen = ({ navigation, route }) => {
     }
   }, []);
 
-  useEffect(() => {
-    const unsub = navigation.addListener("beforeRemove", (e) => {
-      console.log(currentMap);
-      let isMapEmpty = waypoints.length === 0 && stopPoints.length === 0;
-      console.log({ isMapEmpty, waypoints, stopPoints });
-
-      // If we don't have unsaved changes, then we don't need to do anything
-      if (isMapEmpty) return;
-
-      e.preventDefault();
-
-      // Prompt the user before leaving the screen
-      Alert.alert(
-        "Porzucić zmiany?",
-        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
-        [
-          { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
-          {
-            text: "Opusć",
-            style: "destructive",
-            onPress: () => {
-              setCurrentMap(undefined);
-              navigation.dispatch(e.data.action);
-            },
+  function elo(): boolean {
+    console.log(notSaved);
+    if (!notSaved) return false;
+    Alert.alert(
+      "Porzucić zmiany?",
+      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+      [
+        { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
+        {
+          text: "Opusć",
+          style: "destructive",
+          onPress: () => {
+            setCurrentMap(undefined);
+            setNotSaved(false);
+            navigation.goBack();
           },
-        ]
-      );
+        },
+      ]
+    );
+    return true;
+  }
 
-      // unsub.current?.remove();
-      mapRef.current.getMapBoundaries().then((boundaries) => {
-        // console.log(boundaries);
-      });
-      mapRef.current.getCamera().then((camera) => {
-        // console.log(camera);
-        setCurrentCamera(camera);
-      });
-      // console.log(initialRegion);
-    });
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", elo);
+    return () => backHandler.remove();
 
-    return unsub;
-  }, [navigation, waypoints, stopPoints]);
+    // const unsub = navigation.addListener("beforeRemove", (e) => {
+    //   console.log("before remove");
+    //   console.log(currentMap);
+    //   let isMapEmpty = waypoints.length === 0 && stopPoints.length === 0;
+    //   console.log({ isMapEmpty, waypoints, stopPoints });
+    //   // If we don't have unsaved changes, then we don't need to do anything
+    //   if (isMapEmpty) return;
+    //   e.preventDefault();
+    //   // Prompt the user before leaving the screen
+    //   Alert.alert(
+    //     "Porzucić zmiany?",
+    //     "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+    //     [
+    //       { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
+    //       {
+    //         text: "Opusć",
+    //         style: "destructive",
+    //         onPress: () => {
+    //           setCurrentMap(undefined);
+    //           navigation.dispatch(e.data.action);
+    //         },
+    //       },
+    //     ]
+    //   );
+    //   // unsub.current?.remove();
+    //   mapRef.current.getMapBoundaries().then((boundaries) => {
+    //     // console.log(boundaries);
+    //   });
+    //   mapRef.current.getCamera().then((camera) => {
+    //     // console.log(camera);
+    //     setCurrentCamera(camera);
+    //   });
+    //   // console.log(initialRegion);
+    // });
+    // return unsub;
+  }, [notSaved]);
 
   useFocusEffect(
     useCallback(() => {
@@ -345,7 +408,6 @@ const MapEditScreen = ({ navigation, route }) => {
     }, [navigation])
   );
 
-  const hideModal = () => setSaveMapModalVisible(false);
   return (
     <View className="relative border-4">
       <MapInfoModal
@@ -363,7 +425,10 @@ const MapEditScreen = ({ navigation, route }) => {
           try {
             if (asNew) currentMap.map_id = getUUID();
             const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
-            if (good) return true;
+            if (good) {
+              setNotSaved(false);
+              return true;
+            }
           } catch (e) {
             console.log(e, "AAAAAA");
           }
@@ -431,19 +496,23 @@ const MapEditScreen = ({ navigation, route }) => {
               }}
             />
           )}
-          {isInRecordingState && true && <TrackLine />}
+          {isInRecordingState && <TrackLine />}
           <Markers
             waypoints={waypoints}
             isEdit={editorState === EditorState.EDIT}
             updateWaypoints={() => {
               setWaypoints([...waypoints]);
+              setNotSaved(true);
             }}
           />
 
           <StopPoints
             waypoints={stopPoints}
             isStop={true}
-            updateStopPoints={(w: Waypoint[]) => setStopPoints([...w])}
+            updateStopPoints={(w: Waypoint[]) => {
+              setStopPoints([...w]);
+              setNotSaved(true);
+            }}
           />
         </MapView>
       </View>
@@ -505,7 +574,7 @@ const MapEditScreen = ({ navigation, route }) => {
           icon="map"
         />
 
-        {/* <Text>{currentMap?.map_id}</Text> */}
+        <Text>{notSaved ? "not Saved" : "saved"}</Text>
 
         {!isInRecordingState && (
           <SquareButton

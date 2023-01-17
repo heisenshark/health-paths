@@ -21,7 +21,12 @@ import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
-import { createNewMap, ensureMapDirExists, listAllMaps, validateDownloadTracker } from "./src/utils/FileSystemManager";
+import {
+  createNewMap,
+  ensureMapDirExists,
+  listAllMaps,
+  validateDownloadTracker,
+} from "./src/utils/FileSystemManager";
 
 import * as TaskManager from "expo-task-manager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
@@ -71,8 +76,9 @@ export default function App() {
             headerShown: false,
           }}>
           <Navigator.Screen name="Trasy" component={HomeScreen} />
+          <Navigator.Screen name="Opcje" component={OptionsScreen} />
           <Navigator.Screen name="Nagraj" component={MapEditScreen} />
-          {/* <Nor.Screen name="Opcje" component={MapEditScreen} /> */}
+          <Navigator.Screen name="Planuj" component={MapEditScreen} />
           <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
           <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
           <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
@@ -80,7 +86,6 @@ export default function App() {
           <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
           <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
           <Navigator.Screen name="LogIn" component={LogInScreen} />
-          <Navigator.Screen name="Opcje" component={OptionsScreen} />
         </Navigator.Navigator>
       </NavigationContainer>
 
