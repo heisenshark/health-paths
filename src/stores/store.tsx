@@ -18,11 +18,6 @@ interface MapStore {
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (mediaId: string) => void;
-  progress: {
-    emitProgressSaved: boolean;
-    action: () => void;
-  };
-  setProgress: (emitProgressSaved: boolean, action: () => void) => void;
   navAction: () => void | null;
   setNavAction: (action: () => void | null) => void;
   executeNavAction: () => void;
@@ -122,18 +117,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
   clearMap: () =>
     set(() => ({
       currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
-    })),
-  progress: {
-    isProgressSaved: false,
-    emitProgressSaved: false,
-    action: () => {},
-  },
-  setProgress: (emitProgressSaved: boolean, action: () => void) =>
-    set(() => ({
-      progress: {
-        emitProgressSaved: emitProgressSaved,
-        action: action,
-      },
     })),
   notSaved: false,
   setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
