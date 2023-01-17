@@ -22,12 +22,14 @@ import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
+type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoints";
+
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
   //TODO Rozdzielić na kilka pure komponentów
   //[x] Dodać możliwość tworzenia waypointów
-  //TODO zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
+  //[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync("location_tracking", {
       accuracy: Location.Accuracy.Highest,
@@ -41,10 +43,9 @@ const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
   const isInRecordingState = route.params.isRecording as boolean;
   const API_KEY = "***REMOVED***";
-  const [saveMapModalVisible, setSaveMapModalVisible] = useState(false);
-  const [calloutOpen, setCalloutOpen] = useState(false);
-  const [listOpen, setListOpen] = useState(false);
+  const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [mapInfoModalVisible, setMapInfoModalVisible] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [isWatchingposition, setIsWatchingposition] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -248,7 +249,6 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    
     if (!navAction) return;
     console.log("Event Emitted");
     if (!notSaved) {
@@ -407,9 +407,10 @@ const MapEditScreen = ({ navigation, route }) => {
   return (
     <View className="relative border-4">
       <MapInfoModal
-        visible={mapInfoModalVisible}
+        visible={currentModalOpen === "MapInfo"}
         onRequestClose={() => {
           setMapInfoModalVisible(false);
+          setCurrentModalOpen("None");
           setShowUserLocation(true);
         }}
         onSave={async (
@@ -448,7 +449,6 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
           onPress={(e) => {
             addNewWaypoint(e);
-            setCalloutOpen(false);
           }}
           customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}
           onRegionChangeComplete={(e, { isGesture }) => {
@@ -533,6 +533,7 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"zapisz"}
           onPress={() => {
             setMapInfoModalVisible(true);
+            setCurrentModalOpen("MapInfo");
             setShowUserLocation(false);
           }}
           // disabled={!isRecording && fullPath !== undefined && fullPath.length < 2}
@@ -578,15 +579,16 @@ const MapEditScreen = ({ navigation, route }) => {
             onPress={() => {
               console.log("waypoint list open");
               setListOpen(!listOpen);
+              if (currentModalOpen === "WaypointsList") setCurrentModalOpen("None");
+              else setCurrentModalOpen("WaypointsList");
             }}>
             <Icon name="list" size={40} color="black" className="flex-1" />
           </SquareButton>
         )}
         <Text>{editorState}</Text>
-        <Text>{calloutOpen ? "open" : "closed"}</Text>
       </View>
 
-      {listOpen && (
+      {currentModalOpen === "WaypointsList" && (
         <WaypointsList
           waypoints={waypoints}
           onDelete={(n) => {

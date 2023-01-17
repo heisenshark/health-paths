@@ -98,7 +98,8 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const locationss = useLocationTrackingStore.getState().locations;
   const rec = useLocationTrackingStore.getState().currentRecording;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
-
+  const xd = useMapStore.getState().setNotSaved;
+  xd(true);
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
     return;
