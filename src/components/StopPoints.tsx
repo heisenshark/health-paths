@@ -12,11 +12,18 @@ interface StopPointsProps {
   waypoints: Waypoint[];
   isStop: boolean;
   updateStopPoints: (stopPoints: Waypoint[]) => void;
+  stopPointPressed?: (stopPoint: Waypoint) => void;
 }
 //TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
 
-const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) => {
+const StopPoints = ({ waypoints, isStop, updateStopPoints, stopPointPressed }: StopPointsProps) => {
   const navigationRef = useNavigation();
+
+  React.useEffect(() => {
+    console.log("stoppoints rerendered");
+    console.log(waypoints);
+  });
+
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     let markerRef = useRef<MapMarker>();
 
@@ -38,6 +45,7 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) =>
         description={waypoint.type}
         onPress={() => {
           isStop && console.log("stoppoint pressed in stoppoint mode");
+          stopPointPressed?.(waypoint);
         }}
         onDragEnd={(e) => {
           waypoint.coordinates = e.nativeEvent.coordinate;
@@ -46,12 +54,13 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints }: StopPointsProps) =>
         draggable={isStop}
         tappable={false}
         pinColor={"green"}
-        onCalloutPress={openEdit}>
-        <Callout tooltip>
+        // onCalloutPress={openEdit}
+      >
+        {/* <Callout tooltip>
           <SquareButton
             addStyle={"ml-auto mr-2"}
             label={isStop ? "Edytuj" : "Pokaż"}></SquareButton>
-        </Callout>
+        </Callout> */}
       </Marker>
     );
   };

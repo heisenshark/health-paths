@@ -20,10 +20,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
-import StopPointPopUp from "../components/StopPointPopUp"
+import StopPointPopUp from "../components/StopPointPopUp";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
-type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoints";
+type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoint";
 
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
@@ -52,6 +52,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [isRecordingDone, setIsRecordingDone] = useState(false);
+  const [selectedStop, setSelectedStop] = useState(null as Waypoint);
 
   const [
     addMap,
@@ -108,7 +109,7 @@ const MapEditScreen = ({ navigation, route }) => {
   function addNewWaypoint(e: MapPressEvent) {
     //HACK may not work propertly
     console.log(e.nativeEvent);
-    
+
     switch (editorState) {
     case EditorState.EDIT:
       // setWaypoints([...waypoints, e.nativeEvent.coordinate]);
@@ -340,6 +341,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   function elo(): boolean {
     console.log(notSaved);
+    if(!navigation.isFocused())return;
     if (!notSaved) return false;
     Alert.alert(
       "Porzucić zmiany?",
@@ -383,13 +385,34 @@ const MapEditScreen = ({ navigation, route }) => {
       console.log("onFocus");
       return () => {
         console.log("onBlur");
+        BackHandler.removeEventListener("hardwareBackPress", () => false);
       };
     }, [navigation])
   );
 
   return (
     <View className="relative border-4">
-      <StopPointPopUp></StopPointPopUp>
+      <StopPointPopUp
+        visible={currentModalOpen === "StopPoint"}
+        stopPoint={selectedStop}
+        hide={() => {
+          setCurrentModalOpen("None");
+          console.log("popclose");
+        }}
+        onEdit={() => {
+          setTimeout(() => {
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: selectedStop, isEdit: true },
+            });
+          }, 600);
+        }}
+        onDelete={() => {
+          stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
+          // setSelectedStop(null);
+          // force();
+        }}
+      />
       <MapInfoModal
         visible={currentModalOpen === "MapInfo"}
         onRequestClose={() => {
@@ -494,6 +517,10 @@ const MapEditScreen = ({ navigation, route }) => {
               setStopPoints(w);
               force();
               setNotSaved(true);
+            }}
+            stopPointPressed={(w: Waypoint) => {
+              setSelectedStop(w);
+              setCurrentModalOpen("StopPoint");
             }}
           />
         </MapView>
