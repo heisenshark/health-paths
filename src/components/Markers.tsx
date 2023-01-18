@@ -5,13 +5,21 @@ import { Callout, LatLng, Marker } from "react-native-maps";
 import Waypoint from "../utils/interfaces";
 
 export interface MarkersProps {
-  waypoints: Waypoint[];
+  waypoints: LatLng[];
   isEdit: boolean;
   updateWaypoints: () => {};
+  onWaypointSelect: (w: LatLng) => void;
 }
 const SNAPPING_ENABLED = false;
 
-export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
+//TODO zmienić wygląd na kółka z numerami
+
+export function Markers<Props>({
+  waypoints,
+  isEdit,
+  updateWaypoints,
+  onWaypointSelect,
+}: MarkersProps) {
   // const [edittedWaypoint, setEdittedWaypoint] = useState(1);
   const [selectedWaypoint, setSelectedWaypoint] = useState(1);
   const API_KEY = "***REMOVED***";
@@ -69,10 +77,15 @@ export function Markers<Props>({ waypoints, isEdit, updateWaypoints }) {
             waypoints[index] = e.nativeEvent.coordinate;
             updateWaypoints();
           }}
+          onPress={() => {
+            console.log("marker pressed, initiating edit");
+            onWaypointSelect(n);
+          }}
           draggable={isEdit}
           tappable={false}
           pinColor={index == 0 ? "blue" : "yellow"}
-          className="flex ">
+          className="flex "
+          anchor={{ x: 0.5, y: 1 }}>
           {index == 0 && (
             <View className="flex-1 items-center justify-end h-auto w-auto">
               <Text>Start</Text>

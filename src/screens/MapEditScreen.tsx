@@ -22,9 +22,16 @@ import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
 import StopPointPopUp from "../components/StopPointPopUp";
 import AddPointModal from "../components/AddPointModal";
+import EditWaypointModal from "../components/EditWaypointModal";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
-type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoint" | "AddPoint";
+type curmodalOpenType =
+  | "None"
+  | "MapInfo"
+  | "WaypointsList"
+  | "StopPoint"
+  | "AddPoint"
+  | "EditWaypoint";
 
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
@@ -54,6 +61,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [isRecordingDone, setIsRecordingDone] = useState(false);
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
+  const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
   const [pointPivot, setPointPivot] = useState(null as LatLng);
 
   const [
@@ -108,12 +116,17 @@ const MapEditScreen = ({ navigation, route }) => {
     waypoints[waypoints.length - 1] = cords[cords.length - 1];
   }
 
-  function addNewWaypoint(cords: LatLng, type: "waypoint" | "stop"): null | Waypoint {
+  function addNewWaypoint(
+    cords: LatLng,
+    type: "waypoint" | "stop",
+    position: number = waypoints.length
+  ): null | Waypoint {
     //HACK may not work propertly
     switch (type) {
     case "waypoint":
-      waypoints.push(cords);
+      waypoints.splice(position, 0, cords);
       setNotSaved(true);
+      force();
       break;
     case "stop":
       const newStop = {
@@ -391,6 +404,22 @@ const MapEditScreen = ({ navigation, route }) => {
 
   return (
     <View className="relative border-4">
+      <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black w-full h-20`}>
+        <Text>AAAAAAAAAAAAAAAAA</Text>
+      </View>
+      <EditWaypointModal
+        visible={currentModalOpen === "EditWaypoint"}
+        hide={() => {
+          setCurrentModalOpen("None");
+          setSelectedWaypoint(null);
+        }}
+        onDelete={() => {
+          waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
+        }}
+        onMove={() => {
+          console.log("initiating move sequence");
+        }}></EditWaypointModal>
+
       <AddPointModal
         visible={currentModalOpen === "AddPoint"}
         hide={() => {
@@ -405,10 +434,11 @@ const MapEditScreen = ({ navigation, route }) => {
               name: "EdycjaMap",
               params: { editedWaypoint: stoppint, isEdit: true },
             });
-          }, 600);
+          }, 10);
         }}
-        onWaypointEdit={() => {
-          addNewWaypoint(pointPivot, "waypoint");
+        onWaypointEdit={(position: number) => {
+          addNewWaypoint(pointPivot, "waypoint", position);
+          console.log(waypoints);
         }}
         waypointsLength={waypoints.length}></AddPointModal>
       <StopPointPopUp
@@ -424,7 +454,7 @@ const MapEditScreen = ({ navigation, route }) => {
               name: "EdycjaMap",
               params: { editedWaypoint: selectedStop, isEdit: true },
             });
-          }, 600);
+          }, 10);
         }}
         onDelete={() => {
           stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
@@ -507,6 +537,7 @@ const MapEditScreen = ({ navigation, route }) => {
               strokeColor="red"
               lineDashPattern={[0]}
               precision={"low"}
+              optimizeWaypoints
               onReady={(n) => {
                 console.log(n);
                 console.log(n.legs[0].start_address);
@@ -529,6 +560,10 @@ const MapEditScreen = ({ navigation, route }) => {
               // setWaypoints([...waypoints]);
               force();
               setNotSaved(true);
+            }}
+            onWaypointSelect={(w: LatLng) => {
+              setCurrentModalOpen("EditWaypoint");
+              setSelectedWaypoint(w);
             }}
           />
 

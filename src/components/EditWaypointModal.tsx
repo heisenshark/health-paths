@@ -1,22 +1,18 @@
 import { View, Text } from "react-native";
-import * as React from "react";
+import React from "react";
 import Modal from "react-native-modal";
 import tw from "../lib/tailwind";
-import { useState } from "react";
 import SquareButton from "./SquareButton";
-import Waypoint from "../utils/interfaces";
-import { useNavigation } from "@react-navigation/native";
+
 type Props = {
   visible: boolean;
-  stopPoint: Waypoint;
-  onEdit: () => void;
+  onMove: () => void;
   onDelete: () => void;
   hide: () => void;
 };
 
-const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) => {
-  const navigationRef = useNavigation();
-  if (!visible) return null;
+const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
+  if (!visible) return null;//tak, to jest potrzebne, inaczej laguje cały ekran
   return (
     <View>
       <Modal
@@ -28,11 +24,9 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) =
         onBackdropPress={hide}
         animationIn={"slideInUp"}
         animationOut={"slideOutDown"}
-        style={tw`flex-1 justify-end m-0`}
-        backdropTransitionOutTiming={0}
-        hideModalContentWhileAnimating={true}>
+        style={tw`flex-1 justify-end m-0`}>
         <View style={tw`bg-white border-t-4 border-slate-400`}>
-          <Text style={tw`text-3xl p-5 text-center font-bold`}>Punkt Stopu</Text>
+          <Text style={tw`text-3xl p-5 text-center font-bold`}>Edytuj Punkt:</Text>
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 border-black border-[2]`}
@@ -40,18 +34,20 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) =
               label="Usuń"
               icon="trash"
               onPress={() => {
-                hide();
                 onDelete();
+                hide();
               }}></SquareButton>
+
             <SquareButton
               style={tw`mx-2 border-[2]`}
               size={30}
               icon="edit"
-              label="Edytuj"
+              label="przenieś"
               onPress={() => {
-                onEdit();
+                onMove();
                 hide();
               }}></SquareButton>
+
             <SquareButton
               style={tw`mx-2 border-[2]`}
               size={30}
@@ -65,4 +61,4 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) =
   );
 };
 
-export default StopPointPopUp;
+export default EditWaypointModal;
