@@ -1,6 +1,6 @@
 import { Alert, BackHandler, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { LatLng, MapPressEvent, Region } from "react-native-maps";
+import MapView, { LatLng, MapPressEvent, Marker, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
@@ -21,9 +21,10 @@ import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getRoute } from "../utils/HelperFunctions";
 import StopPointPopUp from "../components/StopPointPopUp";
+import AddPointModal from "../components/AddPointModal";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
-type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoint";
+type curmodalOpenType = "None" | "MapInfo" | "WaypointsList" | "StopPoint" | "AddPoint";
 
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
@@ -53,6 +54,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [isRecordingDone, setIsRecordingDone] = useState(false);
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
+  const [pointPivot, setPointPivot] = useState(null as LatLng);
 
   const [
     addMap,
@@ -106,26 +108,21 @@ const MapEditScreen = ({ navigation, route }) => {
     waypoints[waypoints.length - 1] = cords[cords.length - 1];
   }
 
-  function addNewWaypoint(e: MapPressEvent) {
+  function addNewWaypoint(cords: LatLng, type: "waypoint" | "stop") {
     //HACK may not work propertly
-    console.log(e.nativeEvent);
-
-    switch (editorState) {
-    case EditorState.EDIT:
-      // setWaypoints([...waypoints, e.nativeEvent.coordinate]);
-      waypoints.push(e.nativeEvent.coordinate);
+    switch (type) {
+    case "waypoint":
+      waypoints.push(cords);
       setNotSaved(true);
-      force();
       break;
-    case EditorState.EDIT_STOP:
+    case "stop":
       stopPoints.push({
         waypoint_id: uuid.v4(),
         displayed_name: "",
-        coordinates: e.nativeEvent.coordinate,
+        coordinates: cords,
         description: "",
       } as Waypoint);
       setNotSaved(true);
-      force();
       break;
     default:
       break;
@@ -341,7 +338,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   function elo(): boolean {
     console.log(notSaved);
-    if(!navigation.isFocused())return;
+    if (!navigation.isFocused()) return;
     if (!notSaved) return false;
     Alert.alert(
       "Porzucić zmiany?",
@@ -392,6 +389,20 @@ const MapEditScreen = ({ navigation, route }) => {
 
   return (
     <View className="relative border-4">
+      <AddPointModal
+        visible={currentModalOpen === "AddPoint"}
+        hide={() => {
+          setPointPivot(null);
+          setCurrentModalOpen("None");
+          console.log("popclose");
+        }}
+        onStopPointEdit={() => {
+          addNewWaypoint(pointPivot, "stop");
+        }}
+        onWaypointEdit={() => {
+          addNewWaypoint(pointPivot, "waypoint");
+        }}
+        waypointsLength={waypoints.length}></AddPointModal>
       <StopPointPopUp
         visible={currentModalOpen === "StopPoint"}
         stopPoint={selectedStop}
@@ -455,7 +466,9 @@ const MapEditScreen = ({ navigation, route }) => {
             });
           }}
           onPress={(e) => {
-            addNewWaypoint(e);
+            // addNewWaypoint(e);
+            setCurrentModalOpen("AddPoint");
+            setPointPivot(e.nativeEvent.coordinate);
           }}
           customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}
           onRegionChangeComplete={(e, { isGesture }) => {
@@ -474,6 +487,7 @@ const MapEditScreen = ({ navigation, route }) => {
               });
             }
           }}>
+          {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           {waypoints.length > 1 && (
             <MapViewDirections
               origin={waypoints[0]}

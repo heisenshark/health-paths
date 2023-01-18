@@ -44,13 +44,13 @@ const SquareButton = ({
       onPress={() => {
         onPress && onPress();
       }}>
-      <View>
+      <View style={tw`p-1`}>
         {icon !== "" && <Icon name={icon} size={50} color={"black"} />}
         {children}
       </View>
       <Text
-        numberOfLines={1}
-        style={[tw`text-base py-0 leading-4 underline font-black`, labelStyle]}>
+        numberOfLines={2}
+        style={[tw`text-base text-center py-0 leading-4 underline font-black`, labelStyle]}>
         {label}
       </Text>
     </TouchableOpacity>
