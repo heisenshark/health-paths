@@ -63,6 +63,9 @@ const MapEditScreen = ({ navigation, route }) => {
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
   const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
   const [pointPivot, setPointPivot] = useState(null as LatLng);
+  // const [tipMessage, setTipMessage] = useState(undefined);
+  const [tipMessage, setTipMessage] = useState("Dotknij ekran aby dodać nowy punkt");
+  const [isMovingWaypoint, setIsMovingWaypoint] = useState(false);
 
   const [
     addMap,
@@ -401,23 +404,31 @@ const MapEditScreen = ({ navigation, route }) => {
       };
     }, [navigation])
   );
-
+  const InfoInfo = () => {
+    let tip = null;
+    if (!tipMessage) return null;
+    if (isMovingWaypoint) tip = "Wybierz Lokację dla punktu";
+    else tip = "Dotknij aby dodać punkt lub edytować istniejący";
+    return (
+      <View style={[tw`absolute bg-black bg-opacity-40 w-full`]} pointerEvents="none">
+        <Text style={tw`text-white text-3xl text-center p-2 py-4`}>{tip}</Text>
+      </View>
+    );
+  };
   return (
     <View className="relative border-4">
-      <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black w-full h-20`}>
-        <Text>AAAAAAAAAAAAAAAAA</Text>
-      </View>
       <EditWaypointModal
         visible={currentModalOpen === "EditWaypoint"}
         hide={() => {
           setCurrentModalOpen("None");
-          setSelectedWaypoint(null);
         }}
         onDelete={() => {
           waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
+          setSelectedWaypoint(null);
         }}
         onMove={() => {
           console.log("initiating move sequence");
+          setIsMovingWaypoint(true);
         }}></EditWaypointModal>
 
       <AddPointModal
@@ -505,6 +516,17 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
           onPress={(e) => {
             // addNewWaypoint(e);
+            console.log(isMovingWaypoint);
+
+            if (isMovingWaypoint) {
+              waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
+                latitude: e.nativeEvent.coordinate.latitude,
+                longitude: e.nativeEvent.coordinate.longitude,
+              });
+              setIsMovingWaypoint(false);
+              force();
+              return;
+            }
             setCurrentModalOpen("AddPoint");
             setPointPivot(e.nativeEvent.coordinate);
           }}
@@ -582,7 +604,7 @@ const MapEditScreen = ({ navigation, route }) => {
           />
         </MapView>
       </View>
-
+      {InfoInfo()}
       <View className="absolute h-full w-full pointer-events-none">
         {!isInRecordingState && (
           <SquareButton

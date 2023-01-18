@@ -11,7 +11,7 @@ export interface WaypointsListProps {
 
 export function WaypointsList({ waypoints, onDelete }: WaypointsListProps) {
   return (
-    <ScrollView style={tw`absolute flex-1 bg-white w-full h-64`}>
+    <ScrollView style={tw`absolute bg-white w-full h-64`}>
       {waypoints.map((waypoint: LatLng, index) => {
         return (
           <Card key={index} style={tw`px-3 py-1 m-1 elevation-5`}>
