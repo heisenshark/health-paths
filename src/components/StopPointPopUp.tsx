@@ -11,10 +11,11 @@ type Props = {
   stopPoint: Waypoint;
   onEdit: () => void;
   onDelete: () => void;
+  onMove: () => void;
   hide: () => void;
 };
 
-const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) => {
+const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: Props) => {
   const navigationRef = useNavigation();
   if (!visible) return null;
   return (
@@ -52,6 +53,17 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, hide, stopPoint }: Props) =
                 onEdit();
                 hide();
               }}></SquareButton>
+            <SquareButton
+              style={tw`mx-2 border-[2]`}
+              size={30}
+              icon="arrow-left"
+              label="Przenieś"
+              onPress={() => {
+                onMove();
+                hide();
+              }}></SquareButton>
+          </View>
+          <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 border-[2]`}
               size={30}

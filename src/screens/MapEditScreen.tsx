@@ -25,6 +25,7 @@ import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
+//TODO make is moving stoppoint and is movingwaypoint into state machine
 type curmodalOpenType =
   | "None"
   | "MapInfo"
@@ -66,7 +67,7 @@ const MapEditScreen = ({ navigation, route }) => {
   // const [tipMessage, setTipMessage] = useState(undefined);
   const [tipMessage, setTipMessage] = useState("Dotknij ekran aby dodać nowy punkt");
   const [isMovingWaypoint, setIsMovingWaypoint] = useState(false);
-
+  const [isMovingStopPoint, setIsMovingStopPoint] = useState(false);
   const [
     addMap,
     currentMap,
@@ -407,7 +408,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const InfoInfo = () => {
     let tip = null;
     if (!tipMessage) return null;
-    if (isMovingWaypoint) tip = "Wybierz Lokację dla punktu";
+    if (isMovingWaypoint || isMovingStopPoint) tip = "Wybierz Lokację dla punktu";
     else tip = "Dotknij aby dodać punkt lub edytować istniejący";
     return (
       <View style={[tw`absolute bg-black bg-opacity-40 w-full`]} pointerEvents="none">
@@ -469,8 +470,12 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onDelete={() => {
           stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
-          // setSelectedStop(null);
+          setSelectedStop(null);
           // force();
+        }}
+        onMove={() => {
+          console.log("initiating move sequence");
+          setIsMovingStopPoint(true);
         }}
       />
       <MapInfoModal
@@ -517,13 +522,23 @@ const MapEditScreen = ({ navigation, route }) => {
           onPress={(e) => {
             // addNewWaypoint(e);
             console.log(isMovingWaypoint);
-
             if (isMovingWaypoint) {
               waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
                 latitude: e.nativeEvent.coordinate.latitude,
                 longitude: e.nativeEvent.coordinate.longitude,
               });
               setIsMovingWaypoint(false);
+              setIsMovingStopPoint(false);
+              force();
+              return;
+            }
+            if (isMovingStopPoint) {
+              selectedStop.coordinates = {
+                latitude: e.nativeEvent.coordinate.latitude,
+                longitude: e.nativeEvent.coordinate.longitude,
+              };
+              setIsMovingWaypoint(false);
+              setIsMovingStopPoint(false);
               force();
               return;
             }

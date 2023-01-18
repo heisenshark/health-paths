@@ -31,7 +31,9 @@ const AddPointModal = ({
         onBackdropPress={hide}
         animationIn={"slideInUp"}
         animationOut={"slideOutDown"}
-        style={tw`flex-1 justify-end m-0`}>
+        style={tw`flex-1 justify-end m-0`}
+        backdropOpacity={0.1}
+        >
         <View style={tw`bg-white border-t-4 border-slate-400`}>
           <Text style={tw`text-3xl p-5 text-center font-bold`}>Dodaj punkt:</Text>
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>

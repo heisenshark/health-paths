@@ -139,7 +139,7 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
     },
     { merge: true }
   );
-  console.log("chuj");
+  console.log("na pewno nie wulgarne słowo");
   return id;
 };
 
