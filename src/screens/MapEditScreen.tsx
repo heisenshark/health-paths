@@ -108,7 +108,7 @@ const MapEditScreen = ({ navigation, route }) => {
     waypoints[waypoints.length - 1] = cords[cords.length - 1];
   }
 
-  function addNewWaypoint(cords: LatLng, type: "waypoint" | "stop") {
+  function addNewWaypoint(cords: LatLng, type: "waypoint" | "stop"): null | Waypoint {
     //HACK may not work propertly
     switch (type) {
     case "waypoint":
@@ -116,17 +116,19 @@ const MapEditScreen = ({ navigation, route }) => {
       setNotSaved(true);
       break;
     case "stop":
-      stopPoints.push({
+      const newStop = {
         waypoint_id: uuid.v4(),
         displayed_name: "",
         coordinates: cords,
         description: "",
-      } as Waypoint);
+      } as Waypoint;
+      stopPoints.push(newStop);
       setNotSaved(true);
-      break;
+      return newStop;
     default:
       break;
     }
+    return null;
   }
 
   const saveMapEvent = async (
@@ -397,7 +399,13 @@ const MapEditScreen = ({ navigation, route }) => {
           console.log("popclose");
         }}
         onStopPointEdit={() => {
-          addNewWaypoint(pointPivot, "stop");
+          const stoppint = addNewWaypoint(pointPivot, "stop");
+          setTimeout(() => {
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: stoppint, isEdit: true },
+            });
+          }, 600);
         }}
         onWaypointEdit={() => {
           addNewWaypoint(pointPivot, "waypoint");
