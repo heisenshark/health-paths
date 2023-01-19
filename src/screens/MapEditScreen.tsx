@@ -2,7 +2,7 @@ import { Alert, BackHandler, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Marker, Region } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { mapStylenoLandmarks, mapStylesJSON } from "../providedfiles/Export";
+import { mapStylenoLandmarks, mapstyleSilver, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
 import Waypoint, { HealthPath, MediaFile } from "../utils/interfaces";
@@ -23,6 +23,10 @@ import { getRoute } from "../utils/HelperFunctions";
 import StopPointPopUp from "../components/StopPointPopUp";
 import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
+
+import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-native-reanimated";
+import TipDisplay from "../components/TipDisplay";
+
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
@@ -68,6 +72,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [tipMessage, setTipMessage] = useState("Dotknij ekran aby dodać nowy punkt");
   const [isMovingWaypoint, setIsMovingWaypoint] = useState(false);
   const [isMovingStopPoint, setIsMovingStopPoint] = useState(false);
+  const [shotTip, setShotTip] = useState(3000);
   const [
     addMap,
     currentMap,
@@ -169,12 +174,12 @@ const MapEditScreen = ({ navigation, route }) => {
     };
     setShowUserLocation(false);
     mapRef.current.fitToCoordinates([...waypoints, ...p], {
-      edgePadding: { top: 10, right: 10, bottom: 10, left: 10 },
+      edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
       animated: false,
     });
     const uri = await mapRef.current.takeSnapshot({
-      width: 500, // optional, when omitted the view-width is used
-      height: 500, // optional, when omitted the view-height is used
+      width: 350, // optional, when omitted the view-width is used
+      height: 700, // optional, when omitted the view-height is used
       format: "jpg", // image formats: 'png', 'jpg' (default: 'png')
       quality: 0.8, // image quality: 0..1 (only relevant for jpg, default: 1)
       result: "file", // result types: 'file', 'base64' (default: 'file')
@@ -405,17 +410,43 @@ const MapEditScreen = ({ navigation, route }) => {
       };
     }, [navigation])
   );
+
+  const animateToPoint = (point: LatLng) => {
+    mapRef.current.animateCamera(
+      {
+        center: {
+          latitude: point.latitude,
+          longitude: point.longitude,
+        },
+      },
+      { duration: 100 }
+    );
+  };
+
+  const showTip = () => {
+    setShotTip(t=> t===10000?t-1:10000);
+    // setTimeout(() => {
+    //   setShotTip(false);
+    // }, 3000);
+  };
+
   const InfoInfo = () => {
     let tip = null;
     if (!tipMessage) return null;
     if (isMovingWaypoint || isMovingStopPoint) tip = "Wybierz Lokację dla punktu";
     else tip = "Dotknij aby dodać punkt lub edytować istniejący";
+
     return (
-      <View style={[tw`absolute bg-black bg-opacity-40 w-full`]} pointerEvents="none">
+      <Animated.View
+        style={[tw`absolute bg-black bg-opacity-40 w-full`]}
+        pointerEvents="none"
+        entering={FadeInUp}
+        exiting={FadeOutUp}>
         <Text style={tw`text-white text-3xl text-center p-2 py-4`}>{tip}</Text>
-      </View>
+      </Animated.View>
     );
   };
+
   return (
     <View className="relative border-4">
       <EditWaypointModal
@@ -519,6 +550,10 @@ const MapEditScreen = ({ navigation, route }) => {
               animated: true,
             });
           }}
+          onTouchStart={() => {
+            console.log("touch start");
+            showTip();
+          }}
           onPress={(e) => {
             // addNewWaypoint(e);
             console.log(isMovingWaypoint);
@@ -542,10 +577,16 @@ const MapEditScreen = ({ navigation, route }) => {
               force();
               return;
             }
+            animateToPoint(e.nativeEvent.coordinate);
             setCurrentModalOpen("AddPoint");
             setPointPivot(e.nativeEvent.coordinate);
           }}
-          customMapStyle={editorState != EditorState.VIEW ? mapStylenoLandmarks : mapStylesJSON}
+          customMapStyle={
+            // editorState != EditorState.VIEW ?
+            // mapStylenoLandmarks
+            mapstyleSilver
+            // : mapStylesJSON
+          }
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
           }}
@@ -570,9 +611,8 @@ const MapEditScreen = ({ navigation, route }) => {
               waypoints={waypoints.slice(1, -1)}
               mode={"WALKING"}
               apikey={API_KEY}
-              strokeWidth={3}
-              strokeColor="red"
-              lineDashPattern={[0]}
+              strokeWidth={6}
+              strokeColor="#ffc800"
               precision={"low"}
               optimizeWaypoints
               onReady={(n) => {
@@ -613,14 +653,16 @@ const MapEditScreen = ({ navigation, route }) => {
               setNotSaved(true);
             }}
             stopPointPressed={(w: Waypoint) => {
+              animateToPoint(w.coordinates);
               setSelectedStop(w);
               setCurrentModalOpen("StopPoint");
             }}
           />
         </MapView>
       </View>
-      {InfoInfo()}
-      <View className="absolute h-full w-full pointer-events-none">
+      {/* <InfoInfo /> */}
+      <TipDisplay forceVisible={isMovingWaypoint || isMovingStopPoint} timeVisible={shotTip} />
+      <View className="absolute w-full pointer-events-none mt-40">
         {!isInRecordingState && (
           <SquareButton
             style={tw`self-end m-3 mt-auto`}
@@ -681,6 +723,10 @@ const MapEditScreen = ({ navigation, route }) => {
           style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
           label={"centruj"}
           onPress={() => {
+            setTipMessage((t) => {
+              if (t === undefined) return "test";
+              else return undefined;
+            });
             force();
           }}
           icon="map"

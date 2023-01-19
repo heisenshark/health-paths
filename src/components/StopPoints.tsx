@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image } from "react-native";
 import { Callout, MapMarker, Marker } from "react-native-maps";
 import Waypoint from "./../utils/interfaces";
 import SquareButton from "./SquareButton";
@@ -26,17 +26,6 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints, stopPointPressed }: S
 
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     let markerRef = useRef<MapMarker>();
-
-    const openEdit = () => {
-      console.log("elooooo");
-      console.log(waypoint);
-      markerRef.current.hideCallout();
-
-      navigationRef.navigate({
-        name: "EdycjaMap",
-        params: { editedWaypoint: waypoint, isEdit: isStop },
-      });
-    };
     return (
       <Marker
         ref={markerRef}
@@ -52,15 +41,17 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints, stopPointPressed }: S
           updateStopPoints(waypoints);
         }}
         draggable={isStop}
-        tappable={false}
-        pinColor={"green"}
-        // onCalloutPress={openEdit}
-      >
-        {/* <Callout tooltip>
-          <SquareButton
-            addStyle={"ml-auto mr-2"}
-            label={isStop ? "Edytuj" : "Pokaż"}></SquareButton>
-        </Callout> */}
+        // pinColor={"green"}
+        anchor={{ x: 0.5, y: 0.5 }}
+        >
+        <View className="flex-1 items-center justify-end h-auto w-auto">
+          <Image
+            source={stopPointImage}
+            resizeMode="center"
+            resizeMethod="resize"
+            className={"flex-1 w-6 h-6"}
+          />
+        </View>
       </Marker>
     );
   };
@@ -73,3 +64,4 @@ const StopPoints = ({ waypoints, isStop, updateStopPoints, stopPointPressed }: S
 };
 
 export default StopPoints;
+const stopPointImage = require("../../assets/STOP2.png");

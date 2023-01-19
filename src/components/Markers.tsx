@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { View, Text, Image } from "react-native";
 import { Callout, LatLng, Marker } from "react-native-maps";
+import tw from "../lib/tailwind";
 import Waypoint from "../utils/interfaces";
 
 export interface MarkersProps {
@@ -66,54 +67,72 @@ export function Markers<Props>({
   //   snapPoint(w, cords);
   // };
 
-  const markers = waypoints.map((n: LatLng, index) => {
-    if (isEdit || index === waypoints.length - 1 || index === 0)
+  const renderImage = (isEnd, isBegin) => {
+    if (isEnd)
       return (
-        <Marker
-          key={index}
-          coordinate={n}
-          onDragEnd={(e) => {
-            // snapPoint(n, e.nativeEvent.coordinate);
-            waypoints[index] = e.nativeEvent.coordinate;
-            updateWaypoints();
-          }}
-          onPress={() => {
-            console.log("marker pressed, initiating edit");
-            onWaypointSelect(n);
-          }}
-          draggable={isEdit}
-          tappable={false}
-          pinColor={index == 0 ? "blue" : "yellow"}
-          className="flex "
-          anchor={{ x: 0.5, y: 1 }}>
-          {index == 0 && (
-            <View className="flex-1 items-center justify-end h-auto w-auto">
-              <Text>Start</Text>
-              <Image
-                source={imageStart}
-                resizeMode="center"
-                resizeMethod="resize"
-                className={`flex-1 w-12 h-12 ${selectedWaypoint == index ? "" : ""}`}
-              />
-            </View>
-          )}
-
-          {index == waypoints.length - 1 && index !== 0 && (
-            <View className="flex-1 items-center justify-end h-auto w-auto">
-              <Text>Koniec</Text>
-              <Image
-                source={imageEnd}
-                resizeMode="center"
-                resizeMethod="resize"
-                className={`flex-1 w-12 h-12 ${selectedWaypoint == index ? "" : ""}`}
-              />
-            </View>
-          )}
-          <Callout tooltip>
-            <Text>{index + 1}</Text>
-          </Callout>
-        </Marker>
+        <View className="flex-1 items-center justify-end h-auto w-auto">
+          <Text>Start</Text>
+          <Image
+            source={imageStart}
+            resizeMode="center"
+            resizeMethod="resize"
+            style={tw`flex-1 w-12 h-12`}
+          />
+        </View>
       );
+    if (isBegin)
+      return (
+        <View className="flex-1 items-center justify-end h-auto w-auto">
+          <Text>Koniec</Text>
+          <Image
+            source={imageEnd}
+            resizeMode="center"
+            resizeMethod="resize"
+            className={"flex-1 w-12 h-12"}
+          />
+        </View>
+      );
+
+    return (
+      <View className="flex-1 items-center justify-end h-auto w-auto">
+        <Image
+          source={imageCircle}
+          resizeMode="center"
+          resizeMethod="resize"
+          className={"flex-1 w-4 h-4"}
+        />
+      </View>
+    );
+  };
+
+  const markers = waypoints.map((n: LatLng, index) => {
+    const isEnd = index === waypoints.length - 1;
+    const isBegin = index === 0;
+    return (
+      <Marker
+        key={index}
+        coordinate={n}
+        onDragEnd={(e) => {
+          // snapPoint(n, e.nativeEvent.coordinate);
+          waypoints[index] = e.nativeEvent.coordinate;
+          updateWaypoints();
+        }}
+        onPress={() => {
+          console.log("marker pressed, initiating edit");
+          onWaypointSelect(n);
+        }}
+        draggable={isEdit}
+        tappable={false}
+        pinColor={index == 0 ? "blue" : "yellow"}
+        className="flex "
+        anchor={isEnd || isBegin ? { x: 0.5, y: 1 } : { x: 0.5, y: 0.5 }}>
+        {renderImage(index == 0, index == waypoints.length - 1)}
+
+        {/* <Callout tooltip>
+          <Text>{index + 1}</Text>
+        </Callout> */}
+      </Marker>
+    );
   });
 
   return <>{markers}</>;
@@ -121,4 +140,5 @@ export function Markers<Props>({
 
 const imageEnd = require("../../assets/map-end-marker.png");
 const imageStart = require("../../assets/map-start-marker.png");
+const imageCircle = require("../../assets/marker.png");
 // const marker = require("../../assets/map-marker.png");
