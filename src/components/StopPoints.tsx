@@ -10,7 +10,6 @@ import { useNavigation } from "@react-navigation/native";
 
 interface StopPointsProps {
   waypoints: Waypoint[];
-  isStop: boolean;
   showHandles: boolean;
   selectedStop?: Waypoint;
   zoom: number;
@@ -20,7 +19,6 @@ interface StopPointsProps {
 
 const StopPoints = ({
   waypoints,
-  isStop,
   showHandles,
   selectedStop,
   zoom,
@@ -44,8 +42,7 @@ const StopPoints = ({
             title={waypoint.displayed_name}
             description={waypoint.type}
             onPress={() => {
-              isStop && console.log("stoppoint pressed in stoppoint mode");
-              stopPointPressed?.(waypoint);
+              showHandles && stopPointPressed?.(waypoint);
             }}
             opacity={selectedStop === waypoint ? 0.5 : 0.9}
             // pinColor={"green"}
