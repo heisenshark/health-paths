@@ -37,7 +37,7 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: false,
           });
         }}>
-        <Markers waypoints={currentMap.waypoints} isEdit={false} updateWaypoints={undefined} />
+        <Markers waypoints={currentMap.waypoints} showHandles={false} updateWaypoints={undefined} />
 
         <StopPoints waypoints={currentMap.stops} isStop={false}></StopPoints>
         <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />

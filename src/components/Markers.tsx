@@ -1,13 +1,15 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { View, Text, Image } from "react-native";
-import { Callout, LatLng, Marker } from "react-native-maps";
+import { Callout, Circle, LatLng, Marker } from "react-native-maps";
 import tw from "../lib/tailwind";
 import Waypoint from "../utils/interfaces";
 
 export interface MarkersProps {
   waypoints: LatLng[];
-  isEdit: boolean;
+  showHandles: boolean;
+  selectedWaypoint: LatLng;
+  zoom: number;
   updateWaypoints: () => {};
   onWaypointSelect: (w: LatLng) => void;
 }
@@ -17,12 +19,13 @@ const SNAPPING_ENABLED = false;
 
 export function Markers<Props>({
   waypoints,
-  isEdit,
+  showHandles,
+  selectedWaypoint,
+  zoom,
   updateWaypoints,
   onWaypointSelect,
 }: MarkersProps) {
   // const [edittedWaypoint, setEdittedWaypoint] = useState(1);
-  const [selectedWaypoint, setSelectedWaypoint] = useState(1);
   const API_KEY = "***REMOVED***";
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export function Markers<Props>({
     //     waypoints,
     //     waypoints.slice(1, -1).map((value) => value.coordinates)
     // );
-  }, [isEdit]);
+  }, [showHandles]);
 
   //HACK snnapping new points to the nearest road
   function snapPoint(waypoint: Waypoint, point: LatLng) {
@@ -93,45 +96,43 @@ export function Markers<Props>({
         </View>
       );
 
-    return (
-      <View className="flex-1 items-center justify-end h-auto w-auto">
-        <Image
-          source={imageCircle}
-          resizeMode="center"
-          resizeMethod="resize"
-          className={"flex-1 w-4 h-4"}
-        />
-      </View>
-    );
+    return null;
   };
 
   const markers = waypoints.map((n: LatLng, index) => {
     const isEnd = index === waypoints.length - 1;
     const isBegin = index === 0;
     return (
-      <Marker
-        key={index}
-        coordinate={n}
-        onDragEnd={(e) => {
-          // snapPoint(n, e.nativeEvent.coordinate);
-          waypoints[index] = e.nativeEvent.coordinate;
-          updateWaypoints();
-        }}
-        onPress={() => {
-          console.log("marker pressed, initiating edit");
-          onWaypointSelect(n);
-        }}
-        draggable={isEdit}
-        tappable={false}
-        pinColor={index == 0 ? "blue" : "yellow"}
-        className="flex "
-        anchor={isEnd || isBegin ? { x: 0.5, y: 1 } : { x: 0.5, y: 0.5 }}>
-        {renderImage(index == 0, index == waypoints.length - 1)}
+      <View key={index}>
+        {(isBegin || isEnd || showHandles) && (
+          <Marker
+            coordinate={n}
+            onDragEnd={(e) => {
+              // snapPoint(n, e.nativeEvent.coordinate);
+              waypoints[index] = e.nativeEvent.coordinate;
+              updateWaypoints();
+            }}
+            onPress={() => {
+              console.log("marker pressed, initiating edit");
+              onWaypointSelect(n);
+            }}
+            draggable={showHandles}
+            tappable={false}
+            pinColor={index == 0 ? "blue" : "yellow"}
+            className="flex "
+            opacity={selectedWaypoint === n ? 0.5 : 0.9}
+            // anchor={isEnd || isBegin ? { x: 0.5, y: 1 } : { x: 0.5, y: 0.5 }}
+          >
+            {renderImage(index == 0, index == waypoints.length - 1)}
 
-        {/* <Callout tooltip>
+            {/* <Callout tooltip>
           <Text>{index + 1}</Text>
         </Callout> */}
-      </Marker>
+          </Marker>
+        )}
+
+        <Circle center={n} radius={Math.min(20 * (15 / zoom),40)} fillColor={"gray"} zIndex={1} />
+      </View>
     );
   });
 
