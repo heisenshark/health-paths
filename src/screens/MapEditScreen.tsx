@@ -434,15 +434,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const animateToPoint = async (point: LatLng) => {
     const time = 300;
-    mapRef.current.animateCamera(
-      {
-        center: {
-          latitude: point.latitude,
-          longitude: point.longitude,
-        },
-      },
-      { duration: time }
-    );
+    mapRef.current.animateCamera({ center: point }, { duration: time });
     await new Promise((resolve) => setTimeout(resolve, time));
   };
 
@@ -468,7 +460,7 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View className="relative border-4">
+    <View style={tw`relative border-4`}>
       <EditWaypointModal
         visible={currentModalOpen === "EditWaypoint"}
         hide={() => {
@@ -531,10 +523,10 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onSave={onSave}
       />
-      <View className="w-full h-full bg-red-600">
+      <View style={tw`w-full h-full bg-red-600`}>
         <MapView
           ref={mapRef}
-          className="flex-1"
+          style={tw`flex-1`}
           camera={currentCamera}
           toolbarEnabled={true}
           minZoomLevel={7}
@@ -575,42 +567,22 @@ const MapEditScreen = ({ navigation, route }) => {
           customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
-            // console.log("region change complete", 1 / e.longitudeDelta / 4);
-            // setZoom(1 / e.longitudeDelta / 4);
             mapRef.current.getCamera().then((c) => {
               setZoom(156543.03392 / Math.pow(2, c.zoom));
-              console.log(c.zoom);
-              console.log([
-                c.zoom * c.zoom * e.latitudeDelta,
-                c.zoom,
-                e.latitudeDelta,
-                156543.03392 / Math.pow(2, c.zoom),
-              ]);
             });
           }}
           onUserLocationChange={(coordinate) => {
-            // console.log("user location change", coordinate);
-            if (isWatchingposition) {
-              console.log("watching position");
+            isWatchingposition &&
               mapRef.current.animateCamera({
-                center: {
-                  latitude: coordinate.nativeEvent.coordinate.latitude,
-                  longitude: coordinate.nativeEvent.coordinate.longitude,
-                },
+                center: coordinate.nativeEvent.coordinate,
                 zoom: 15,
               });
-            }
           }}>
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers
             waypoints={waypoints}
             showHandles={showHandles && mapEditState === "Idle"}
             selectedWaypoint={mapEditState === "MovingWaypoint" ? selectedWaypoint : null}
-            updateWaypoints={() => {
-              // setWaypoints([...waypoints]);
-              force();
-              setNotSaved(true);
-            }}
             onWaypointSelect={(w: LatLng) => {
               setCurrentModalOpen("EditWaypoint");
               setSelectedWaypoint(w);
@@ -630,15 +602,10 @@ const MapEditScreen = ({ navigation, route }) => {
               precision={"low"}
               optimizeWaypoints
               onReady={(n) => {
-                console.log(n);
-                console.log(n.legs[0].start_address);
                 const adress = n.legs[0].start_address;
-                console.log(adress.split(", "));
-                console.log("path drawn ");
                 snapEnds(n.coordinates);
                 setFullPath(n.coordinates);
                 currentMap.distance = n.distance * 1000;
-                console.log(n.distance * 1000);
                 currentMap.location = adress;
               }}
             />
@@ -651,11 +618,6 @@ const MapEditScreen = ({ navigation, route }) => {
             showHandles={showHandles && mapEditState === "Idle"}
             selectedStop={mapEditState === "MovingStopPoint" ? selectedStop : null}
             zoom={zoom}
-            updateStopPoints={(w: Waypoint[]) => {
-              setStopPoints(w);
-              force();
-              setNotSaved(true);
-            }}
             stopPointPressed={(w: Waypoint) => {
               animateToPoint(w.coordinates);
               setSelectedStop(w);
@@ -666,7 +628,7 @@ const MapEditScreen = ({ navigation, route }) => {
       </View>
       {/* <InfoInfo /> */}
       <TipDisplay forceVisible={mapEditState !== "Idle"} timeVisible={shotTip} />
-      <View className="absolute w-full pointer-events-none mt-40">
+      <View style={tw`absolute w-full mt-40`} pointerEvents="none">
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"zapisz"}
@@ -725,14 +687,14 @@ const MapEditScreen = ({ navigation, route }) => {
         {!isInRecordingState && (
           <SquareButton
             label="lista"
+            icon="list"
             onPress={() => {
               console.log("waypoint list open");
               setListOpen(!listOpen);
               if (currentModalOpen === "WaypointsList") setCurrentModalOpen("None");
               else setCurrentModalOpen("WaypointsList");
-            }}>
-            <Icon name="list" size={40} color="black" className="flex-1" />
-          </SquareButton>
+            }}
+          />
         )}
       </View>
 

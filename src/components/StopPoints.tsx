@@ -14,7 +14,6 @@ interface StopPointsProps {
   showHandles: boolean;
   selectedStop?: Waypoint;
   zoom: number;
-  updateStopPoints: (stopPoints: Waypoint[]) => void;
   stopPointPressed?: (stopPoint: Waypoint) => void;
 }
 //TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
@@ -25,7 +24,6 @@ const StopPoints = ({
   showHandles,
   selectedStop,
   zoom,
-  updateStopPoints,
   stopPointPressed,
 }: StopPointsProps) => {
   const navigationRef = useNavigation();
@@ -49,11 +47,6 @@ const StopPoints = ({
               isStop && console.log("stoppoint pressed in stoppoint mode");
               stopPointPressed?.(waypoint);
             }}
-            onDragEnd={(e) => {
-              waypoint.coordinates = e.nativeEvent.coordinate;
-              updateStopPoints(waypoints);
-            }}
-            draggable={isStop}
             opacity={selectedStop === waypoint ? 0.5 : 0.9}
             // pinColor={"green"}
             // anchor={{ x: 0.5, y: 0.5 }}

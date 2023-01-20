@@ -4,6 +4,7 @@ import { View } from "react-native";
 import MapView, { Polyline, Region } from "react-native-maps";
 import { Markers } from "../components/Markers";
 import StopPoints from "../components/StopPoints";
+import tw from "../lib/tailwind";
 import { mapStylesJSON } from "../providedfiles/Export";
 import { useMapStore } from "../stores/store";
 
@@ -25,10 +26,10 @@ const MapViewScreen = ({ navigation, route }) => {
   }, []);
 
   return (
-    <View className="w-full h-full bg-red-600">
+    <View style={tw`w-full h-full bg-red-600`}>
       <MapView
         ref={mapRef}
-        className="flex-1"
+        style={tw`flex-1`}
         initialRegion={initialRegion}
         customMapStyle={mapStylesJSON}
         onMapReady={() => {
@@ -37,7 +38,12 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: false,
           });
         }}>
-        <Markers waypoints={currentMap.waypoints} showHandles={false} updateWaypoints={undefined} zoom={15}/>
+        <Markers
+          waypoints={currentMap.waypoints}
+          showHandles={false}
+          updateWaypoints={undefined}
+          zoom={15}
+        />
 
         <StopPoints waypoints={currentMap.stops} isStop={false} zoom={15}></StopPoints>
         <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />
