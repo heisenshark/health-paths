@@ -17,7 +17,6 @@ const TipDisplay = ({ tipMessage, forceVisible, timeVisible }: Props) => {
   else tip = "Dotknij aby dodać punkt lub edytować istniejący";
 
   useEffect(() => {
-    console.log("uef");
     setTime(timeVisible);
     ti = setInterval(() => {
       setTime((t) => {

@@ -10,7 +10,7 @@ const TrackLine = () => {
   return (
     <Polyline
       coordinates={getOutputLocations ? getOutputLocations() : []}
-      strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+      strokeColor="yellow"
       strokeWidth={6}
     />
   );

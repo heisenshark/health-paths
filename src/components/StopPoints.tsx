@@ -32,12 +32,10 @@ const StopPoints = ({
   });
 
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
-    let markerRef = useRef<MapMarker>();
     return (
       <>
         {(showHandles || selectedStop === waypoint) && (
           <Marker
-            ref={markerRef}
             coordinate={waypoint.coordinates}
             title={waypoint.displayed_name}
             description={waypoint.type}

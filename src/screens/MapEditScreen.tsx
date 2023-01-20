@@ -25,10 +25,16 @@ import EditWaypointModal from "../components/EditWaypointModal";
 
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-native-reanimated";
 import TipDisplay from "../components/TipDisplay";
-
+import { atom, useAtom } from "jotai";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
+//TODO Dodać przyciski powiększania dodawania itp
+//TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
+//TODO Rozdzielić na kilka pure komponentów
+//[x] Dodać możliwość tworzenia waypointów
+//[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
+
 type curmodalOpenType =
   | "None"
   | "MapInfo"
@@ -39,30 +45,27 @@ type curmodalOpenType =
 
 type MapEditState = "Idle" | "MovingWaypoint" | "MovingStopPoint";
 
-const MapEditScreen = ({ navigation, route }) => {
-  //TODO Dodać przyciski powiększania dodawania itp
-  //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
-  //TODO Rozdzielić na kilka pure komponentów
-  //[x] Dodać możliwość tworzenia waypointów
-  //[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
+export const showHandlesAtom = atom<boolean>(false);
+export const mapEditorStateAtom = atom<MapEditState>("Idle");
+// export const showHandlesAtom = atom(false);
+// export const showHandlesAtom = atom(false);
 
+const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
   const isInRecordingState = route.params.isRecording as boolean;
   const API_KEY = "***REMOVED***";
   const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
-  const [isWatchingposition, setIsWatchingposition] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [showUserLocation, setShowUserLocation] = useState(true);
+  const [showingTip, setShowingTip] = useState(3000);
+  const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
   const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
-  const [pointPivot, setPointPivot] = useState(null as LatLng);
-  const [tipMessage, setTipMessage] = useState("Dotknij ekran aby dodać nowy punkt");
-  const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
 
-  const [showingTip, setShowingTip] = useState(3000);
-  const [showHandles, setShowHandles] = useState<boolean>(true);
   const [zoom, setZoom] = useState(15);
-
+  const [isWatchingposition, setIsWatchingposition] = useState(false);
+  const [showUserLocation, setShowUserLocation] = useState(true);
+  const [pointPivot, setPointPivot] = useState(null as LatLng);
+  const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
+  
   const [
     currentMap,
     setCurrentMap,
@@ -93,6 +96,9 @@ const MapEditScreen = ({ navigation, route }) => {
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [fullPath, setFullPath] = useState([] as LatLng[]);
   const force = useForceUpdate();
+  const [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] =
+    useLocationBackground();
+
   //[x] uprościć funkcje zooma na początku mapy
   //[x] zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
@@ -143,9 +149,10 @@ const MapEditScreen = ({ navigation, route }) => {
     mapIcon: MediaFile
   ): Promise<boolean> {
     console.log(mapIcon);
-    let p = isInRecordingState
-      ? useLocationTrackingStore.getState().getOutputLocations()
-      : fullPath;
+    // let p = isInRecordingState
+    //   ? useLocationTrackingStore.getState().getOutputLocations()
+    //   : fullPath;
+    let p = [...fullPath, ...useLocationTrackingStore.getState().getOutputLocations()];
     if (p.length <= 0) return false;
     let xd = {
       ...currentMap,
@@ -201,72 +208,6 @@ const MapEditScreen = ({ navigation, route }) => {
     return true;
   }
 
-  async function startBackgroundTracking() {
-    const startBckg = () =>
-      Location.startLocationUpdatesAsync("location_tracking", {
-        accuracy: Location.Accuracy.BestForNavigation,
-        timeInterval: 1000,
-        showsBackgroundLocationIndicator: true,
-        foregroundService: {
-          notificationTitle: "Ścieżki Zdrowia",
-          notificationBody: "Trasa ścieżki zdrowia nagrywa się w tle",
-          notificationColor: "#fff",
-        },
-      });
-
-    setIsRecording(true);
-    const perms = await getPermissions();
-    if (!perms) return;
-    console.log("have permissions");
-
-    const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
-    if (!startedTracking) console.log("starting tracking");
-
-    const start = useLocationTrackingStore.getState().currentLine.end;
-    let end = {} as LatLng;
-    let distance = 0;
-    if (start) {
-      const loc = await Location.getCurrentPositionAsync();
-      end = { longitude: loc.coords.longitude, latitude: loc.coords.latitude } as LatLng;
-      distance = headingDistanceTo(start, end).distance;
-    }
-
-    if (distance > 100) {
-      Alert.alert("wypełnić brakującą trasę?", "", [
-        {
-          text: "Nie",
-          style: "cancel",
-          onPress: () => {
-            startBckg();
-          },
-        },
-        {
-          text: "Tak",
-          onPress: async () => {
-            const locs = await getRoute(start, end);
-            useLocationTrackingStore.getState().addLocations(locs, Date.now());
-            startBckg();
-          },
-        },
-      ]);
-      return;
-    }
-    startBckg();
-  }
-
-  async function stopBackgroundTracking() {
-    console.log("isRec: ", isRecording);
-
-    Location.hasStartedLocationUpdatesAsync("location_tracking")
-      .then((res) => {
-        setIsRecording(false);
-        if (!res) return;
-        console.log("stopping tracking");
-        Location.stopLocationUpdatesAsync("location_tracking");
-      })
-      .catch((e) => console.log(e));
-  }
-
   const onSave = async (
     name: string,
     description: string,
@@ -285,6 +226,29 @@ const MapEditScreen = ({ navigation, route }) => {
     }
     return false;
   };
+
+  function handleBackPress(): boolean {
+    console.log(notSaved);
+    if (!navigation.isFocused()) return;
+    if (!notSaved) return false;
+    Alert.alert(
+      "Porzucić zmiany?",
+      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+      [
+        { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
+        {
+          text: "Opusć",
+          style: "destructive",
+          onPress: () => {
+            setCurrentMap(undefined);
+            setNotSaved(false);
+            navigation.goBack();
+          },
+        },
+      ]
+    );
+    return true;
+  }
 
   useEffect(() => {
     if (!navAction) return;
@@ -315,10 +279,6 @@ const MapEditScreen = ({ navigation, route }) => {
     );
   }, [navAction]);
 
-  //Use to display renders
-  useEffect(() => {
-    console.log("render");
-  });
   useEffect(() => {
     if (currentMap.map_id === "") {
       console.log("elo");
@@ -348,7 +308,7 @@ const MapEditScreen = ({ navigation, route }) => {
           },
           50
         );
-      }, 50);
+      }, 0);
     } else {
       setWaypoints(currentMap.waypoints);
       setStopPoints(currentMap.stops);
@@ -367,29 +327,6 @@ const MapEditScreen = ({ navigation, route }) => {
     }
   }, []);
 
-  function handleBackPress(): boolean {
-    console.log(notSaved);
-    if (!navigation.isFocused()) return;
-    if (!notSaved) return false;
-    Alert.alert(
-      "Porzucić zmiany?",
-      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
-      [
-        { text: "Nie, Zostań", style: "cancel", onPress: () => {} },
-        {
-          text: "Opusć",
-          style: "destructive",
-          onPress: () => {
-            setCurrentMap(undefined);
-            setNotSaved(false);
-            navigation.goBack();
-          },
-        },
-      ]
-    );
-    return true;
-  }
-
   useEffect(() => {
     const backHandler = BackHandler.addEventListener("hardwareBackPress", handleBackPress);
     return () => backHandler.remove();
@@ -397,9 +334,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
-        setIsRecording(res);
-      });
+      checkRecording();
       console.log("onFocus");
       return () => {
         console.log("onBlur");
@@ -408,7 +343,6 @@ const MapEditScreen = ({ navigation, route }) => {
           console.log("camera");
           setCurrentCamera(camera);
         });
-
         BackHandler.removeEventListener("hardwareBackPress", () => false);
       };
     }, [navigation])
@@ -424,90 +358,107 @@ const MapEditScreen = ({ navigation, route }) => {
     setShowingTip((t) => (t === 5000 ? t - 1 : 5000));
   };
 
-  const InfoInfo = () => {
-    let tip = null;
-    if (!tipMessage) return null;
-    if (mapEditState === "Idle") tip = "Wybierz Lokację dla punktu";
-    else tip = "Dotknij aby dodać punkt lub edytować istniejący";
+  async function onPressMap(e) {
+    // addNewWaypoint(e);
+    e.persist();
+    console.log(mapEditState);
+    if (mapEditState === "Idle") {
+      setPointPivot(e.nativeEvent.coordinate);
+      await animateToPoint(e.nativeEvent.coordinate);
+      mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
+      setMapEditState("Idle");
+      return;
+    }
+    if (mapEditState === "MovingWaypoint")
+      waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
+        latitude: e.nativeEvent.coordinate.latitude,
+        longitude: e.nativeEvent.coordinate.longitude,
+      });
+    else if (mapEditState === "MovingStopPoint")
+      selectedStop.coordinates = {
+        latitude: e.nativeEvent.coordinate.latitude,
+        longitude: e.nativeEvent.coordinate.longitude,
+      };
+    await animateToPoint(e.nativeEvent.coordinate);
+    setMapEditState("Idle");
+    force();
+  }
 
+  function Modals() {
     return (
-      <Animated.View
-        style={[tw`absolute bg-black bg-opacity-40 w-full`]}
-        pointerEvents="none"
-        entering={FadeInUp}
-        exiting={FadeOutUp}>
-        <Text style={tw`text-white text-3xl text-center p-2 py-4`}>{tip}</Text>
-      </Animated.View>
+      <>
+        <EditWaypointModal
+          visible={currentModalOpen === "EditWaypoint"}
+          hide={() => {
+            setCurrentModalOpen("None");
+          }}
+          onDelete={() => {
+            waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
+            setSelectedWaypoint(null);
+          }}
+          onMove={() => {
+            console.log("initiating move sequence");
+            setMapEditState("MovingWaypoint");
+          }}></EditWaypointModal>
+
+        <AddPointModal
+          visible={currentModalOpen === "AddPoint"}
+          hide={() => {
+            setPointPivot(null);
+            setCurrentModalOpen("None");
+            console.log("popclose");
+          }}
+          onStopPointAdd={() => {
+            const stoppint = addNewWaypoint(pointPivot, "stop");
+            setTimeout(() => {
+              navigation.navigate({
+                name: "EdycjaMap",
+                params: { editedWaypoint: stoppint, isEdit: true },
+              });
+            }, 10);
+          }}
+          onWaypointAdd={(position: number) => {
+            addNewWaypoint(pointPivot, "waypoint", position);
+            console.log(waypoints);
+          }}
+          waypointsLength={waypoints.length}></AddPointModal>
+        <StopPointPopUp
+          visible={currentModalOpen === "StopPoint"}
+          stopPoint={selectedStop}
+          hide={() => setCurrentModalOpen("None")}
+          onEdit={() => {
+            setTimeout(() => {
+              navigation.navigate({
+                name: "EdycjaMap",
+                params: { editedWaypoint: selectedStop, isEdit: true },
+              });
+            }, 10);
+          }}
+          onDelete={() => {
+            stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
+            setSelectedStop(null);
+          }}
+          onMove={() => setMapEditState("MovingStopPoint")}
+        />
+        <MapInfoModal
+          visible={currentModalOpen === "MapInfo"}
+          onRequestClose={() => {
+            setCurrentModalOpen("None");
+            setShowHandles(true);
+            setShowUserLocation(true);
+          }}
+          onSave={onSave}
+        />
+      </>
     );
-  };
+  }
 
   return (
-    <View style={tw`relative border-4`}>
-      <EditWaypointModal
-        visible={currentModalOpen === "EditWaypoint"}
-        hide={() => {
-          setCurrentModalOpen("None");
-        }}
-        onDelete={() => {
-          waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
-          setSelectedWaypoint(null);
-        }}
-        onMove={() => {
-          console.log("initiating move sequence");
-          setMapEditState("MovingWaypoint");
-        }}></EditWaypointModal>
-
-      <AddPointModal
-        visible={currentModalOpen === "AddPoint"}
-        hide={() => {
-          setPointPivot(null);
-          setCurrentModalOpen("None");
-          console.log("popclose");
-        }}
-        onStopPointAdd={() => {
-          const stoppint = addNewWaypoint(pointPivot, "stop");
-          setTimeout(() => {
-            navigation.navigate({
-              name: "EdycjaMap",
-              params: { editedWaypoint: stoppint, isEdit: true },
-            });
-          }, 10);
-        }}
-        onWaypointAdd={(position: number) => {
-          addNewWaypoint(pointPivot, "waypoint", position);
-          console.log(waypoints);
-        }}
-        waypointsLength={waypoints.length}></AddPointModal>
-      <StopPointPopUp
-        visible={currentModalOpen === "StopPoint"}
-        stopPoint={selectedStop}
-        hide={() => setCurrentModalOpen("None")}
-        onEdit={() => {
-          setTimeout(() => {
-            navigation.navigate({
-              name: "EdycjaMap",
-              params: { editedWaypoint: selectedStop, isEdit: true },
-            });
-          }, 10);
-        }}
-        onDelete={() => {
-          stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
-          setSelectedStop(null);
-        }}
-        onMove={() => setMapEditState("MovingStopPoint")}
-      />
-      <MapInfoModal
-        visible={currentModalOpen === "MapInfo"}
-        onRequestClose={() => {
-          setCurrentModalOpen("None");
-          setShowHandles(true);
-          setShowUserLocation(true);
-        }}
-        onSave={onSave}
-      />
+    <View style={tw`relative`}>
+      <Modals />
       <View style={tw`w-full h-full bg-red-600`}>
         <MapView
-          ref={mapRef}
+          ref={(r) => (mapRef.current = r)}
           style={tw`flex-1`}
           camera={currentCamera}
           toolbarEnabled={true}
@@ -519,32 +470,8 @@ const MapEditScreen = ({ navigation, route }) => {
               animated: true,
             });
           }}
-          onTouchStart={() => {
-            console.log("touch start");
-            setIsWatchingposition(false);
-            showTip();
-          }}
-          onPress={async (e) => {
-            // addNewWaypoint(e);
-            e.persist();
-            console.log(mapEditState);
-            if (mapEditState === "Idle") setPointPivot(e.nativeEvent.coordinate);
-            if (mapEditState === "MovingWaypoint")
-              waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
-                latitude: e.nativeEvent.coordinate.latitude,
-                longitude: e.nativeEvent.coordinate.longitude,
-              });
-            else if (mapEditState === "MovingStopPoint")
-              selectedStop.coordinates = {
-                latitude: e.nativeEvent.coordinate.latitude,
-                longitude: e.nativeEvent.coordinate.longitude,
-              };
-            await animateToPoint(e.nativeEvent.coordinate);
-            mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
-            setMapEditState("Idle");
-
-            force();
-          }}
+          onTouchStart={showTip}
+          onPress={onPressMap}
           customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
@@ -656,6 +583,8 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"pokaż punkty"}
           icon="map"
           onPress={() => {
+            console.log(currentCamera.zoom);
+
             setShowHandles((p) => !p);
             force();
           }}
@@ -663,33 +592,96 @@ const MapEditScreen = ({ navigation, route }) => {
         <Text>{currentCamera?.zoom}</Text>
         <Text>{currentModalOpen}</Text>
         <Text>{notSaved ? "not Saved" : "saved"}</Text>
-
-        {!isInRecordingState && (
-          <SquareButton
-            label="lista"
-            icon="list"
-            onPress={() => {
-              console.log("waypoint list open");
-              if (currentModalOpen === "WaypointsList") setCurrentModalOpen("None");
-              else setCurrentModalOpen("WaypointsList");
-            }}
-          />
-        )}
       </View>
-
-      {currentModalOpen === "WaypointsList" && (
-        <WaypointsList
-          waypoints={waypoints}
-          onDelete={(n) => {
-            setWaypoints((w) => {
-              w.splice(n, 1);
-              return [...w];
-            });
-          }}
-        />
-      )}
     </View>
   );
 };
 
 export default MapEditScreen;
+
+function useLocationBackground() {
+  const [isRecording, setIsRecording] = useState(false);
+
+  async function getPermissions(): Promise<boolean> {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    console.log(status);
+    let ss = await Location.requestBackgroundPermissionsAsync();
+    console.log(ss.status);
+    if (status !== "granted" || ss.status !== "granted") {
+      return false;
+    }
+    return true;
+  }
+
+  async function startBackgroundTracking() {
+    const startBckg = () =>
+      Location.startLocationUpdatesAsync("location_tracking", {
+        accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 1000,
+        showsBackgroundLocationIndicator: true,
+        foregroundService: {
+          notificationTitle: "Ścieżki Zdrowia",
+          notificationBody: "Trasa ścieżki zdrowia nagrywa się w tle",
+          notificationColor: "#fff",
+        },
+      });
+
+    setIsRecording(true);
+    const perms = await getPermissions();
+    if (!perms) return;
+    console.log("have permissions");
+
+    const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
+    if (!startedTracking) console.log("starting tracking");
+
+    const start = useLocationTrackingStore.getState().currentLine.end;
+    let end = {} as LatLng;
+    let distance = 0;
+    if (start) {
+      const loc = await Location.getCurrentPositionAsync();
+      end = { longitude: loc.coords.longitude, latitude: loc.coords.latitude } as LatLng;
+      distance = headingDistanceTo(start, end).distance;
+    }
+
+    if (distance > 100) {
+      Alert.alert("wypełnić brakującą trasę?", "", [
+        {
+          text: "Nie",
+          style: "cancel",
+          onPress: () => {
+            startBckg();
+          },
+        },
+        {
+          text: "Tak",
+          onPress: async () => {
+            const locs = await getRoute(start, end);
+            useLocationTrackingStore.getState().addLocations(locs, Date.now());
+            startBckg();
+          },
+        },
+      ]);
+      return;
+    }
+    startBckg();
+  }
+
+  async function stopBackgroundTracking() {
+    console.log("isRec: ", isRecording);
+
+    Location.hasStartedLocationUpdatesAsync("location_tracking")
+      .then((res) => {
+        setIsRecording(false);
+        if (!res) return;
+        console.log("stopping tracking");
+        Location.stopLocationUpdatesAsync("location_tracking");
+      })
+      .catch((e) => console.log(e));
+  }
+
+  async function checkRecording() {
+    const hasStarted = await Location.hasStartedLocationUpdatesAsync("location_tracking");
+    setIsRecording(hasStarted);
+  }
+  return [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] as const;
+}
