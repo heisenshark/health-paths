@@ -6,16 +6,16 @@ import SquareButton from "./SquareButton";
 
 type Props = {
   visible: boolean;
-  onWaypointEdit: (position: number) => void;
-  onStopPointEdit: () => void;
+  onWaypointAdd: (position: number) => void;
+  onStopPointAdd: () => void;
   hide: () => void;
   waypointsLength: number;
 };
 
 const AddPointModal = ({
   visible,
-  onWaypointEdit,
-  onStopPointEdit,
+  onWaypointAdd: onWaypointEdit,
+  onStopPointAdd: onStopPointEdit,
   hide,
   waypointsLength,
 }: Props) => {

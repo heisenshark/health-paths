@@ -39,7 +39,7 @@ const StopPoints = ({
     let markerRef = useRef<MapMarker>();
     return (
       <>
-        {showHandles && (
+        {(showHandles || selectedStop === waypoint) && (
           <Marker
             ref={markerRef}
             coordinate={waypoint.coordinates}
@@ -68,7 +68,12 @@ const StopPoints = ({
         </View> */}
           </Marker>
         )}
-        <Circle center={waypoint.coordinates} radius={Math.min(20 * (15 / zoom),40)} fillColor={"yellow"} zIndex={1} />
+        <Circle
+          center={waypoint.coordinates}
+          radius={Math.min(zoom * 7, 30)}
+          fillColor={"yellow"}
+          zIndex={2}
+        />
       </>
     );
   };

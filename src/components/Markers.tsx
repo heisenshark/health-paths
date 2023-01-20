@@ -79,7 +79,7 @@ export function Markers<Props>({
             source={imageStart}
             resizeMode="center"
             resizeMethod="resize"
-            style={tw`flex-1 w-12 h-12`}
+            style={tw`flex-1 w-8 h-8`}
           />
         </View>
       );
@@ -91,7 +91,7 @@ export function Markers<Props>({
             source={imageEnd}
             resizeMode="center"
             resizeMethod="resize"
-            className={"flex-1 w-12 h-12"}
+            className={"flex-1 w-8 h-8"}
           />
         </View>
       );
@@ -104,7 +104,7 @@ export function Markers<Props>({
     const isBegin = index === 0;
     return (
       <View key={index}>
-        {(isBegin || isEnd || showHandles) && (
+        {(isBegin || isEnd || showHandles || selectedWaypoint === n) && (
           <Marker
             coordinate={n}
             onDragEnd={(e) => {
@@ -114,7 +114,7 @@ export function Markers<Props>({
             }}
             onPress={() => {
               console.log("marker pressed, initiating edit");
-              onWaypointSelect(n);
+              showHandles && onWaypointSelect(n);
             }}
             draggable={showHandles}
             tappable={false}
@@ -131,7 +131,7 @@ export function Markers<Props>({
           </Marker>
         )}
 
-        <Circle center={n} radius={Math.min(20 * (15 / zoom),40)} fillColor={"gray"} zIndex={1} />
+        <Circle center={n} radius={Math.min(zoom * 7, 30)} fillColor={"gray"} zIndex={1} />
       </View>
     );
   });

@@ -150,17 +150,15 @@ const MapEditScreen = ({ navigation, route }) => {
       stopPoints.push(newStop);
       setNotSaved(true);
       return newStop;
-    default:
-      break;
     }
     return null;
   }
 
-  const saveMapEvent = async (
+  async function saveMapEvent(
     name: string,
     description: string,
     mapIcon: MediaFile
-  ): Promise<boolean> => {
+  ): Promise<boolean> {
     console.log(mapIcon);
     let p = isInRecordingState
       ? useLocationTrackingStore.getState().getOutputLocations()
@@ -180,6 +178,9 @@ const MapEditScreen = ({ navigation, route }) => {
       edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
       animated: false,
     });
+    const elo = await mapRef.current.getCamera();
+    setZoom(elo.zoom);
+    await new Promise((r) => setTimeout(r, 100));
     const uri = await mapRef.current.takeSnapshot({
       width: 350, // optional, when omitted the view-width is used
       height: 700, // optional, when omitted the view-height is used
@@ -205,8 +206,8 @@ const MapEditScreen = ({ navigation, route }) => {
     console.log("current map set");
     await saveMap(xd);
     return true;
-  };
-  const getPermissions = async (): Promise<boolean> => {
+  }
+  async function getPermissions(): Promise<boolean> {
     let { status } = await Location.requestForegroundPermissionsAsync();
     console.log(status);
     let ss = await Location.requestBackgroundPermissionsAsync();
@@ -215,9 +216,9 @@ const MapEditScreen = ({ navigation, route }) => {
       return false;
     }
     return true;
-  };
+  }
 
-  const startBackgroundTracking = async () => {
+  async function startBackgroundTracking() {
     const startBckg = () =>
       Location.startLocationUpdatesAsync("location_tracking", {
         accuracy: Location.Accuracy.BestForNavigation,
@@ -268,9 +269,9 @@ const MapEditScreen = ({ navigation, route }) => {
       return;
     }
     startBckg();
-  };
+  }
 
-  const stopBackgroundTracking = async () => {
+  async function stopBackgroundTracking() {
     console.log("isRec: ", isRecording);
 
     Location.hasStartedLocationUpdatesAsync("location_tracking")
@@ -281,6 +282,25 @@ const MapEditScreen = ({ navigation, route }) => {
         Location.stopLocationUpdatesAsync("location_tracking");
       })
       .catch((e) => console.log(e));
+  }
+
+  const onSave = async (
+    name: string,
+    description: string,
+    asNew: boolean,
+    mapIcon: MediaFile
+  ): Promise<boolean> => {
+    try {
+      if (asNew) currentMap.map_id = getUUID();
+      const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
+      if (good) {
+        setNotSaved(false);
+        return true;
+      }
+    } catch (e) {
+      console.log(e, "AAAAAA");
+    }
+    return false;
   };
 
   useEffect(() => {
@@ -428,9 +448,6 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const showTip = () => {
     setShotTip((t) => (t === 5000 ? t - 1 : 5000));
-    // setTimeout(() => {
-    //   setShotTip(false);
-    // }, 3000);
   };
 
   const InfoInfo = () => {
@@ -473,7 +490,7 @@ const MapEditScreen = ({ navigation, route }) => {
           setCurrentModalOpen("None");
           console.log("popclose");
         }}
-        onStopPointEdit={() => {
+        onStopPointAdd={() => {
           const stoppint = addNewWaypoint(pointPivot, "stop");
           setTimeout(() => {
             navigation.navigate({
@@ -482,7 +499,7 @@ const MapEditScreen = ({ navigation, route }) => {
             });
           }, 10);
         }}
-        onWaypointEdit={(position: number) => {
+        onWaypointAdd={(position: number) => {
           addNewWaypoint(pointPivot, "waypoint", position);
           console.log(waypoints);
         }}
@@ -490,10 +507,7 @@ const MapEditScreen = ({ navigation, route }) => {
       <StopPointPopUp
         visible={currentModalOpen === "StopPoint"}
         stopPoint={selectedStop}
-        hide={() => {
-          setCurrentModalOpen("None");
-          console.log("popclose");
-        }}
+        hide={() => setCurrentModalOpen("None")}
         onEdit={() => {
           setTimeout(() => {
             navigation.navigate({
@@ -505,12 +519,8 @@ const MapEditScreen = ({ navigation, route }) => {
         onDelete={() => {
           stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
           setSelectedStop(null);
-          // force();
         }}
-        onMove={() => {
-          console.log("initiating move sequence");
-          setMapEditState("MovingStopPoint");
-        }}
+        onMove={() => setMapEditState("MovingStopPoint")}
       />
       <MapInfoModal
         visible={currentModalOpen === "MapInfo"}
@@ -519,24 +529,7 @@ const MapEditScreen = ({ navigation, route }) => {
           setShowHandles(true);
           setShowUserLocation(true);
         }}
-        onSave={async (
-          name: string,
-          description: string,
-          asNew: boolean,
-          mapIcon: MediaFile
-        ): Promise<boolean> => {
-          try {
-            if (asNew) currentMap.map_id = getUUID();
-            const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
-            if (good) {
-              setNotSaved(false);
-              return true;
-            }
-          } catch (e) {
-            console.log(e, "AAAAAA");
-          }
-          return false;
-        }}
+        onSave={onSave}
       />
       <View className="w-full h-full bg-red-600">
         <MapView
@@ -576,14 +569,24 @@ const MapEditScreen = ({ navigation, route }) => {
             await animateToPoint(e.nativeEvent.coordinate);
             mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
             setMapEditState("Idle");
-            
+
             force();
           }}
           customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
-            console.log("region change complete", 1 / e.longitudeDelta / 4);
-            setZoom(1 / e.longitudeDelta / 4);
+            // console.log("region change complete", 1 / e.longitudeDelta / 4);
+            // setZoom(1 / e.longitudeDelta / 4);
+            mapRef.current.getCamera().then((c) => {
+              setZoom(156543.03392 / Math.pow(2, c.zoom));
+              console.log(c.zoom);
+              console.log([
+                c.zoom * c.zoom * e.latitudeDelta,
+                c.zoom,
+                e.latitudeDelta,
+                156543.03392 / Math.pow(2, c.zoom),
+              ]);
+            });
           }}
           onUserLocationChange={(coordinate) => {
             // console.log("user location change", coordinate);
@@ -601,7 +604,7 @@ const MapEditScreen = ({ navigation, route }) => {
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers
             waypoints={waypoints}
-            showHandles={showHandles}
+            showHandles={showHandles && mapEditState === "Idle"}
             selectedWaypoint={mapEditState === "MovingWaypoint" ? selectedWaypoint : null}
             updateWaypoints={() => {
               // setWaypoints([...waypoints]);
@@ -645,7 +648,7 @@ const MapEditScreen = ({ navigation, route }) => {
           <StopPoints
             waypoints={stopPoints}
             isStop={true}
-            showHandles={showHandles}
+            showHandles={showHandles && mapEditState === "Idle"}
             selectedStop={mapEditState === "MovingStopPoint" ? selectedStop : null}
             zoom={zoom}
             updateStopPoints={(w: Waypoint[]) => {
