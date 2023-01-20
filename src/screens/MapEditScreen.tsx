@@ -38,6 +38,8 @@ type curmodalOpenType =
   | "AddPoint"
   | "EditWaypoint";
 
+type MapEditState = "Idle" | "MovingWaypoint" | "MovingStopPoint";
+
 const MapEditScreen = ({ navigation, route }) => {
   //TODO Dodać przyciski powiększania dodawania itp
   //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
@@ -69,8 +71,8 @@ const MapEditScreen = ({ navigation, route }) => {
   const [pointPivot, setPointPivot] = useState(null as LatLng);
   // const [tipMessage, setTipMessage] = useState(undefined);
   const [tipMessage, setTipMessage] = useState("Dotknij ekran aby dodać nowy punkt");
-  const [isMovingWaypoint, setIsMovingWaypoint] = useState(false);
-  const [isMovingStopPoint, setIsMovingStopPoint] = useState(false);
+  const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
+
   const [shotTip, setShotTip] = useState(3000);
   const [showHandles, setShowHandles] = useState<boolean>(true);
   const [zoom, setZoom] = useState(15);
@@ -434,7 +436,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const InfoInfo = () => {
     let tip = null;
     if (!tipMessage) return null;
-    if (isMovingWaypoint || isMovingStopPoint) tip = "Wybierz Lokację dla punktu";
+    if (mapEditState === "Idle") tip = "Wybierz Lokację dla punktu";
     else tip = "Dotknij aby dodać punkt lub edytować istniejący";
 
     return (
@@ -461,7 +463,7 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onMove={() => {
           console.log("initiating move sequence");
-          setIsMovingWaypoint(true);
+          setMapEditState("MovingWaypoint");
         }}></EditWaypointModal>
 
       <AddPointModal
@@ -507,7 +509,7 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onMove={() => {
           console.log("initiating move sequence");
-          setIsMovingStopPoint(true);
+          setMapEditState("MovingStopPoint");
         }}
       />
       <MapInfoModal
@@ -553,45 +555,31 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
           onTouchStart={() => {
             console.log("touch start");
+            setIsWatchingposition(false);
             showTip();
           }}
           onPress={async (e) => {
             // addNewWaypoint(e);
             e.persist();
-            console.log(isMovingWaypoint);
-            setIsWatchingposition(false);
-
-            if (isMovingWaypoint) {
+            console.log(mapEditState);
+            if (mapEditState === "Idle") setPointPivot(e.nativeEvent.coordinate);
+            if (mapEditState === "MovingWaypoint")
               waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
                 latitude: e.nativeEvent.coordinate.latitude,
                 longitude: e.nativeEvent.coordinate.longitude,
               });
-              setIsMovingWaypoint(false);
-              setIsMovingStopPoint(false);
-              force();
-              await animateToPoint(e.nativeEvent.coordinate);
-              return;
-            }
-            if (isMovingStopPoint) {
+            else if (mapEditState === "MovingStopPoint")
               selectedStop.coordinates = {
                 latitude: e.nativeEvent.coordinate.latitude,
                 longitude: e.nativeEvent.coordinate.longitude,
               };
-              setIsMovingWaypoint(false);
-              setIsMovingStopPoint(false);
-              force();
-              await animateToPoint(e.nativeEvent.coordinate);
-              return;
-            }
-            setPointPivot(e.nativeEvent.coordinate);
             await animateToPoint(e.nativeEvent.coordinate);
-            setCurrentModalOpen("AddPoint");
+            mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
+            setMapEditState("Idle");
+            
+            force();
           }}
-          customMapStyle={
-            // mapStylenoLandmarks
-            mapstyleSilver
-            // : mapStylesJSON
-          }
+          customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
             console.log("region change complete", 1 / e.longitudeDelta / 4);
@@ -614,7 +602,7 @@ const MapEditScreen = ({ navigation, route }) => {
           <Markers
             waypoints={waypoints}
             showHandles={showHandles}
-            selectedWaypoint={isMovingWaypoint ? selectedWaypoint : null}
+            selectedWaypoint={mapEditState === "MovingWaypoint" ? selectedWaypoint : null}
             updateWaypoints={() => {
               // setWaypoints([...waypoints]);
               force();
@@ -658,7 +646,7 @@ const MapEditScreen = ({ navigation, route }) => {
             waypoints={stopPoints}
             isStop={true}
             showHandles={showHandles}
-            selectedStop={isMovingStopPoint ? selectedStop : null}
+            selectedStop={mapEditState === "MovingStopPoint" ? selectedStop : null}
             zoom={zoom}
             updateStopPoints={(w: Waypoint[]) => {
               setStopPoints(w);
@@ -674,7 +662,7 @@ const MapEditScreen = ({ navigation, route }) => {
         </MapView>
       </View>
       {/* <InfoInfo /> */}
-      <TipDisplay forceVisible={isMovingWaypoint || isMovingStopPoint} timeVisible={shotTip} />
+      <TipDisplay forceVisible={mapEditState !== "Idle"} timeVisible={shotTip} />
       <View className="absolute w-full pointer-events-none mt-40">
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
