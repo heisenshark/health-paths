@@ -60,7 +60,6 @@ const MapEditScreen = ({ navigation, route }) => {
   const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [mapInfoModalVisible, setMapInfoModalVisible] = useState(false);
   const [listOpen, setListOpen] = useState(false);
-  const [editorState, setEditorState, toggleEditorState] = useEditorState(EditorState.VIEW);
   const [isWatchingposition, setIsWatchingposition] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showUserLocation, setShowUserLocation] = useState(true);
@@ -411,7 +410,8 @@ const MapEditScreen = ({ navigation, route }) => {
     }, [navigation])
   );
 
-  const animateToPoint = (point: LatLng) => {
+  const animateToPoint =async (point: LatLng) => {
+    const time = 300;
     mapRef.current.animateCamera(
       {
         center: {
@@ -419,12 +419,13 @@ const MapEditScreen = ({ navigation, route }) => {
           longitude: point.longitude,
         },
       },
-      { duration: 100 }
+      { duration: time }
     );
+    await new Promise(resolve=>setTimeout(resolve,time))
   };
 
   const showTip = () => {
-    setShotTip(t=> t===10000?t-1:10000);
+    setShotTip(t=> t===5000?t-1:5000);
     // setTimeout(() => {
     //   setShotTip(false);
     // }, 3000);
@@ -554,9 +555,12 @@ const MapEditScreen = ({ navigation, route }) => {
             console.log("touch start");
             showTip();
           }}
-          onPress={(e) => {
+          onPress={async (e) => {
             // addNewWaypoint(e);
+            e.persist();
             console.log(isMovingWaypoint);
+            setIsWatchingposition(false);
+
             if (isMovingWaypoint) {
               waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
                 latitude: e.nativeEvent.coordinate.latitude,
@@ -577,12 +581,11 @@ const MapEditScreen = ({ navigation, route }) => {
               force();
               return;
             }
-            animateToPoint(e.nativeEvent.coordinate);
-            setCurrentModalOpen("AddPoint");
             setPointPivot(e.nativeEvent.coordinate);
+            await animateToPoint(e.nativeEvent.coordinate);
+            setCurrentModalOpen("AddPoint");
           }}
           customMapStyle={
-            // editorState != EditorState.VIEW ?
             // mapStylenoLandmarks
             mapstyleSilver
             // : mapStylesJSON
@@ -632,7 +635,7 @@ const MapEditScreen = ({ navigation, route }) => {
           {isInRecordingState && <TrackLine />}
           <Markers
             waypoints={waypoints}
-            isEdit={editorState === EditorState.EDIT}
+            isEdit={true}
             updateWaypoints={() => {
               // setWaypoints([...waypoints]);
               force();
@@ -661,22 +664,8 @@ const MapEditScreen = ({ navigation, route }) => {
         </MapView>
       </View>
       {/* <InfoInfo /> */}
-      <TipDisplay forceVisible={isMovingWaypoint || isMovingStopPoint} timeVisible={shotTip} />
+      <TipDisplay forceVisible={isMovingWaypoint || isMovingStopPoint} timeVisible={shotTip}/>
       <View className="absolute w-full pointer-events-none mt-40">
-        {!isInRecordingState && (
-          <SquareButton
-            style={tw`self-end m-3 mt-auto`}
-            label={editorState === EditorState.EDIT ? "Zakończ edycję" : "Edytuj ścieżkę"}
-            onPress={() => toggleEditorState(EditorState.EDIT)}
-            icon="edit"
-          />
-        )}
-        <SquareButton
-          style={tw`self-end m-3 mt-auto`}
-          label={editorState === EditorState.EDIT_STOP ? "Zakończ edycję" : "Edytuj STOPY"}
-          onPress={() => toggleEditorState(EditorState.EDIT_STOP)}
-          icon="marker"
-        />
         <SquareButton
           style={tw`self-end m-3 mt-auto`}
           label={"zapisz"}
@@ -746,7 +735,6 @@ const MapEditScreen = ({ navigation, route }) => {
             <Icon name="list" size={40} color="black" className="flex-1" />
           </SquareButton>
         )}
-        <Text>{editorState}</Text>
       </View>
 
       {currentModalOpen === "WaypointsList" && (
@@ -765,24 +753,3 @@ const MapEditScreen = ({ navigation, route }) => {
 };
 
 export default MapEditScreen;
-
-enum EditorState {
-  EDIT = "EDIT",
-  VIEW = "VIEW",
-  EDIT_STOP = "EDIT_STOP",
-}
-
-function useEditorState(
-  editorState: EditorState
-): [EditorState, (state: EditorState) => void, (edit: EditorState) => void] {
-  const [state, setState] = useState(editorState);
-
-  function toggleEditorState(edit: EditorState) {
-    if (state == edit) {
-      setState(EditorState.VIEW);
-    } else {
-      setState(edit);
-    }
-  }
-  return [state, setState, toggleEditorState];
-}
