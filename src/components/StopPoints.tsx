@@ -4,57 +4,46 @@ import { Callout, Circle, MapMarker, Marker } from "react-native-maps";
 import Waypoint from "./../utils/interfaces";
 import SquareButton from "./SquareButton";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import tw from "../lib/tailwind";
 import { useNavigation } from "@react-navigation/native";
+import { useAtom } from "jotai";
+import { mapEditorStateAtom, showHandlesAtom } from "../config/AtomsState"
 
 interface StopPointsProps {
   waypoints: Waypoint[];
-  showHandles: boolean;
   selectedStop?: Waypoint;
   zoom: number;
-  stopPointPressed?: (stopPoint: Waypoint) => void;
+  stopPointPressed: (stopPoint: Waypoint) => void;
 }
 //TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
 
-const StopPoints = ({
-  waypoints,
-  showHandles,
-  selectedStop,
-  zoom,
-  stopPointPressed,
-}: StopPointsProps) => {
+const StopPoints = ({ waypoints, selectedStop, zoom, stopPointPressed }: StopPointsProps) => {
   const navigationRef = useNavigation();
 
-  React.useEffect(() => {
-    console.log("stoppoints rerendered");
+  const [showHandles,setShowHandles] = useAtom(showHandlesAtom);
+  const [mapEditState,] = useAtom(mapEditorStateAtom);
+
+  useEffect(() => {
+    console.log("stoppoints rerendered", mapEditState, showHandles);
     console.log(waypoints);
   });
 
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     return (
       <>
-        {(showHandles || selectedStop === waypoint) && (
+        {((showHandles && mapEditState === "Idle") || selectedStop === waypoint) && (
           <Marker
             coordinate={waypoint.coordinates}
             title={waypoint.displayed_name}
             description={waypoint.type}
+            pinColor={"green"}
+            opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
             onPress={() => {
-              showHandles && stopPointPressed?.(waypoint);
+              showHandles && stopPointPressed(waypoint);
+              setShowHandles(false);
             }}
-            opacity={selectedStop === waypoint ? 0.5 : 0.9}
-            // pinColor={"green"}
-            // anchor={{ x: 0.5, y: 0.5 }}
-          >
-            {/* <View className="flex-1 items-center justify-end h-auto w-auto">
-          <Image
-            source={stopPointImage}
-            resizeMode="center"
-            resizeMethod="resize"
-            className={"flex-1 w-6 h-6"}
           />
-        </View> */}
-          </Marker>
         )}
         <Circle
           center={waypoint.coordinates}
@@ -74,4 +63,3 @@ const StopPoints = ({
 };
 
 export default StopPoints;
-const stopPointImage = require("../../assets/STOP2.png");

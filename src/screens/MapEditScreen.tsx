@@ -25,7 +25,8 @@ import EditWaypointModal from "../components/EditWaypointModal";
 
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-native-reanimated";
 import TipDisplay from "../components/TipDisplay";
-import { atom, useAtom } from "jotai";
+import { atom, Provider, useAtom } from "jotai";
+import { initialRegionAtom, mapEditorStateAtom, showHandlesAtom } from "../config/AtomsState";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
@@ -43,20 +44,13 @@ type curmodalOpenType =
   | "AddPoint"
   | "EditWaypoint";
 
-type MapEditState = "Idle" | "MovingWaypoint" | "MovingStopPoint";
-
-export const showHandlesAtom = atom<boolean>(false);
-export const mapEditorStateAtom = atom<MapEditState>("Idle");
-// export const showHandlesAtom = atom(false);
-// export const showHandlesAtom = atom(false);
-
 const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
   const isInRecordingState = route.params.isRecording as boolean;
   const API_KEY = "***REMOVED***";
   const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [showingTip, setShowingTip] = useState(3000);
-  const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
+  // const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
   const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
 
@@ -64,11 +58,15 @@ const MapEditScreen = ({ navigation, route }) => {
   const [isWatchingposition, setIsWatchingposition] = useState(false);
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [pointPivot, setPointPivot] = useState(null as LatLng);
+
   const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
-  
+  const [mapEditState, setMapEditState] = useAtom(mapEditorStateAtom);
+  const [initialRegion, setInitialRegion] = useAtom(initialRegionAtom);
+
   const [
     currentMap,
     setCurrentMap,
+    resetCurrentMap,
     currentCamera,
     setCurrentCamera,
     notSaved,
@@ -78,6 +76,7 @@ const MapEditScreen = ({ navigation, route }) => {
   ] = useMapStore((state) => [
     state.currentMap,
     state.setCurrentMap,
+    state.resetCurrentMap,
     state.currentCamera,
     state.setCurrentCamera,
     state.notSaved,
@@ -86,12 +85,6 @@ const MapEditScreen = ({ navigation, route }) => {
     state.executeNavAction,
   ]);
   const mapRef = useRef<MapView>();
-  const initialRegion = {
-    latitude: 51,
-    longitude: 19,
-    latitudeDelta: 5,
-    longitudeDelta: 10,
-  } as Region;
   const [waypoints, setWaypoints] = useState<LatLng[]>([]);
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [fullPath, setFullPath] = useState([] as LatLng[]);
@@ -251,6 +244,10 @@ const MapEditScreen = ({ navigation, route }) => {
   }
 
   useEffect(() => {
+    console.log("rerender ", mapEditState, showHandles);
+  });
+
+  useEffect(() => {
     if (!navAction) return;
     console.log("Event Emitted");
     if (!notSaved) {
@@ -282,23 +279,12 @@ const MapEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (currentMap.map_id === "") {
       console.log("elo");
-      if (!currentMap || currentMap.map_id === "")
-        setCurrentMap({
-          map_id: uuid.v4(),
-          name: "nienazwana mapa",
-          description: "opis",
-          location: "",
-          waypoints: [],
-          stops: [],
-          path: [],
-        } as HealthPath);
+      if (!currentMap || currentMap.map_id === "") resetCurrentMap();
       console.log(currentCamera);
-      setTimeout(async () => {
-        console.log("elo3");
-
+      console.log("elo3");
+      (async () => {
         const loc = await Location.getCurrentPositionAsync();
         console.log(loc);
-
         mapRef.current.animateToRegion(
           {
             latitude: loc.coords.latitude,
@@ -306,9 +292,9 @@ const MapEditScreen = ({ navigation, route }) => {
             latitudeDelta: 0.1,
             longitudeDelta: 0.2,
           },
-          50
+          0
         );
-      }, 0);
+      })();
     } else {
       setWaypoints(currentMap.waypoints);
       setStopPoints(currentMap.stops);
@@ -335,10 +321,7 @@ const MapEditScreen = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       checkRecording();
-      console.log("onFocus");
       return () => {
-        console.log("onBlur");
-        console.log(mapRef);
         mapRef?.current?.getCamera().then((camera) => {
           console.log("camera");
           setCurrentCamera(camera);
@@ -358,8 +341,7 @@ const MapEditScreen = ({ navigation, route }) => {
     setShowingTip((t) => (t === 5000 ? t - 1 : 5000));
   };
 
-  async function onPressMap(e) {
-    // addNewWaypoint(e);
+  async function onPressMap(e: MapPressEvent) {
     e.persist();
     console.log(mapEditState);
     if (mapEditState === "Idle") {
@@ -426,14 +408,14 @@ const MapEditScreen = ({ navigation, route }) => {
           visible={currentModalOpen === "StopPoint"}
           stopPoint={selectedStop}
           hide={() => setCurrentModalOpen("None")}
-          onEdit={() => {
+          onEdit={() =>
             setTimeout(() => {
               navigation.navigate({
                 name: "EdycjaMap",
                 params: { editedWaypoint: selectedStop, isEdit: true },
               });
-            }, 10);
-          }}
+            }, 10)
+          }
           onDelete={() => {
             stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
             setSelectedStop(null);
@@ -460,10 +442,11 @@ const MapEditScreen = ({ navigation, route }) => {
         <MapView
           ref={(r) => (mapRef.current = r)}
           style={tw`flex-1`}
-          camera={currentCamera}
+          // camera={currentCamera}
           toolbarEnabled={true}
           minZoomLevel={7}
           showsUserLocation={showUserLocation}
+          initialRegion={initialRegion}
           onMapReady={() => {
             mapRef.current.fitToCoordinates(currentMap.path, {
               edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -489,9 +472,9 @@ const MapEditScreen = ({ navigation, route }) => {
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers
             waypoints={waypoints}
-            showHandles={showHandles && mapEditState === "Idle"}
-            selectedWaypoint={mapEditState === "MovingWaypoint" ? selectedWaypoint : null}
+            selectedWaypoint={selectedWaypoint}
             onWaypointSelect={(w: LatLng) => {
+              animateToPoint(w);
               setCurrentModalOpen("EditWaypoint");
               setSelectedWaypoint(w);
             }}
@@ -499,8 +482,7 @@ const MapEditScreen = ({ navigation, route }) => {
           />
           <StopPoints
             waypoints={stopPoints}
-            showHandles={showHandles && mapEditState === "Idle"}
-            selectedStop={mapEditState === "MovingStopPoint" ? selectedStop : null}
+            selectedStop={selectedStop}
             zoom={zoom}
             stopPointPressed={(w: Waypoint) => {
               animateToPoint(w.coordinates);
@@ -584,7 +566,13 @@ const MapEditScreen = ({ navigation, route }) => {
           icon="map"
           onPress={() => {
             console.log(currentCamera.zoom);
-
+            console.log(showHandles);
+            setInitialRegion({
+              latitude: 52.229676,
+              longitude: 21.012229,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            });
             setShowHandles((p) => !p);
             force();
           }}

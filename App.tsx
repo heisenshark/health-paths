@@ -29,12 +29,15 @@ import {
 } from "./src/utils/FileSystemManager";
 
 import * as TaskManager from "expo-task-manager";
+import * as Location from "expo-location";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import { LatLng } from "react-native-maps";
 import LogInScreen from "./src/screens/LogInScreen";
 import OptionsScreen from "./src/screens/OptionsScreen";
 import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 import MapWebPreview from "./src/screens/MapWebPreviewScreen";
+import { Provider, useAtom } from "jotai";
+import { initialRegionAtom } from "./src/config/AtomsState";
 
 // MapboxGL.setWellKnownTileServer('Mapbox')
 // MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
@@ -44,16 +47,33 @@ validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
 export default function App() {
-  // listAllMaps();
-  // ensureMapDirExists();
-  // createNewMap("testowa_mapa");
   const isTunnel = false;
   const navigationRef = useNavigationContainerRef();
-  //context api variable
-  const [currentScreen, setCurrentScreen] = useState("");
 
+  const [currentScreen, setCurrentScreen] = useState("");
+  const [, setInitialRegion] = useAtom(initialRegionAtom);
   useEffect(() => {
     TaskManager.unregisterAllTasksAsync();
+    setInitialRegion({
+      latitude: 0,
+      longitude: 0,
+      latitudeDelta: 0.2,
+      longitudeDelta: 0.1,
+    });
+    Location.getLastKnownPositionAsync().then((location) => {
+      if (location) {
+        const coords = location.coords as LatLng;
+        console.log("startApp", coords);
+
+        setInitialRegion({
+          ...coords,
+          latitudeDelta: 0.2,
+          longitudeDelta: 0.1,
+          // latitude: 1,
+          // longitude: 1,
+        });
+      }
+    });
   }, []);
 
   return (
@@ -65,31 +85,33 @@ export default function App() {
     //[x] dodać możliwość eksportu mapy
     //TODO dodać możliwość udostępnienia mapy przez watsapp
     <>
-      {isTunnel && <StatusBar style="auto" />}
-      <NavigationContainer
-        ref={navigationRef}
-        onStateChange={(key) => {
-          setCurrentScreen(key.routes[key.index].name);
-        }}>
-        <Navigator.Navigator
-          screenOptions={{
-            headerShown: false,
+      {/* <Provider> */}
+        {isTunnel && <StatusBar style="auto" />}
+        <NavigationContainer
+          ref={navigationRef}
+          onStateChange={(key) => {
+            setCurrentScreen(key.routes[key.index].name);
           }}>
-          <Navigator.Screen name="Trasy" component={HomeScreen} />
-          <Navigator.Screen name="Opcje" component={OptionsScreen} />
-          <Navigator.Screen name="Nagraj" component={MapEditScreen} />
-          <Navigator.Screen name="Planuj" component={MapEditScreen} />
-          <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
-          <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
-          <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
-          <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
-          <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
-          <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
-          <Navigator.Screen name="LogIn" component={LogInScreen} />
-        </Navigator.Navigator>
-      </NavigationContainer>
+          <Navigator.Navigator
+            screenOptions={{
+              headerShown: false,
+            }}>
+            <Navigator.Screen name="Trasy" component={HomeScreen} />
+            <Navigator.Screen name="Opcje" component={OptionsScreen} />
+            <Navigator.Screen name="Nagraj" component={MapEditScreen} />
+            <Navigator.Screen name="Planuj" component={MapEditScreen} />
+            <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
+            <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+            <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+            <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
+            <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
+            <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
+            <Navigator.Screen name="LogIn" component={LogInScreen} />
+          </Navigator.Navigator>
+        </NavigationContainer>
 
-      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+        <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+      {/* </Provider> */}
     </>
   );
 }

@@ -13,6 +13,7 @@ interface MapStore {
   maps: MapArray;
   addMap: (map: HealthPath) => void;
   setCurrentMap: (map: HealthPath) => void;
+  resetCurrentMap: () => void;
   clearMap: () => void;
   getUUID: () => string;
   currentCamera: Camera;
@@ -101,6 +102,18 @@ export const useMapStore = create<MapStore>((set, get) => ({
       if (map.map_id === undefined || map.map_id === "") map.map_id = uuid.v4().toString();
       return { currentMap: map };
     }),
+  resetCurrentMap: () => {
+    set(() => ({
+      currentMap: {
+        name: "nienazwana mapa",
+        map_id: uuid.v4().toString(),
+        description: "opis",
+        location: "",
+        waypoints: [],
+        stops: [],
+      },
+    }));
+  },
   getUUID: () => uuid.v4().toString(),
   currentCamera: {
     center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
