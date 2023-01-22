@@ -4,28 +4,28 @@ import { useEffect, useState } from "react";
 import { View, Text, Image } from "react-native";
 import { Callout, Circle, LatLng, Marker } from "react-native-maps";
 import tw from "../lib/tailwind";
-import { mapEditorStateAtom, showHandlesAtom } from "../config/AtomsState"
+import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
 import Waypoint from "../utils/interfaces";
 
 export interface MarkersProps {
   waypoints: LatLng[];
-  selectedWaypoint: LatLng;
-  zoom: number;
-  onWaypointSelect: (w: LatLng) => void;
+  selectedWaypoint?: LatLng;
+  onWaypointPressed?: (w: LatLng) => void;
 }
 const SNAPPING_ENABLED = false;
 
 //TODO zmienić wygląd na kółka z numerami
 
-export function Markers<Props>({
-  waypoints,
-  selectedWaypoint,
-  zoom,
-  onWaypointSelect,
-}: MarkersProps) {
+export function Markers<Props>(
+  { waypoints, selectedWaypoint, onWaypointPressed: onWaypointSelect }: MarkersProps = {
+    waypoints: [],
+    onWaypointPressed: () => {},
+  } as MarkersProps
+) {
   // const [edittedWaypoint, setEdittedWaypoint] = useState(1);
   const [showHandles] = useAtom(showHandlesAtom);
   const [mapEditState] = useAtom(mapEditorStateAtom);
+  const [zoom] = useAtom(zoomAtom);
 
   const renderImage = (isEnd, isBegin) => {
     if (isEnd)
@@ -69,7 +69,7 @@ export function Markers<Props>({
             coordinate={n}
             onPress={() => {
               console.log("marker pressed, initiating edit");
-              showHandles && mapEditState === "Idle" && onWaypointSelect(n);
+              mapEditState === "Idle" && onWaypointSelect(n);
             }}
             tappable={false}
             pinColor={index == 0 ? "blue" : "yellow"}
@@ -79,7 +79,7 @@ export function Markers<Props>({
           </Marker>
         )}
 
-        <Circle center={n} radius={Math.min(zoom * 7, 30)} fillColor={"gray"} zIndex={1} />
+        <Circle center={n} radius={Math.min(zoom * 7, 100)} fillColor={"gray"} zIndex={1} />
       </View>
     );
   });

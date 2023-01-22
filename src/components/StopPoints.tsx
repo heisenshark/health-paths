@@ -8,21 +8,21 @@ import { useEffect, useRef } from "react";
 import tw from "../lib/tailwind";
 import { useNavigation } from "@react-navigation/native";
 import { useAtom } from "jotai";
-import { mapEditorStateAtom, showHandlesAtom } from "../config/AtomsState"
+import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
 
 interface StopPointsProps {
   waypoints: Waypoint[];
   selectedStop?: Waypoint;
-  zoom: number;
   stopPointPressed: (stopPoint: Waypoint) => void;
 }
 //TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
 
-const StopPoints = ({ waypoints, selectedStop, zoom, stopPointPressed }: StopPointsProps) => {
+const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsProps) => {
   const navigationRef = useNavigation();
 
-  const [showHandles,setShowHandles] = useAtom(showHandlesAtom);
-  const [mapEditState,] = useAtom(mapEditorStateAtom);
+  const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
+  const [mapEditState] = useAtom(mapEditorStateAtom);
+  const [zoom] = useAtom(zoomAtom);
 
   useEffect(() => {
     console.log("stoppoints rerendered", mapEditState, showHandles);
@@ -41,13 +41,12 @@ const StopPoints = ({ waypoints, selectedStop, zoom, stopPointPressed }: StopPoi
             opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
             onPress={() => {
               showHandles && stopPointPressed(waypoint);
-              setShowHandles(false);
             }}
           />
         )}
         <Circle
           center={waypoint.coordinates}
-          radius={Math.min(zoom * 7, 30)}
+          radius={Math.min(zoom * 7, 100)}
           fillColor={"yellow"}
           zIndex={2}
         />

@@ -94,8 +94,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         onPress: () => {
           setModalVisible(false);
           loadMap(selectedMap.current.name, selectedMap.current.map_id).then((m) => {
-            setCurrentMap(m);
-            navigation.navigate("PodgladMap");
+            navigation.navigate("PodgladMap", { map: m });
           });
         },
       },

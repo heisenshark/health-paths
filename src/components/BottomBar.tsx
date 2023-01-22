@@ -11,17 +11,13 @@ export interface BottomBarProps {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
   currentRoute: string;
 }
-
+//TODO dodać jakikolwiek handling screenó innych niż 4 podstawow
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   // console.log();
-  const [setProgress, progress, setNavAction] = useMapStore((state) => [
-    state.setProgress,
-    state.progress,
-    state.setNavAction,
-  ]);
+  const [setNavAction] = useMapStore((state) => [state.setNavAction]);
   const tabs = ["EdycjaMap"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
-  
+
   const tryToNavigate = (route: string, options?: any) => {
     if (route === currentRoute) return;
     if (sensitiveTabs.includes(currentRoute))
@@ -38,7 +34,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
       <>
         <SquareButton
           label={"Pulpit"}
-          uberActive={currentRoute === "Trasy"||!currentRoute}
+          uberActive={currentRoute === "Trasy" || !currentRoute}
           onPress={() => tryToNavigate("Trasy")}>
           <Icon name="home" size={50} color={"black"} />
         </SquareButton>
