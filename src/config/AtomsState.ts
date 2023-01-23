@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { curmodalOpenType } from "../screens/MapEditScreen"
 
 type MapEditState = "Idle" | "MovingWaypoint" | "MovingStopPoint";
 
@@ -11,5 +12,4 @@ export const initialRegionAtom = atom({
   latitudeDelta: 5,
   longitudeDelta: 10,
 });
-
-initialRegionAtom.read((g) => console.log(g));
+export const currentModalOpenAtom = atom<curmodalOpenType>("None")

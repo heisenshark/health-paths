@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Text, View, StyleSheet, Modal, ScrollView, Image } from "react-native";
+import { Text, View, StyleSheet, Modal, ScrollView, Image, ToastAndroid } from "react-native";
 import { CheckBox } from "react-native-elements";
 import { TextInput } from "react-native-paper";
 import tw from "../lib/tailwind";
@@ -154,9 +154,10 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
                   setError("Nazwa nie może być pusta");
                   return;
                 }
+                onRequestClose();
                 const good = await onSave(name.text, desc, saveAsNew, mapIcon.current);
-                if (good) onRequestClose();
-                else console.log("Map not Saved...");
+                if (good) ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
+                else ToastAndroid.show("Nie zapisano Ścieżki, coś poszło nie tak...", ToastAndroid.SHORT);
               }}></SquareButton>
           </View>
         </View>

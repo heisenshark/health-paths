@@ -74,7 +74,7 @@ export function Markers<Props>(
             tappable={false}
             pinColor={index == 0 ? "blue" : "yellow"}
             style={tw`flex`}
-            opacity={selectedWaypoint === n ? 0.5 : 0.9}>
+            opacity={selectedWaypoint === n && mapEditState === "MovingWaypoint" ? 0.5 : 0.9}>
             {renderImage(index == 0, index == waypoints.length - 1)}
           </Marker>
         )}

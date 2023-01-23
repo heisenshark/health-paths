@@ -4,12 +4,11 @@ import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import tw from "../lib/tailwind";
 
 type Props = {
-  tipMessage: string;
   forceVisible: boolean;
   timeVisible: number;
 };
 
-const TipDisplay = ({ tipMessage, forceVisible, timeVisible }: Props) => {
+const TipDisplay = ({ forceVisible, timeVisible }: Props) => {
   const [time, setTime] = useState(0);
   let ti;
   let tip = null;

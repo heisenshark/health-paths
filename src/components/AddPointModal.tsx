@@ -6,6 +6,7 @@ import SquareButton from "./SquareButton";
 
 type Props = {
   visible: boolean;
+  isRecordingMode: boolean;
   onWaypointAdd: (position: number) => void;
   onStopPointAdd: () => void;
   hide: () => void;
@@ -14,6 +15,7 @@ type Props = {
 
 const AddPointModal = ({
   visible,
+  isRecordingMode,
   onWaypointAdd: onWaypointEdit,
   onStopPointAdd: onStopPointEdit,
   hide,
@@ -32,43 +34,44 @@ const AddPointModal = ({
         animationIn={"slideInUp"}
         animationOut={"slideOutDown"}
         style={tw`flex-1 justify-end m-0`}
-        backdropOpacity={0.1}
-        >
+        backdropOpacity={0.1}>
         <View style={tw`bg-white border-t-4 border-slate-400`}>
           <Text style={tw`text-3xl p-5 text-center font-bold`}>Dodaj punkt:</Text>
-          <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
-            <SquareButton
-              style={tw`mx-2 border-[2]`}
-              size={30}
-              icon="edit"
-              label="Na początek"
-              onPress={() => {
-                onWaypointEdit(0);
-                hide();
-              }}></SquareButton>
-            {waypointsLength >= 2 && (
+          {!isRecordingMode && (
+            <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
               <SquareButton
                 style={tw`mx-2 border-[2]`}
                 size={30}
                 icon="edit"
-                label="Jako punkt Trasy"
+                label="Na początek"
                 onPress={() => {
-                  onWaypointEdit(1);
+                  onWaypointEdit(0);
                   hide();
                 }}></SquareButton>
-            )}
-            {waypointsLength >= 1 && (
-              <SquareButton
-                style={tw`mx-2 border-[2]`}
-                size={30}
-                icon="edit"
-                label="Na koniec"
-                onPress={() => {
-                  onWaypointEdit(waypointsLength);
-                  hide();
-                }}></SquareButton>
-            )}
-          </View>
+              {waypointsLength >= 2 && (
+                <SquareButton
+                  style={tw`mx-2 border-[2]`}
+                  size={30}
+                  icon="edit"
+                  label="Jako punkt Trasy"
+                  onPress={() => {
+                    onWaypointEdit(1);
+                    hide();
+                  }}></SquareButton>
+              )}
+              {waypointsLength >= 1 && (
+                <SquareButton
+                  style={tw`mx-2 border-[2]`}
+                  size={30}
+                  icon="edit"
+                  label="Na koniec"
+                  onPress={() => {
+                    onWaypointEdit(waypointsLength);
+                    hide();
+                  }}></SquareButton>
+              )}
+            </View>
+          )}
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 border-black border-[2]`}

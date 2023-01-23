@@ -26,6 +26,12 @@ const MapViewScreen = ({ navigation, route }) => {
   const [, setShowHandles] = useAtom(showHandlesAtom);
 
   const currentMap = route.params.map;
+
+  const begin = currentMap.path[0];
+  const end = currentMap.path[currentMap.path.length - 1];
+  const waypointsPlaceholder = [begin,end];
+  const wpoints = currentMap.waypoints.length > 0 ? currentMap.waypoints : waypointsPlaceholder;
+
   useEffect(() => {
     console.log(currentMap.path);
     console.log("uef");
@@ -52,7 +58,7 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: false,
           });
         }}>
-        <Markers waypoints={currentMap.waypoints} onWaypointPressed={() => {}} />
+        <Markers waypoints={wpoints} onWaypointPressed={() => {}} />
 
         <StopPoints
           waypoints={currentMap.stops}

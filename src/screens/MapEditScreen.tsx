@@ -1,6 +1,6 @@
 import { Alert, BackHandler, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { LatLng, MapPressEvent, Marker, Region } from "react-native-maps";
+import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
 import { mapStylenoLandmarks, mapstyleSilver, mapStylesJSON } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
@@ -27,6 +27,7 @@ import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-na
 import TipDisplay from "../components/TipDisplay";
 import { atom, Provider, useAtom } from "jotai";
 import {
+  currentModalOpenAtom,
   initialRegionAtom,
   mapEditorStateAtom,
   showHandlesAtom,
@@ -41,7 +42,7 @@ import {
 //[x] Dodać możliwość tworzenia waypointów
 //[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
 
-type curmodalOpenType =
+export type curmodalOpenType =
   | "None"
   | "MapInfo"
   | "WaypointsList"
@@ -53,7 +54,7 @@ const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
   const isInRecordingState = route.params.isRecording as boolean;
   const API_KEY = "***REMOVED***";
-  const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
+  // const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [showingTip, setShowingTip] = useState(3000);
   // const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
   const [selectedStop, setSelectedStop] = useState(null as Waypoint);
@@ -65,8 +66,10 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
   const [mapEditState, setMapEditState] = useAtom(mapEditorStateAtom);
+  const [currentModalOpen, setCurrentModalOpen] = useAtom<curmodalOpenType>(currentModalOpenAtom); //
   const [initialRegion, setInitialRegion] = useAtom(initialRegionAtom);
   const [zoom, setZoom] = useAtom(zoomAtom);
+  const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
 
   const [
     currentMap,
@@ -219,7 +222,7 @@ const MapEditScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    console.log("rerender ", mapEditState, showHandles);
+    console.log("rerender ", mapEditState, showHandles, isRecording);
   });
 
   useEffect(() => {
@@ -252,13 +255,6 @@ const MapEditScreen = ({ navigation, route }) => {
   }, [navAction]);
 
   useEffect(() => {
-    if (isInRecordingState) {
-      setStopPoints([]);
-      setWaypoints([]);
-      setFullPath([]);
-      setNotSaved(false);
-    }
-
     if (currentMap.map_id === "") {
       console.log("elo");
       if (!currentMap || currentMap.map_id === "") resetCurrentMap();
@@ -279,6 +275,9 @@ const MapEditScreen = ({ navigation, route }) => {
         setZoom(cam.zoom);
       })();
     } else {
+      // console.log("itsrecordedHP", currentMap.waypoints, currentMap.stops, currentMap.path);
+      if (currentMap.waypoints.length === 0 && currentMap?.path?.length > 0)
+        setIsRecordedHealthPath(true);
       setWaypoints(currentMap.waypoints);
       setStopPoints(currentMap.stops);
       setFullPath(currentMap.path);
@@ -289,17 +288,30 @@ const MapEditScreen = ({ navigation, route }) => {
         console.log("elo4");
 
         await mapRef.current.fitToCoordinates(currentMap.path, {
-          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-          animated: true,
+          edgePadding: { top: 100, right: 100, bottom: 50, left: 50 },
+          animated: false,
         });
-      }, 50);
+        mapRef.current.getCamera().then((c) => {
+          setZoom(156543.03392 / Math.pow(2, c.zoom));
+        });
+      }, 0);
     }
+
+    if (isInRecordingState) {
+      console.log("clearing locations");
+      setStopPoints([]);
+      setWaypoints([]);
+      setFullPath([]);
+      setNotSaved(false);
+    }
+
     return () => {
       console.log("unmounting");
       resetCurrentMap();
       setWaypoints([]);
       setStopPoints([]);
       setFullPath([]);
+      useLocationTrackingStore.getState().clearLocations();
     };
   }, []);
 
@@ -369,6 +381,7 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
         />
         <AddPointModal
+          isRecordingMode={isInRecordingState || isRecordedHealthPath}
           visible={currentModalOpen === "AddPoint"}
           hide={() => {
             setPointPivot(null);
@@ -377,12 +390,10 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
           onStopPointAdd={() => {
             const stoppint = addNewWaypoint(pointPivot, "stop");
-            setTimeout(() => {
-              navigation.navigate({
-                name: "EdycjaMap",
-                params: { editedWaypoint: stoppint, isEdit: true },
-              });
-            }, 10);
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: stoppint, isEdit: true },
+            });
           }}
           onWaypointAdd={(position: number) => {
             addNewWaypoint(pointPivot, "waypoint", position);
@@ -395,12 +406,10 @@ const MapEditScreen = ({ navigation, route }) => {
           stopPoint={selectedStop}
           hide={() => setCurrentModalOpen("None")}
           onEdit={() =>
-            setTimeout(() => {
-              navigation.navigate({
-                name: "EdycjaMap",
-                params: { editedWaypoint: selectedStop, isEdit: true },
-              });
-            }, 10)
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: selectedStop, isEdit: true },
+            })
           }
           onDelete={() => {
             stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
@@ -428,7 +437,9 @@ const MapEditScreen = ({ navigation, route }) => {
         <MapView
           ref={(r) => (mapRef.current = r)}
           style={tw`flex-1`}
-          toolbarEnabled={true}
+          toolbarEnabled={false}
+          showsMyLocationButton={false}
+          showsCompass={true}
           minZoomLevel={7}
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
@@ -483,6 +494,7 @@ const MapEditScreen = ({ navigation, route }) => {
               apikey={API_KEY}
               strokeWidth={6}
               strokeColor="#ffc800"
+              lineDashPattern={[0]}
               precision={"low"}
               optimizeWaypoints
               onReady={(n) => {
@@ -495,24 +507,13 @@ const MapEditScreen = ({ navigation, route }) => {
             />
           )}
 
-          {isInRecordingState && <TrackLine />}
+          {(isInRecordingState || isRecordedHealthPath) && (
+            <TrackLine isRecordingFinished={!isRecording} isEdit={true} coords={fullPath} />
+          )}
         </MapView>
       </View>
-      {/* <InfoInfo /> */}
       <TipDisplay forceVisible={mapEditState !== "Idle"} timeVisible={showingTip} />
       <View style={tw`absolute w-full mt-40`} pointerEvents="auto">
-        <SquareButton
-          style={tw`self-end m-3 mt-auto`}
-          label={"zapisz"}
-          icon="save"
-          onPress={() => {
-            setCurrentModalOpen("MapInfo");
-            setShowHandles(false);
-            setShowUserLocation(false);
-          }}
-          // disabled={!isRecording && fullPath !== undefined && fullPath.length < 2}
-        />
-
         {isInRecordingState && (
           <>
             <SquareButton
@@ -529,12 +530,26 @@ const MapEditScreen = ({ navigation, route }) => {
             />
             <SquareButton
               style={tw`self-end m-3 mt-auto border-0`}
-              label={"delete"}
+              label={"czyść"}
               icon="trash"
-              onPress={() => useLocationTrackingStore.getState().clearLocations()}
+              onPress={() => {
+                useLocationTrackingStore.getState().clearLocations();
+                stopBackgroundTracking();
+              }}
             />
           </>
         )}
+        <SquareButton
+          style={tw`self-end m-3 mt-auto`}
+          label={"zapisz"}
+          icon="save"
+          onPress={() => {
+            setCurrentModalOpen("MapInfo");
+            setShowHandles(false);
+            setShowUserLocation(false);
+          }}
+          disabled={isRecording}
+        />
         <SquareButton
           style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
           label={"centruj"}
@@ -548,7 +563,7 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"pokaż punkty"}
           icon="map"
           onPress={() => {
-            console.log(showHandles);
+            console.log(showHandles, fullPath);
             setInitialRegion({
               latitude: 52.229676,
               longitude: 21.012229,
@@ -583,6 +598,8 @@ function useLocationBackground() {
   }
 
   async function startBackgroundTracking() {
+    console.log("startBackgroundTracking");
+
     const startBckg = () =>
       Location.startLocationUpdatesAsync("location_tracking", {
         accuracy: Location.Accuracy.BestForNavigation,
@@ -596,6 +613,7 @@ function useLocationBackground() {
       });
 
     setIsRecording(true);
+    console.log("have permissions?");
     const perms = await getPermissions();
     if (!perms) return;
     console.log("have permissions");
@@ -636,7 +654,7 @@ function useLocationBackground() {
   }
 
   async function stopBackgroundTracking() {
-    console.log("isRec: ", isRecording);
+    console.log("stopBackgroundTracking", "isRec: ", isRecording);
 
     Location.hasStartedLocationUpdatesAsync("location_tracking")
       .then((res) => {

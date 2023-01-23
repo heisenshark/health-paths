@@ -86,31 +86,31 @@ export default function App() {
     //TODO dodać możliwość udostępnienia mapy przez watsapp
     <>
       {/* <Provider> */}
-        {isTunnel && <StatusBar style="auto" />}
-        <NavigationContainer
-          ref={navigationRef}
-          onStateChange={(key) => {
-            setCurrentScreen(key.routes[key.index].name);
+      {isTunnel && <StatusBar style="auto" />}
+      <NavigationContainer
+        ref={navigationRef}
+        onStateChange={(key) => {
+          setCurrentScreen(key.routes[key.index].name);
+        }}>
+        <Navigator.Navigator
+          screenOptions={{
+            headerShown: false,
           }}>
-          <Navigator.Navigator
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Navigator.Screen name="Trasy" component={HomeScreen} />
-            <Navigator.Screen name="Opcje" component={OptionsScreen} />
-            <Navigator.Screen name="Nagraj" component={MapEditScreen} />
-            <Navigator.Screen name="Planuj" component={MapEditScreen} />
-            <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
-            <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
-            <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
-            <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
-            <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
-            <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
-            <Navigator.Screen name="LogIn" component={LogInScreen} />
-          </Navigator.Navigator>
-        </NavigationContainer>
+          <Navigator.Screen name="Trasy" component={HomeScreen} />
+          <Navigator.Screen name="Opcje" component={OptionsScreen} />
+          <Navigator.Screen name="Nagraj" component={MapEditScreen} />
+          <Navigator.Screen name="Planuj" component={MapEditScreen} />
+          <Navigator.Screen name="EdycjaMap" component={StopPointEditScreen} />
+          <Navigator.Screen name="NagrywanieAudio" component={AudioRecordingScreen} />
+          <Navigator.Screen name="PrzegladanieMap" component={MapExplorerScreen} />
+          <Navigator.Screen name="PrzegladanieWebMap" component={MapWebExplorerScreen} />
+          <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
+          <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
+          <Navigator.Screen name="LogIn" component={LogInScreen} />
+        </Navigator.Navigator>
+      </NavigationContainer>
 
-        <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+      <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
       {/* </Provider> */}
     </>
   );
@@ -121,7 +121,8 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const rec = useLocationTrackingStore.getState().currentRecording;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const xd = useMapStore.getState().setNotSaved;
-  xd(true);
+  const xd2 = useMapStore.getState().notSaved;
+  !xd && xd(true);//needed, otherwise we get rerendered xD
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
     return;

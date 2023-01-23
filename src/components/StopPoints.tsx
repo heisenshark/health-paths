@@ -32,7 +32,8 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     return (
       <>
-        {((showHandles && mapEditState === "Idle") || selectedStop === waypoint) && (
+        {((showHandles && mapEditState === "Idle") ||
+          (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
           <Marker
             coordinate={waypoint.coordinates}
             title={waypoint.displayed_name}
