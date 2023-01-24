@@ -48,7 +48,7 @@ const SquareButton = ({
         console.log("long press");
       }}>
       <View style={tw`p-1`}>
-        {icon !== "" && <Icon name={icon} size={50} color={"black"} />}
+        {icon !== "" && <Icon name={icon} size={size*2} color={"black"} />}
         {children}
       </View>
       <Text

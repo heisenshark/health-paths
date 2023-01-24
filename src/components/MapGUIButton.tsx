@@ -3,6 +3,7 @@ import React from "react";
 import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import { color } from "react-native-elements/dist/helpers";
 
 type Props = {
   children?: any;
@@ -13,6 +14,7 @@ type Props = {
   icon?: string;
   onPress?: () => any;
   disabled?: boolean;
+  colorOverride?: string;
 };
 
 const MapGUIButton = ({
@@ -24,14 +26,16 @@ const MapGUIButton = ({
   icon,
   onPress,
   disabled,
+  colorOverride,
 }: Props) => {
   const size2 = size * 2.5;
 
+  const color = colorOverride ? colorOverride : "bg-main-" + (disabled ? 900 : 200);
   return (
     <TouchableOpacity
       disabled={disabled}
       style={[
-        [tw`flex items-center justify-center rounded-lg`, style],
+        [tw`flex items-center justify-center ${color} border-main-900`, style],
         { transform: [{ scale: 1 }] },
       ]}
       onPress={() => {
@@ -41,15 +45,15 @@ const MapGUIButton = ({
         console.log("long press");
       }}>
       <View
-        style={tw`p-1 bg-main-${
-          disabled ? 900 : "200"
-        } border-2 rounded-md flex justify-center items-center w-[${size}] h-[${size}]`}>
-        {icon !== "" && <Icon name={icon} size={size2} color={"black"} />}
+        style={tw`p-1 flex justify-center items-center w-[${size / 1.5}] h-[${
+          size / 1.5
+        }]`}>
+        {icon !== "" && <Icon name={icon} size={size2 / 1.5} color={"black"} />}
         {children}
       </View>
       <Text
         style={[
-          tw`text-sm text-center leading-4 underline font-black bg-main-200 rounded-lg p-1 w-[${size}]`,
+          tw`text-sm text-center leading-4 underline font-black p-1 w-[${size}]`,
           labelStyle,
         ]}>
         {label}
@@ -61,6 +65,7 @@ const MapGUIButton = ({
 MapGUIButton.defaultProps = {
   size: 15,
   disabled: false,
+  colorOverride: null,
 };
 
 export default MapGUIButton;

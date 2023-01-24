@@ -42,6 +42,7 @@ import {
   zoomAtom,
 } from "../config/AtomsState";
 import MapGUIButton from "../components/MapGUIButton";
+import { useShowable } from "../hooks/useShowable";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
@@ -80,6 +81,8 @@ const MapEditScreen = ({ navigation, route }) => {
   const [zoom, setZoom] = useAtom(zoomAtom);
   const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
   const [blockInteractability, setBlockInteractability] = useState(false);
+  const [tipVisible, showTip] = useShowable(2000);
+  const [tipMessage, setTipMessage] = useState("Dotknij aby dodać lub edytować punkt");
 
   const [
     currentMap,
@@ -344,10 +347,6 @@ const MapEditScreen = ({ navigation, route }) => {
     await new Promise((resolve) => setTimeout(resolve, time));
   };
 
-  const showTip = () => {
-    setShowingTip((t) => (t === 5000 ? t - 1 : 5000));
-  };
-
   async function onPressMap(e: MapPressEvent) {
     e.persist();
     console.log(mapEditState);
@@ -375,149 +374,73 @@ const MapEditScreen = ({ navigation, route }) => {
     force();
   }
 
-  function Modals() {
-    return (
-      <>
-        <EditWaypointModal
-          visible={currentModalOpen === "EditWaypoint"}
-          hide={() => {
-            setCurrentModalOpen("None");
-          }}
-          onDelete={() => {
-            waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
-            setSelectedWaypoint(null);
-          }}
-          onMove={() => {
-            console.log("initiating move sequence");
-            setMapEditState("MovingWaypoint");
-          }}
-        />
-        <AddPointModal
-          isRecordingMode={isInRecordingState || isRecordedHealthPath}
-          visible={currentModalOpen === "AddPoint"}
-          hide={() => {
-            setPointPivot(null);
-            setCurrentModalOpen("None");
-            console.log("popclose");
-          }}
-          onStopPointAdd={() => {
-            setCurrentModalOpen("None");
-            const stoppint = addNewWaypoint(pointPivot, "stop");
-            setTimeout(() => {
-              navigation.navigate({
-                name: "EdycjaMap",
-                params: { editedWaypoint: stoppint, isEdit: true },
-              });
-            }, 1);
-          }}
-          onWaypointAdd={(position: number) => {
-            addNewWaypoint(pointPivot, "waypoint", position);
-            console.log(waypoints);
-          }}
-          waypointsLength={waypoints.length}
-        />
-        <StopPointPopUp
-          visible={currentModalOpen === "StopPoint"}
-          stopPoint={selectedStop}
-          hide={() => setCurrentModalOpen("None")}
-          onEdit={() =>
-            setTimeout(() => {
-              navigation.navigate({
-                name: "EdycjaMap",
-                params: { editedWaypoint: selectedStop, isEdit: true },
-              });
-            }, 1)
-          }
-          onDelete={() => {
-            stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
-            setSelectedStop(null);
-          }}
-          onMove={() => setMapEditState("MovingStopPoint")}
-        />
-        <MapInfoModal
-          visible={currentModalOpen === "MapInfo"}
-          onRequestClose={() => {
-            setCurrentModalOpen("None");
-            setShowHandles(true);
-            setShowUserLocation(true);
-          }}
-          onSave={onSave}
-        />
-      </>
-    );
-  }
-
-  function UIButtons() {
-    return (
-      <Animated.View
-        style={tw`absolute w-auto mt-30 right-2 bg-black self-end py-4 rounded-3xl bg-opacity-40`}
-        pointerEvents="auto"
-        entering={FadeInRight}
-        exiting={FadeOutRight}>
-        {isInRecordingState && (
-          <>
-            <MapGUIButton
-              style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
-              label={isRecording ? "stop" : "start"}
-              icon={isRecording ? "stop" : "record-vinyl"}
-              onPress={() => {
-                isRecording
-                  ? (() => {
-                    stopBackgroundTracking();
-                  })()
-                  : startBackgroundTracking();
-              }}
-            />
-            <MapGUIButton
-              style={tw`self-end m-3 mt-auto`}
-              label={"czyść"}
-              icon="trash"
-              onPress={() => {
-                useLocationTrackingStore.getState().clearLocations();
-                stopBackgroundTracking();
-              }}
-            />
-          </>
-        )}
-        <MapGUIButton
-          style={tw`self-end m-3 mt-auto`}
-          label={"zapisz"}
-          icon="save"
-          onPress={() => {
-            setCurrentModalOpen("MapInfo");
-            setShowHandles(false);
-            setShowUserLocation(false);
-          }}
-          disabled={isRecording}
-        />
-        <MapGUIButton
-          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""}`}
-          label={"centruj"}
-          icon="map"
-          onPress={() => {
-            setIsWatchingposition((p) => !p);
-          }}
-        />
-        <MapGUIButton
-          style={tw`self-end m-3 mt-auto`}
-          label={"pokaż"}
-          icon="map-pin"
-          onPress={() => {
-            console.log(showHandles, fullPath, initialRegion);
-            setShowHandles((p) => !p);
-            force();
-          }}
-        />
-        {/* <Text>{currentModalOpen}</Text>
-        <Text>{notSaved ? "not Saved" : "saved"}</Text> */}
-      </Animated.View>
-    );
-  }
-
-  const Tip = TipDisplay;
   return (
     <View style={tw`relative`} pointerEvents={blockInteractability ? "none" : "auto"}>
-      <Modals />
+      <EditWaypointModal
+        visible={currentModalOpen === "EditWaypoint"}
+        hide={() => {
+          setCurrentModalOpen("None");
+        }}
+        onDelete={() => {
+          waypoints.splice(waypoints.indexOf(selectedWaypoint), 1);
+          setSelectedWaypoint(null);
+        }}
+        onMove={() => {
+          console.log("initiating move sequence");
+          setMapEditState("MovingWaypoint");
+        }}
+      />
+      <AddPointModal
+        isRecordingMode={isInRecordingState || isRecordedHealthPath}
+        visible={currentModalOpen === "AddPoint"}
+        hide={() => {
+          setPointPivot(null);
+          setCurrentModalOpen("None");
+          console.log("popclose");
+        }}
+        onStopPointAdd={() => {
+          setCurrentModalOpen("None");
+          const stoppint = addNewWaypoint(pointPivot, "stop");
+          setTimeout(() => {
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: stoppint, isEdit: true },
+            });
+          }, 1);
+        }}
+        onWaypointAdd={(position: number) => {
+          addNewWaypoint(pointPivot, "waypoint", position);
+          console.log(waypoints);
+        }}
+        waypointsLength={waypoints.length}
+      />
+      <StopPointPopUp
+        visible={currentModalOpen === "StopPoint"}
+        stopPoint={selectedStop}
+        hide={() => setCurrentModalOpen("None")}
+        onEdit={() =>
+          setTimeout(() => {
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: selectedStop, isEdit: true },
+            });
+          }, 1)
+        }
+        onDelete={() => {
+          stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
+          setSelectedStop(null);
+        }}
+        onMove={() => setMapEditState("MovingStopPoint")}
+      />
+      <MapInfoModal
+        visible={currentModalOpen === "MapInfo"}
+        onRequestClose={() => {
+          setCurrentModalOpen("None");
+          setShowHandles(true);
+          setShowUserLocation(true);
+        }}
+        onSave={onSave}
+      />
       <View style={tw`w-full h-full bg-red-600`}>
         <MapView
           ref={(r) => (mapRef.current = r)}
@@ -528,7 +451,10 @@ const MapEditScreen = ({ navigation, route }) => {
           minZoomLevel={7}
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
-          onTouchStart={showTip}
+          onTouchStart={() => {
+            setTipMessage("Dotknij aby dodać lub edytować punkt");
+            showTip();
+          }}
           onPress={onPressMap}
           customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
@@ -595,21 +521,19 @@ const MapEditScreen = ({ navigation, route }) => {
           )}
         </MapView>
       </View>
-      {/* <xDDd forceVisible={mapEditState !== "Idle"} timeVisible={showingTip} /> */}
 
-          <Tip forceVisible={mapEditState !== "Idle"} timeVisible={showingTip}></Tip>
-
-      {/* <UIButtons /> */}
+      {tipVisible && <TipDisplay tipMessage={tipMessage} />}
 
       <Animated.View
-        style={tw`absolute w-auto mt-30 right-2 bg-black self-end py-4 rounded-3xl bg-opacity-40`}
+        style={tw`absolute w-auto mt-30 right-2 bg-main-200 self-end overflow-hidden rounded-2xl border-2`}
         pointerEvents="auto"
         entering={FadeInRight}
         exiting={FadeOutRight}>
         {isInRecordingState && (
           <>
             <MapGUIButton
-              style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
+              colorOverride={isRecording && "bg-red-600"}
+              style={tw`self-end border-b-2 mt-auto`}
               label={isRecording ? "stop" : "start"}
               icon={isRecording ? "stop" : "record-vinyl"}
               onPress={() => {
@@ -621,18 +545,34 @@ const MapEditScreen = ({ navigation, route }) => {
               }}
             />
             <MapGUIButton
-              style={tw`self-end m-3 mt-auto`}
+              style={tw`self-end border-b-2 mt-auto`}
               label={"czyść"}
               icon="trash"
               onPress={() => {
-                useLocationTrackingStore.getState().clearLocations();
-                stopBackgroundTracking();
+                Alert.alert(
+                  "Czy na pewno chcesz usunąć wszystkie punkty?",
+                  "Ta operacja jest nieodwracalna",
+                  [
+                    {
+                      text: "Anuluj",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Usuń",
+                      onPress: () => {
+                        useLocationTrackingStore.getState().clearLocations();
+                        stopBackgroundTracking();
+                      },
+                    },
+                  ],
+                  { cancelable: false }
+                );
               }}
             />
           </>
         )}
         <MapGUIButton
-          style={tw`self-end m-3 mt-auto`}
+          style={tw`self-end border-b-2 mt-auto`}
           label={"zapisz"}
           icon="save"
           onPress={() => {
@@ -643,7 +583,8 @@ const MapEditScreen = ({ navigation, route }) => {
           disabled={isRecording}
         />
         <MapGUIButton
-          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""}`}
+          colorOverride={isWatchingposition && "bg-blue-600"}
+          style={tw`self-end border-b-2 mt-auto`}
           label={"centruj"}
           icon="map"
           onPress={() => {
@@ -651,7 +592,7 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
         />
         <MapGUIButton
-          style={tw`self-end m-3 mt-auto`}
+          style={tw`self-end mt-auto`}
           label={"pokaż"}
           icon="map-pin"
           onPress={() => {

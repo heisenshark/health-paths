@@ -35,9 +35,9 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         <SquareButton
           label={"Pulpit"}
           uberActive={currentRoute === "Trasy" || !currentRoute}
-          onPress={() => tryToNavigate("Trasy")}>
-          <Icon name="home" size={50} color={"black"} />
-        </SquareButton>
+          onPress={() => tryToNavigate("Trasy")}
+          icon={"home"}
+        />
         <SquareButton
           label={"Nagraj"}
           uberActive={currentRoute === "Nagraj"}
@@ -46,7 +46,8 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
               isRecording: true,
             })
           }
-          icon={"record-vinyl"}></SquareButton>
+          icon={"record-vinyl"}
+        />
         <SquareButton
           label={"Planuj"}
           uberActive={currentRoute === "Planuj"}
@@ -55,13 +56,14 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
               isRecording: false,
             })
           }
-          icon={"map"}></SquareButton>
+          icon={"map"}
+        />
         <SquareButton
           label={"Opcje"}
           uberActive={currentRoute === "Opcje"}
-          onPress={() => tryToNavigate("Opcje")}>
-          <Icon name="lock" size={50} color={"black"} />
-        </SquareButton>
+          onPress={() => tryToNavigate("Opcje")}
+          icon={"lock"}
+        />
       </>
     );
   };
