@@ -270,10 +270,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
           setModalVisible(false);
         }}
         actions={[...options, ...additionalOptions]}></OptionsModal>
-      <View style={tw`bg-main-100 flex justify-center shadow-md`}>
-        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>
-          <Text>LOKALNE </Text>
-          <Text> WEB</Text>
+      <View
+        style={[
+          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          { alignItems: "center" },
+        ]}>
+        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
+          LOKALNE TRASY
         </Text>
       </View>
       <View style={tw`flex flex-row`}>

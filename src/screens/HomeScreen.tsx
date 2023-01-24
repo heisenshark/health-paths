@@ -46,7 +46,8 @@ const HomeScreen = ({ navigation }) =>
       id: 4,
       label: "Wyjdź",
       icon: "door-open",
-      onPress: () => BackHandler.exitApp(),
+      onPress: () => BackHandler.exitApp()
+      ,
     },
   ];
 
@@ -58,7 +59,7 @@ const HomeScreen = ({ navigation }) =>
     <View style={tw`flex bg-slate-100 h-full`}>
       <View
         style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          tw`flex-0 flex flex-row bg-slate-200 mb-8 border-b-2 border-slate-500 justify-center elevation-5`,
           { alignItems: "center" },
         ]}>
         <Text
@@ -67,7 +68,7 @@ const HomeScreen = ({ navigation }) =>
         </Text>
       </View>
       {data.map((item) => (
-        <TileButton {...item} style={tw`mx-2 mb-2`} key={item.id} />
+        <TileButton {...item} style={tw`mx-10 mb-8`} key={item.id} />
       ))}
     </View>
   );

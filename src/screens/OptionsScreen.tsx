@@ -10,12 +10,21 @@ import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../confi
 import { firebase } from "@react-native-firebase/auth";
 import auth from "@react-native-firebase/auth";
 import { imagePlaceholder } from "../utils/HelperFunctions";
+import TileButton from "../components/TileButton";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
-  const [logOut, checkLogged] = useUserStore((state) => [state.logOut, state.checkLogged]);
   const [user, setUser] = useState(undefined as User | undefined);
   const [pathes, setPathes] = useState([]);
+
+  useEffect(() => {
+    console.log("navchange options");
+    if (DbUser() === undefined) return;
+    GoogleSignin.getCurrentUser().then((u) => {
+      setUser(u);
+    });
+  }, [route.key]);
+
   const addPath = async () => {
     const data = {
       ownerId: DbUser(),
@@ -55,14 +64,13 @@ const OptionsScreen = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    console.log("navchange options");
-    if (DbUser() === undefined) return;
-    GoogleSignin.getCurrentUser().then((u) => {
-      setUser(u);
-    });
-  }, [route.key]);
-
+  async function logOut() {
+    await firebase.auth().signOut();
+    // console.log(DbUser());
+    GoogleSignin.signOut();
+    setIsLogged(false);
+    // logOut();
+  }
   return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
       <View
@@ -74,90 +82,26 @@ const OptionsScreen = ({ navigation, route }) => {
           OPCJE UŻYTKOWNIKA
         </Text>
       </View>
-      <Text style={tw`text-3xl pb-10`}>Zalogowany jako</Text>
-      <Image
-        style={tw`h-40 aspect-square rounded-full `}
-        source={{ uri: user ? user.user.photo : imagePlaceholder }}
-      />
-      <Text style={tw`text-3xl `}>{user?.user?.name}</Text>
-      <Button
-        title="Wyloguj"
-        onPress={async () => {
-          await firebase.auth().signOut();
-          // console.log(DbUser());
-          GoogleSignin.signOut();
-          setIsLogged(false);
-          // logOut();
-        }}
-      />
-      <Button
-        title="test firestore"
-        onPress={() => {
-          logPaths();
-        }}
-      />
-      <Button
-        title="add path"
-        onPress={() => {
-          addPath();
-        }}
-      />
-      {pathes.map((n) => (
-        <View key={n.id}>
-          <Text>
-            {n.name} {n.id}
-          </Text>
-          <View style={tw`flex-row flex `}>
-            <Button
-              title={"dodaj Rating"}
-              onPress={() => {
-                console.log("adding Rating", n);
-                const ratingNumber = 5;
-                const data = {
-                  pathRef: n.id,
-                  rating: 5,
-                  userId: DbUser(),
-                  createdAt: firestore.FieldValue.serverTimestamp(),
-                } as RatingDocument;
-                console.log(data);
 
-                db.collection("Ratings").add(data);
-                Pathes.doc(n.id).update({
-                  rating: firestore.FieldValue.increment(ratingNumber),
-                  ratingCount: firestore.FieldValue.increment(1),
-                });
-              }}></Button>
-            <Button
-              title={"print ratings"}
-              onPress={() => {
-                console.log("printing Ratings");
-                db.collection("Ratings")
-                  .where("pathRef", "==", n.id)
-                  .get()
-                  .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                      console.log(doc.data());
-                    });
-                  });
-              }}></Button>
-            <Button
-              title={"remove path"}
-              onPress={() => {
-                console.log("deleting Path");
-                const id = n.id;
-                const query = db.collection("Ratings").where("pathRef", "==", n.id);
-                deleteQueryBatch(query, () => {});
-                Pathes.doc(id).delete();
-              }}></Button>
-          </View>
+      <Text style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-3xl mb-4 elevation-5`}>
+        Zalogowano jako
+      </Text>
+      <View style={tw`w-full flex justify-center items-center rounded-3xl`}>
+        <View style={tw`flex items-center bg-main-100 p-4 rounded-3xl elevation-5 `}>
+          <Image
+            style={tw`h-40 aspect-square rounded-full border-4 border-black border-opacity-50`}
+            source={{ uri: user?.user?.photo ?? imagePlaceholder }}
+          />
+          <Text style={tw`text-3xl text-center`}>{user?.user?.name}</Text>
         </View>
-      ))}
-      <Button
-        title="test firestore"
-        onPress={() => {
-          logPaths();
-        }}
-      />
+      </View>
+
+      <TileButton
+        style={tw`mx-10 my-8`}
+        label="Wyloguj"
+        icon="door-open"
+        onPress={logOut}></TileButton>
+      <TileButton style={tw`mx-10 mb-8`} label="Inne Ustawienia" icon="cog"></TileButton>
     </ScrollView>
   ) : (
     <View style={tw`flex items-center`}>

@@ -19,10 +19,10 @@ const TileButton = ({ onPress, style, label, icon }: Props) => {
           <Icon
             name={icon ?? "map"}
             color={"black"}
-            size={110}
+            size={90}
           />
         </View>
-        <Text style={tw`flex flex-1 text-4xl font-bold text-center underline`}>{label}</Text>
+        <Text style={tw`flex flex-1 text-3xl font-bold text-center underline`}>{label}</Text>
       </TouchableOpacity>
     </View>
   );

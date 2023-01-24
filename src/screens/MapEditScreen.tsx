@@ -586,7 +586,7 @@ const MapEditScreen = ({ navigation, route }) => {
           colorOverride={isWatchingposition && "bg-blue-600"}
           style={tw`self-end border-b-2 mt-auto`}
           label={"centruj"}
-          icon="map"
+          icon="location-arrow"
           onPress={() => {
             setIsWatchingposition((p) => !p);
           }}
