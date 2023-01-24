@@ -141,16 +141,17 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   //Write function that converts milis to minutes and seconds and display it
 
   const recordingGui = () => {
-    const size = 30;
+    const size = 25;
     switch (status) {
     case RecordingStatus.NO_RECORD:
       return (
         <>
           <SquareButton
+            style={tw`elevation-5`}
             onPress={startRecording}
             size={size}
-            icon="microphone"
-            label="Start recording"
+            icon="record-vinyl"
+            label="Nagrywaj"
           />
         </>
       );
@@ -158,37 +159,59 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       return (
         <>
           <SquareButton
+            style={tw`elevation-5 mx-2`}
             onPress={pauseRecording}
             size={size}
             icon="pause"
-            label="Pause recording"
+            label="Zatrzymaj"
           />
-          <SquareButton onPress={stopRecording} size={size} icon="stop" label="Stop recording" />
+          <SquareButton
+            style={tw`elevation-5 mx-2`}
+            onPress={stopRecording}
+            size={size}
+            icon="stop"
+            label="Zakończ"
+          />
         </>
       );
     case RecordingStatus.PAUSED:
       return (
         <>
           <SquareButton
+            style={tw`elevation-5 mx-2`}
             onPress={resumeRecording}
             size={size}
             icon="microphone"
-            label="Resume recording"
+            label="Wznów"
           />
-          <SquareButton onPress={stopRecording} size={size} icon="stop" label="Stop recording" />
+          <SquareButton
+            style={tw`elevation-5 mx-2`}
+            onPress={stopRecording}
+            size={size}
+            icon="stop"
+            label="Zakończ"
+          />
         </>
-      ); 
+      );
     case RecordingStatus.RECORDED:
       return (
         <>
           <SquareButton
+            style={tw`elevation-5 mx-2`}
             onPress={startRecording}
             size={size}
             icon="microphone"
-            label="Start recording"
+            label="Nagraj nowy"
           />
-          <SquareButton onPress={playSound} size={size} icon="play" label="Play recording" />
           <SquareButton
+            style={tw`elevation-5 mx-2`}
+            onPress={playSound}
+            size={size}
+            icon="play"
+            label="Play recording"
+          />
+          <SquareButton
+            style={tw`elevation-5 mx-2`}
             onPress={() => {
               navigation.navigate("EdycjaMap", {
                 ...route.params,
@@ -205,31 +228,36 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={tw`bg-main-100 h-1/1`}>
-      <Text style={tw`text-5xl text-center py-8 bg-main-200 font-bold`}>NAGRAJ AUDIO</Text>
+    <View style={tw`bg-slate-100 h-1/1`}>
+      <Text
+        style={tw`text-5xl text-center pb-4 pt-6 bg-main-100 font-bold rounded-3xl mx-4 mt-4 elevation-5`}>
+        NAGRAJ AUDIO
+      </Text>
 
       <Text
-        style={tw`text-8xl text-center text-secondary-900 my-8 mx-4 bg-white pt-24 pb-0 border-[2] rounded-3xl `}>
+        style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 bg-slate-100 pt-24 pb-0 rounded-3xl elevation-5`}>
         {milisToMinutesAndSeconds(soundmilis)}
         <Text style={tw`text-3xl`}>
           {(Math.floor((soundmilis / 10) % 100) + "").padStart(2, "0")}
         </Text>
         {/* <Text style={tw`text-3xl`}>{soundmilis}</Text> */}
       </Text>
-
-      <View style={tw`flex flex-row justify-center`}>{recordingGui()}</View>
-
-      <Text style={tw`text-3xl text-center py-5`}>
-        Plik audio ma maksymalną długość pięciu minut.
+      <Text style={tw`text-3xl text-center py-5 bg-slate-300 rounded-3xl mx-4 mb-2 elevation-5`}>
+        Plik audio może mieć maksymalnie 5 minut.
       </Text>
+      <View
+        style={tw`flex flex-row justify-center my-4 mx-4 py-4 bg-main-100 rounded-xl elevation-5`}>
+        {recordingGui()}
+      </View>
+
       <SquareButton
+        style={tw`self-center mt-3 elevation-5`}
         onPress={() => {
           navigation.goBack();
         }}
-        size={20}
-        // icon="left"
+        size={30}
+        icon="arrow-left"
         label="Wróć"
-        style={tw`self-center mt-3`}
       />
     </View>
   );

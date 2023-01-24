@@ -83,10 +83,11 @@ const OptionsScreen = ({ navigation, route }) => {
         </Text>
       </View>
 
-      <Text style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-3xl mb-4 elevation-5`}>
+      <Text
+        style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-xl mb-4 elevation-5`}>
         Zalogowano jako
       </Text>
-      <View style={tw`w-full flex justify-center items-center rounded-3xl`}>
+      <View style={tw`w-full flex justify-center items-center rounded-xl`}>
         <View style={tw`flex items-center bg-main-100 p-4 rounded-3xl elevation-5 `}>
           <Image
             style={tw`h-40 aspect-square rounded-full border-4 border-black border-opacity-50`}

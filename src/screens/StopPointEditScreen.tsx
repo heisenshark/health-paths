@@ -9,6 +9,7 @@ import {
   Modal,
   Pressable,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import SquareButton from "./../components/SquareButton";
 import { Icon } from "react-native-vector-icons/FontAwesome";
@@ -28,6 +29,8 @@ import { ModalChoice } from "../components/ModalChoice";
 import { TextInput } from "react-native-paper";
 import uuid from "react-native-uuid";
 import { useMapStore } from "../stores/store";
+import TileButton from "../components/TileButton";
+import { imagePlaceholder } from "../utils/HelperFunctions";
 
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
@@ -39,21 +42,18 @@ const StopPointEditScreen = ({ navigation, route }) => {
     state.setNotSaved,
   ]);
   let { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
-  const [introsoundUri, setIntroSoundUri] = useState();
-  const [navigationSoundUri, setNavigationSoundUri] = useState();
+  const [introsoundUri, setIntroSoundUri] = useState<string>();
+  const [navigationSoundUri, setNavigationSoundUri] = useState<string>();
   const [name, setName] = useState(editedWaypoint.displayed_name);
   const [description, setDescription] = useState(editedWaypoint.description);
-  const [image, setImage] = useState(null);
-  const [showSoundSelectOptions, setShowSoundSelectOptions] = useState(false);
+  const [image, setImage] = useState(imagePlaceholder);
   const [result, setResult] = useState<
     Array<DocumentPickerResponse> | DirectoryPickerResponse | undefined | null
   >(null);
-
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [soundType, setSoundType] = useState("");
   const [waypointDiff, setWaypointDiff] = useState({} as Waypoint);
-  // const [sound, setSound] = useState();
   const sound = useRef(new Audio.Sound());
 
   async function playSound(uri: string) {
@@ -73,7 +73,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
     React.useCallback(() => {
       console.log("StopPointEditScreen focused");
       console.log(route.params);
-
       //tutaj ustawqiamy sound uri, trzeba wybrać czy intro czy navigation
       if (route.params.soundUri === undefined) return;
       console.log("siema", route.params.soundUri);
@@ -143,14 +142,14 @@ const StopPointEditScreen = ({ navigation, route }) => {
       ? await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        quality: 0.1,
-        aspect: [4, 3],
+        quality: 0.3,
+        aspect: [1, 1],
       })
       : await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.1,
+        aspect: [1, 1],
+        quality: 0.3,
       });
     console.log(result);
 
@@ -167,8 +166,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View>
-      <ScrollView style={tw`bg-main-200`}>
+    <KeyboardAvoidingView behavior="padding">
+      <Text style={tw`text-3xl font-bold bg-slate-200 pt-4 pl-6 pb-2 border-b-4 border-slate-400`}>
+        {isEdit && "Edytuj"} Punkt Zdrowia:
+      </Text>
+      <ScrollView style={tw`bg-slate-200`}>
         <ModalChoice
           visible={audioModalVisible}
           titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
@@ -217,30 +219,33 @@ const StopPointEditScreen = ({ navigation, route }) => {
           actionRight={() => pickImage({ isCamera: false })}
           onRequestClose={() => setImageModalVisible(false)}
         />
-        <View style={tw`px-4 py-4 flex-col`}>
-          <Text style={tw`text-3xl font-bold`}>{isEdit && "Edytuj"} Punkt Zdrowia:</Text>
+        <View style={tw`px-4 pb-4 flex-col`}>
           <View>
             <Image
-              style={tw`aspect-square w-full h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
+              style={tw`aspect-square bg-slate-600 w-full h-auto justify-center
+              self-center my-4 border-4 border-black rounded-2xl elevation-5`}
               source={{ uri: image }}
             />
             {isEdit && (
               <SquareButton
-                style={tw`absolute bottom-8 right-4`}
+                style={tw`absolute bottom-8 right-4 elevation-5`}
                 label={"Edytuj"}
+                icon="edit"
                 onPress={() => setImageModalVisible(true)}></SquareButton>
             )}
           </View>
 
-          <View style={tw`flex-row justify-between items-center my-4 `}>
+          <View
+            style={tw`flex-row justify-between items-center my-4 bg-main-100 p-4 rounded-xl elevation-5`}>
             <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
               Intro Audio
             </Text>
             <View style={tw`flex-row`}>
               {isEdit && (
                 <SquareButton
-                  style={tw`ml-auto mr-2`}
+                  style={tw`ml-auto mr-2 elevation-5`}
                   label={"Edytuj"}
+                  icon="edit"
                   onPress={() => {
                     setAudioModalVisible(true);
                     console.log("clicked modalshow");
@@ -248,8 +253,9 @@ const StopPointEditScreen = ({ navigation, route }) => {
                   }}></SquareButton>
               )}
               <SquareButton
-                style={tw`ml-auto`}
+                style={tw`ml-auto elevation-5`}
                 label={"Odtwórz"}
+                icon="play"
                 onPress={() => {
                   console.log(introsoundUri);
                   console.log(soundType);
@@ -257,15 +263,17 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 }}></SquareButton>
             </View>
           </View>
-          <View style={tw`flex-row justify-between items-center my-4 `}>
+          <View
+            style={tw`flex-row justify-between items-center mb-4 bg-main-100 p-4 rounded-xl elevation-5`}>
             <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
               Nav Audio
             </Text>
             <View style={tw`flex-row`}>
               {isEdit && (
                 <SquareButton
-                  style={tw`ml-auto mr-2`}
+                  style={tw`ml-auto mr-2 elevation-5`}
                   label={"Edytuj"}
+                  icon="edit"
                   onPress={() => {
                     setAudioModalVisible(true);
                     console.log("clicked modalshow");
@@ -273,8 +281,9 @@ const StopPointEditScreen = ({ navigation, route }) => {
                   }}></SquareButton>
               )}
               <SquareButton
-                style={tw`ml-auto`}
+                style={tw`ml-auto elevation-5`}
                 label={"Odtwórz"}
+                icon="play"
                 onPress={() => {
                   console.log(navigationSoundUri);
                   console.log(soundType);
@@ -285,22 +294,27 @@ const StopPointEditScreen = ({ navigation, route }) => {
           {isEdit && (
             <>
               <TextInput
-                style={tw`bg-white text-2xl border-4 border-secondary-100 `}
+                style={tw`bg-white rounded-xl text-2xl border-secondary-100 elevation-5 overflow-hidden`}
                 placeholder="Nazwa"
                 value={name}
                 onChangeText={(text) => {
                   setName(text);
                 }}
-                label="Nazwa Punktu"></TextInput>
+                label="Nazwa Punktu"
+                activeUnderlineColor={tw.color("slate-700")}
+              />
               <TextInput
-                style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-100 border-4`}
+                mode="flat"
+                style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-100 elevation-5 overflow-hidden`}
                 placeholder="Opis"
                 value={description}
                 onChangeText={(text) => {
                   setDescription(text);
                 }}
                 label="Opis Punktu"
-                multiline={true}></TextInput>
+                multiline={true}
+                activeUnderlineColor={tw.color("slate-700")}
+              />
             </>
           )}
           {!isEdit && (
@@ -311,13 +325,21 @@ const StopPointEditScreen = ({ navigation, route }) => {
               <Text style={tw`text-2xl`}>{description}</Text>
             </>
           )}
-          <View style={tw`flex-row justify-around`}>
-            <SquareButton
-              label="Wstecz"
+          {isEdit && (
+            <TileButton
+              style={tw`mx-10 mb-20`}
+              label="Zapisz"
               onPress={() => {
+                console.log("clicked save", name, description, introsoundUri, image);
+                editedWaypoint.displayed_name = name;
+                editedWaypoint.description = description;
+                Object.assign(editedWaypoint, waypointDiff);
+                console.log(editedWaypoint);
+                setNotSaved(true);
                 navigation.goBack();
-              }}></SquareButton>
-          </View>
+              }}
+            />
+          )}
         </View>
       </ScrollView>
       {/* <SquareButton
@@ -329,22 +351,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
         label="ZAPISZ"
         style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}
       /> */}
-      {isEdit && (
-        <SquareButton
-          label="Zapisz"
-          onPress={() => {
-            console.log("clicked save", name, description, introsoundUri, image);
-            editedWaypoint.displayed_name = name;
-            editedWaypoint.description = description;
-
-            Object.assign(editedWaypoint, waypointDiff);
-            console.log(editedWaypoint);
-            setNotSaved(true);
-            navigation.goBack();
-          }}
-          style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}></SquareButton>
-      )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -76,7 +76,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
   const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
   const [mapEditState, setMapEditState] = useAtom(mapEditorStateAtom);
-  const [currentModalOpen, setCurrentModalOpen] = useAtom<curmodalOpenType>(currentModalOpenAtom); //
+  const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [initialRegion, setInitialRegion] = useAtom(initialRegionAtom);
   const [zoom, setZoom] = useAtom(zoomAtom);
   const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
@@ -469,6 +469,7 @@ const MapEditScreen = ({ navigation, route }) => {
                 center: coordinate.nativeEvent.coordinate,
                 zoom: 15,
               });
+            isWatchingposition && console.log("watching pos render");
           }}>
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers

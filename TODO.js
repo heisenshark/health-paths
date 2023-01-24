@@ -9,6 +9,11 @@
 //TODO zrobić wreszcie limit na waypointy oraz stoppointy 10/20
 //TODO ustawić limit wielkości maczki z mapą oraz zredukować jakośc nagrywanego audio 
 //TODO naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
+//TODO zrobić opcje screen
+//TODO zrobić Pomoc screen
+//TODO naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
+
+
 <MOTYWACJA>
     
 

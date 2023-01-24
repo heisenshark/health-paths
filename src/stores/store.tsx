@@ -1,5 +1,5 @@
 import create from "zustand";
-import { HealthPath } from "../utils/interfaces";
+import { HealthPath, MediaFile } from "../utils/interfaces";
 import uuid from "react-native-uuid";
 import { Camera, LatLng } from "react-native-maps";
 import { getURI } from "../utils/FileSystemManager";
@@ -18,7 +18,7 @@ interface MapStore {
   getUUID: () => string;
   currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
-  getCurrentMediaURI: (mediaId: string) => void;
+  getCurrentMediaURI: (media: MediaFile) => string;
   navAction: () => void | null;
   setNavAction: (action: () => void | null) => void;
   executeNavAction: () => void;
@@ -122,10 +122,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
     zoom: 5.757617473602295,
   } as Camera,
   setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
-  getCurrentMediaURI: (mediaId: MediaFile) => {
+  getCurrentMediaURI: (media: MediaFile) => {
     const state = get();
-    console.log("mediauri:::" + getURI(state.currentMap, mediaId));
-    return getURI(state.currentMap, mediaId);
+    console.log("mediauri:::" + getURI(state.currentMap, media));
+    return getURI(state.currentMap, media);
   },
   clearMap: () =>
     set(() => ({
