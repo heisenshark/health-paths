@@ -230,19 +230,19 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   return (
     <View style={tw`bg-slate-100 h-1/1`}>
       <Text
-        style={tw`text-5xl text-center pb-4 pt-6 bg-main-100 font-bold rounded-3xl mx-4 mt-4 elevation-5`}>
+        style={tw`text-5xl text-center pb-4 pt-6 bg-main-100 font-bold rounded-3xl mx-4 mt-2 elevation-5`}>
         NAGRAJ AUDIO
       </Text>
 
       <Text
-        style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 bg-slate-100 pt-24 pb-0 rounded-3xl elevation-5`}>
+        style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 bg-slate-100 pt-20 pb-0 rounded-3xl elevation-5`}>
         {milisToMinutesAndSeconds(soundmilis)}
         <Text style={tw`text-3xl`}>
           {(Math.floor((soundmilis / 10) % 100) + "").padStart(2, "0")}
         </Text>
         {/* <Text style={tw`text-3xl`}>{soundmilis}</Text> */}
       </Text>
-      <Text style={tw`text-3xl text-center py-5 bg-slate-300 rounded-3xl mx-4 mb-2 elevation-5`}>
+      <Text style={tw`text-xl text-center py-2 bg-slate-300 rounded-3xl mx-4 mb-2 elevation-5`}>
         Plik audio może mieć maksymalnie 5 minut.
       </Text>
       <View

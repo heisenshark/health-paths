@@ -173,7 +173,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
       <ScrollView style={tw`bg-slate-200`}>
         <ModalChoice
           visible={audioModalVisible}
-          titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
+          titles={["Jak dodać audio?", "Wybierz z plików", "Nagraj"]}
+          buttonIcons={["file", "microphone"]}
           actionLeft={function (): void {
             DocumentPicker.pickSingle({
               presentationStyle: "fullScreen",
@@ -210,11 +211,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
         />
         <ModalChoice
           visible={imageModalVisible}
-          titles={[
-            "wybrać zdjęcie z plików czy uruchomić kamerę?",
-            "Zrób Zdjęcie",
-            "Wybierz Zdjęcie",
-          ]}
+          titles={["jak dodać zdjęcie?", "Dodaj z kamery", "Wybierz z plików"]}
+          buttonIcons={["camera", "file"]}
           actionLeft={() => pickImage({ isCamera: true })}
           actionRight={() => pickImage({ isCamera: false })}
           onRequestClose={() => setImageModalVisible(false)}
