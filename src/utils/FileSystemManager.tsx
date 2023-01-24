@@ -245,7 +245,7 @@ async function saveMap(map: HealthPath) {
     console.error("error", error);
   }
 
-  console.log(medias);
+  // console.log(medias);
 
   console.log("mapid::" + map.map_id);
   await writeToFile(mapNameDir + "mapInfo.json", JSON.stringify(mapInfo));

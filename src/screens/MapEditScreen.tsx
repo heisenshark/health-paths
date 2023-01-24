@@ -1,4 +1,4 @@
-import { Alert, BackHandler, Text, View } from "react-native";
+import { ActivityIndicator, Alert, BackHandler, Text, ToastAndroid, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
 import { mapStylenoLandmarks, mapstyleSilver, mapStylesJSON } from "../providedfiles/Export";
@@ -70,6 +70,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [initialRegion, setInitialRegion] = useAtom(initialRegionAtom);
   const [zoom, setZoom] = useAtom(zoomAtom);
   const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
+  const [blockInteractability, setBlockInteractability] = useState(false);
 
   const [
     currentMap,
@@ -144,10 +145,15 @@ const MapEditScreen = ({ navigation, route }) => {
     name: string,
     description: string,
     mapIcon: MediaFile
-  ): Promise<boolean> {
+  ): Promise<string | void> {
+    if (waypoints.length < 2) return "Dodaj przynajmniej dwa punkty do trasy";
     console.log(mapIcon); //HACK tutaj może coś się wywrócić
-    let p = [...fullPath, ...useLocationTrackingStore.getState().getOutputLocations()];
-    if (p.length <= 0) return false;
+
+    let p = [];
+    if (isInRecordingState) p = [...useLocationTrackingStore.getState().getOutputLocations()];
+    else p = [...fullPath];
+    console.log("plen", p.length, p);
+    if (p.length <= 0) return "Brak ścieżki...";
     let xd = {
       ...currentMap,
       name: name,
@@ -162,8 +168,8 @@ const MapEditScreen = ({ navigation, route }) => {
       edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
       animated: false,
     });
-    const elo = await mapRef.current.getCamera();
-    setZoom(elo.zoom);
+    const cam = await mapRef.current.getCamera();
+    setZoom(156543.03392 / Math.pow(2, cam.zoom));
     await new Promise((r) => setTimeout(r, 100));
     const uri = await mapRef.current.takeSnapshot({
       width: 350, // optional, when omitted the view-width is used
@@ -189,17 +195,7 @@ const MapEditScreen = ({ navigation, route }) => {
     setCurrentMap(xd);
     console.log("current map set");
     await saveMap(xd);
-    return true;
-  }
-  async function getPermissions(): Promise<boolean> {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    console.log(status);
-    let ss = await Location.requestBackgroundPermissionsAsync();
-    console.log(ss.status);
-    if (status !== "granted" || ss.status !== "granted") {
-      return false;
-    }
-    return true;
+    return;
   }
 
   const onSave = async (
@@ -208,16 +204,22 @@ const MapEditScreen = ({ navigation, route }) => {
     asNew: boolean,
     mapIcon: MediaFile
   ): Promise<boolean> => {
+    setBlockInteractability(true);
     try {
       if (asNew) currentMap.map_id = uuid.v4().toString();
       const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
-      if (good) {
+      console.log(good);
+
+      if (typeof good === "string") {
+        ToastAndroid.show(good, ToastAndroid.SHORT);
         setNotSaved(false);
+        setBlockInteractability(false);
         return true;
-      }
+      } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
     } catch (e) {
       console.log(e, "AAAAAA");
     }
+    setBlockInteractability(false);
     return false;
   };
 
@@ -255,7 +257,7 @@ const MapEditScreen = ({ navigation, route }) => {
   }, [navAction]);
 
   useEffect(() => {
-    if (currentMap.map_id === "") {
+    if (currentMap.path === undefined) {
       console.log("elo");
       if (!currentMap || currentMap.map_id === "") resetCurrentMap();
       console.log("elo3");
@@ -272,7 +274,7 @@ const MapEditScreen = ({ navigation, route }) => {
           0
         );
         const cam = await mapRef.current.getCamera();
-        setZoom(cam.zoom);
+        setZoom(156543.03392 / Math.pow(2, cam.zoom));
       })();
     } else {
       // console.log("itsrecordedHP", currentMap.waypoints, currentMap.stops, currentMap.path);
@@ -431,7 +433,7 @@ const MapEditScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View style={tw`relative`}>
+    <View style={tw`relative`} pointerEvents={blockInteractability ? "none" : "auto"}>
       <Modals />
       <View style={tw`w-full h-full bg-red-600`}>
         <MapView
@@ -513,6 +515,7 @@ const MapEditScreen = ({ navigation, route }) => {
         </MapView>
       </View>
       <TipDisplay forceVisible={mapEditState !== "Idle"} timeVisible={showingTip} />
+
       <View style={tw`absolute w-full mt-40`} pointerEvents="auto">
         {isInRecordingState && (
           <>
@@ -563,7 +566,7 @@ const MapEditScreen = ({ navigation, route }) => {
           label={"pokaż punkty"}
           icon="map"
           onPress={() => {
-            console.log(showHandles, fullPath);
+            console.log(showHandles, fullPath, initialRegion);
             setInitialRegion({
               latitude: 52.229676,
               longitude: 21.012229,
@@ -577,6 +580,13 @@ const MapEditScreen = ({ navigation, route }) => {
         <Text>{currentModalOpen}</Text>
         <Text>{notSaved ? "not Saved" : "saved"}</Text>
       </View>
+
+      {blockInteractability && (
+        <View
+          style={tw`absolute w-full flex items-center justify-center h-full bg-opacity-70 bg-black`}>
+          <ActivityIndicator style={tw`w-60 h-60 bg-opacity-0`} size={200} />
+        </View>
+      )}
     </View>
   );
 };

@@ -34,12 +34,12 @@ const SquareButton = ({
       disabled={disabled}
       style={[
         [
-          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg  bg-main-${disabled?
-            (9):(uberActive ? "2" : "1")
+          tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg border-2 bg-main-${
+            disabled ? 9 : uberActive ? "2" : "1"
           }`,
           style,
         ],
-        { transform: [{ scale: 1 + uberplus / 10 }] },
+        { transform: [{ scale: 1 }] },
       ]}
       onPress={() => {
         onPress && onPress();

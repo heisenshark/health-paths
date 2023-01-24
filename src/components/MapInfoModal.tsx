@@ -155,9 +155,7 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
                   return;
                 }
                 onRequestClose();
-                const good = await onSave(name.text, desc, saveAsNew, mapIcon.current);
-                if (good) ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
-                else ToastAndroid.show("Nie zapisano Ścieżki, coś poszło nie tak...", ToastAndroid.SHORT);
+                await onSave(name.text, desc, saveAsNew, mapIcon.current);
               }}></SquareButton>
           </View>
         </View>

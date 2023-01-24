@@ -195,7 +195,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         );
       })
       .map((map) => {
-        if (map.imagePreview) console.log({ aa: getURI(map, map.imagePreview) });
+        // if (map.imagePreview) console.log({ aa: getURI(map, map.imagePreview) });
 
         return (
           <Card
