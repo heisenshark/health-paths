@@ -15,6 +15,7 @@ import * as Location from "expo-location";
 import { LatLng } from "react-native-maps";
 import { useAtom } from "jotai";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
+import * as Speech from 'expo-speech';
 
 import MapEditScreen from "./src/screens/MapEditScreen";
 import HomeScreen from "./src/screens/HomeScreen";
@@ -33,8 +34,8 @@ import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 import MapWebPreview from "./src/screens/MapWebPreviewScreen";
 import { initialRegionAtom } from "./src/config/AtomsState";
 import AppText from "./src/components/AppText";
-import { useDeviceContext } from "twrnc";
 import tw from "./src/lib/tailwind";
+import { useDeviceContext } from "twrnc/dist/esm/hooks";
 
 SplashScreen.preventAutoHideAsync();
 const Navigator = createNativeStackNavigator();
@@ -45,8 +46,8 @@ export default function App() {
   const isTunnel = false;
 
   const navigationRef = useNavigationContainerRef();
-  useDeviceContext(tw, { withDeviceColorScheme: false });
-
+  useDeviceContext(tw);
+  
   const [currentScreen, setCurrentScreen] = useState("");
   const [, setInitialRegion] = useAtom(initialRegionAtom);
 

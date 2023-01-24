@@ -36,7 +36,7 @@ export function Markers<Props>(
             source={imageStart}
             resizeMode="center"
             resizeMethod="resize"
-            style={tw`flex-1 w-8 h-8`}
+            style={tw`flex-1 w-10 h-10`}
           />
         </View>
       );
@@ -48,7 +48,7 @@ export function Markers<Props>(
             source={imageEnd}
             resizeMode="center"
             resizeMethod="resize"
-            style={tw`flex-1 w-8 h-8`}
+            style={tw`flex-1 w-10 h-10`}
           />
         </View>
       );

@@ -23,7 +23,15 @@ import StopPointPopUp from "../components/StopPointPopUp";
 import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
 
-import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  FadeInLeft,
+  FadeInRight,
+  FadeInUp,
+  FadeOutDown,
+  FadeOutRight,
+  FadeOutUp,
+} from "react-native-reanimated";
 import TipDisplay from "../components/TipDisplay";
 import { atom, Provider, useAtom } from "jotai";
 import {
@@ -33,6 +41,7 @@ import {
   showHandlesAtom,
   zoomAtom,
 } from "../config/AtomsState";
+import MapGUIButton from "../components/MapGUIButton";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
@@ -264,6 +273,7 @@ const MapEditScreen = ({ navigation, route }) => {
       (async () => {
         const loc = await Location.getCurrentPositionAsync();
         console.log(loc);
+        await new Promise((r) => setTimeout(r, 10));
         mapRef.current.animateToRegion(
           {
             latitude: loc.coords.latitude,
@@ -391,11 +401,14 @@ const MapEditScreen = ({ navigation, route }) => {
             console.log("popclose");
           }}
           onStopPointAdd={() => {
+            setCurrentModalOpen("None");
             const stoppint = addNewWaypoint(pointPivot, "stop");
-            navigation.navigate({
-              name: "EdycjaMap",
-              params: { editedWaypoint: stoppint, isEdit: true },
-            });
+            setTimeout(() => {
+              navigation.navigate({
+                name: "EdycjaMap",
+                params: { editedWaypoint: stoppint, isEdit: true },
+              });
+            }, 1);
           }}
           onWaypointAdd={(position: number) => {
             addNewWaypoint(pointPivot, "waypoint", position);
@@ -408,10 +421,12 @@ const MapEditScreen = ({ navigation, route }) => {
           stopPoint={selectedStop}
           hide={() => setCurrentModalOpen("None")}
           onEdit={() =>
-            navigation.navigate({
-              name: "EdycjaMap",
-              params: { editedWaypoint: selectedStop, isEdit: true },
-            })
+            setTimeout(() => {
+              navigation.navigate({
+                name: "EdycjaMap",
+                params: { editedWaypoint: selectedStop, isEdit: true },
+              });
+            }, 1)
           }
           onDelete={() => {
             stopPoints.splice(stopPoints.indexOf(selectedStop), 1);
@@ -432,6 +447,74 @@ const MapEditScreen = ({ navigation, route }) => {
     );
   }
 
+  function UIButtons() {
+    return (
+      <Animated.View
+        style={tw`absolute w-auto mt-30 right-2 bg-black self-end py-4 rounded-3xl bg-opacity-40`}
+        pointerEvents="auto"
+        entering={FadeInRight}
+        exiting={FadeOutRight}>
+        {isInRecordingState && (
+          <>
+            <MapGUIButton
+              style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
+              label={isRecording ? "stop" : "start"}
+              icon={isRecording ? "stop" : "record-vinyl"}
+              onPress={() => {
+                isRecording
+                  ? (() => {
+                    stopBackgroundTracking();
+                  })()
+                  : startBackgroundTracking();
+              }}
+            />
+            <MapGUIButton
+              style={tw`self-end m-3 mt-auto`}
+              label={"czyść"}
+              icon="trash"
+              onPress={() => {
+                useLocationTrackingStore.getState().clearLocations();
+                stopBackgroundTracking();
+              }}
+            />
+          </>
+        )}
+        <MapGUIButton
+          style={tw`self-end m-3 mt-auto`}
+          label={"zapisz"}
+          icon="save"
+          onPress={() => {
+            setCurrentModalOpen("MapInfo");
+            setShowHandles(false);
+            setShowUserLocation(false);
+          }}
+          disabled={isRecording}
+        />
+        <MapGUIButton
+          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""}`}
+          label={"centruj"}
+          icon="map"
+          onPress={() => {
+            setIsWatchingposition((p) => !p);
+          }}
+        />
+        <MapGUIButton
+          style={tw`self-end m-3 mt-auto`}
+          label={"pokaż"}
+          icon="map-pin"
+          onPress={() => {
+            console.log(showHandles, fullPath, initialRegion);
+            setShowHandles((p) => !p);
+            force();
+          }}
+        />
+        {/* <Text>{currentModalOpen}</Text>
+        <Text>{notSaved ? "not Saved" : "saved"}</Text> */}
+      </Animated.View>
+    );
+  }
+
+  const Tip = TipDisplay;
   return (
     <View style={tw`relative`} pointerEvents={blockInteractability ? "none" : "auto"}>
       <Modals />
@@ -445,12 +528,6 @@ const MapEditScreen = ({ navigation, route }) => {
           minZoomLevel={7}
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
-          onMapReady={() => {
-            // mapRef.current.fitToCoordinates(currentMap.path, {
-            //   edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-            //   animated: true,
-            // });
-          }}
           onTouchStart={showTip}
           onPress={onPressMap}
           customMapStyle={mapstyleSilver}
@@ -518,12 +595,20 @@ const MapEditScreen = ({ navigation, route }) => {
           )}
         </MapView>
       </View>
-      <TipDisplay forceVisible={mapEditState !== "Idle"} timeVisible={showingTip} />
+      {/* <xDDd forceVisible={mapEditState !== "Idle"} timeVisible={showingTip} /> */}
 
-      <View style={tw`absolute w-full mt-40`} pointerEvents="auto">
+          <Tip forceVisible={mapEditState !== "Idle"} timeVisible={showingTip}></Tip>
+
+      {/* <UIButtons /> */}
+
+      <Animated.View
+        style={tw`absolute w-auto mt-30 right-2 bg-black self-end py-4 rounded-3xl bg-opacity-40`}
+        pointerEvents="auto"
+        entering={FadeInRight}
+        exiting={FadeOutRight}>
         {isInRecordingState && (
           <>
-            <SquareButton
+            <MapGUIButton
               style={tw`self-end m-3 mt-auto ${isRecording ? "bg-red-600" : ""}`}
               label={isRecording ? "stop" : "start"}
               icon={isRecording ? "stop" : "record-vinyl"}
@@ -535,8 +620,8 @@ const MapEditScreen = ({ navigation, route }) => {
                   : startBackgroundTracking();
               }}
             />
-            <SquareButton
-              style={tw`self-end m-3 mt-auto border-0`}
+            <MapGUIButton
+              style={tw`self-end m-3 mt-auto`}
               label={"czyść"}
               icon="trash"
               onPress={() => {
@@ -546,7 +631,7 @@ const MapEditScreen = ({ navigation, route }) => {
             />
           </>
         )}
-        <SquareButton
+        <MapGUIButton
           style={tw`self-end m-3 mt-auto`}
           label={"zapisz"}
           icon="save"
@@ -557,33 +642,27 @@ const MapEditScreen = ({ navigation, route }) => {
           }}
           disabled={isRecording}
         />
-        <SquareButton
-          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""} border-0`}
+        <MapGUIButton
+          style={tw`self-end m-3 mt-auto ${isWatchingposition ? "bg-blue-600" : ""}`}
           label={"centruj"}
           icon="map"
           onPress={() => {
             setIsWatchingposition((p) => !p);
           }}
         />
-        <SquareButton
-          style={tw`self-end m-3 mt-auto border-0`}
-          label={"pokaż punkty"}
-          icon="map"
+        <MapGUIButton
+          style={tw`self-end m-3 mt-auto`}
+          label={"pokaż"}
+          icon="map-pin"
           onPress={() => {
             console.log(showHandles, fullPath, initialRegion);
-            setInitialRegion({
-              latitude: 52.229676,
-              longitude: 21.012229,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            });
             setShowHandles((p) => !p);
             force();
           }}
         />
-        <Text>{currentModalOpen}</Text>
-        <Text>{notSaved ? "not Saved" : "saved"}</Text>
-      </View>
+        {/* <Text>{currentModalOpen}</Text>
+        <Text>{notSaved ? "not Saved" : "saved"}</Text> */}
+      </Animated.View>
 
       {blockInteractability && (
         <View

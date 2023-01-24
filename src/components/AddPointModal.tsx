@@ -40,7 +40,7 @@ const AddPointModal = ({
           {!isRecordingMode && (
             <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
               <SquareButton
-                style={tw`mx-2 border-[2]`}
+                style={tw`mx-2 `}
                 size={30}
                 icon="edit"
                 label="Na początek"
@@ -50,7 +50,7 @@ const AddPointModal = ({
                 }}></SquareButton>
               {waypointsLength >= 2 && (
                 <SquareButton
-                  style={tw`mx-2 border-[2]`}
+                  style={tw`mx-2 `}
                   size={30}
                   icon="edit"
                   label="Jako punkt Trasy"
@@ -61,7 +61,7 @@ const AddPointModal = ({
               )}
               {waypointsLength >= 1 && (
                 <SquareButton
-                  style={tw`mx-2 border-[2]`}
+                  style={tw`mx-2 `}
                   size={30}
                   icon="edit"
                   label="Na koniec"
@@ -74,7 +74,7 @@ const AddPointModal = ({
           )}
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
-              style={tw`mx-2 border-black border-[2]`}
+              style={tw`mx-2 border-black `}
               size={30}
               label="Jako Punkt Stopu"
               icon="edit"
@@ -84,7 +84,7 @@ const AddPointModal = ({
               }}></SquareButton>
 
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2 `}
               size={30}
               icon="arrow-left"
               label="Wróć"

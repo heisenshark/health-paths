@@ -36,7 +36,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
           <Text style={tw`text-3xl p-5 text-center font-bold`}>Punkt Stopu</Text>
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
-              style={tw`mx-2 border-black border-[2]`}
+              style={tw`mx-2 border-black `}
               size={30}
               label="Usuń"
               icon="trash"
@@ -45,7 +45,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
                 onDelete();
               }}></SquareButton>
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2 `}
               size={30}
               icon="edit"
               label="Edytuj"
@@ -54,7 +54,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
                 hide();
               }}></SquareButton>
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2 `}
               size={30}
               icon="arrow-left"
               label="Przenieś"
@@ -65,7 +65,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
           </View>
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2 `}
               size={30}
               icon="arrow-left"
               label="Wróć"

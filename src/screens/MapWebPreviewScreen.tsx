@@ -195,7 +195,7 @@ const MapWebPreview = ({ navigation, route }) => {
           <View style={tw`flex flex-col justify-center items-center`}>
             <Text style={tw`text-3xl text-center`}>Oceń mape</Text>
             <Rating
-              style={tw`w-full justify-around mb-4`}
+              style={tw`w-10/12 justify-around mb-4`}
               onRatingChange={(rating) => {
                 rate.current = rating;
               }}></Rating>

@@ -12,7 +12,7 @@ type Props = {
 };
 
 const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
-  if (!visible) return null;//tak, to jest potrzebne, inaczej laguje cały ekran
+  if (!visible) return null; //tak, to jest potrzebne, inaczej laguje cały ekran
   return (
     <View>
       <Modal
@@ -29,7 +29,7 @@ const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
           <Text style={tw`text-3xl p-5 text-center font-bold`}>Edytuj Punkt:</Text>
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
-              style={tw`mx-2 border-black border-[2]`}
+              style={tw`mx-2 border-black`}
               size={30}
               label="Usuń"
               icon="trash"
@@ -39,7 +39,7 @@ const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
               }}></SquareButton>
 
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2`}
               size={30}
               icon="edit"
               label="przenieś"
@@ -49,7 +49,7 @@ const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
               }}></SquareButton>
 
             <SquareButton
-              style={tw`mx-2 border-[2]`}
+              style={tw`mx-2`}
               size={30}
               icon="arrow-left"
               label="Wróć"

@@ -15,12 +15,12 @@ interface RatingProps {
 const Rating = ({ onRatingChange, size = 50, style, disabled = false }: RatingProps) => {
   const [number, setNumber] = useState(1);
   return (
-    <View style={[tw`flex flex-row`, style]}>
+    <View style={[tw`flex flex-row bg-slate-400 p-2 m-2 rounded-3xl`, style]}>
       {[1, 2, 3, 4, 5].map((index) => {
         return (
           <Icon
             key={index}
-            style={tw`${disabled ? "text-main-900 " : "text-main-6"} flex`}
+            style={tw`${disabled ? "text-main-600 " : "text-main-400"} flex elevation-5`}
             name={"star"}
             size={size}
             solid={index > number || disabled ? false : true}

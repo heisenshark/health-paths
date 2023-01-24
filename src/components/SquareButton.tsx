@@ -35,7 +35,7 @@ const SquareButton = ({
       style={[
         [
           tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg border-2 bg-main-${
-            disabled ? 900 : uberActive ? "400" : "100"
+            disabled ? 900 : uberActive ? "400" : "200"
           }`,
           style,
         ],
@@ -43,6 +43,9 @@ const SquareButton = ({
       ]}
       onPress={() => {
         onPress && onPress();
+      }}
+      onLongPress={() => {
+        console.log("long press");
       }}>
       <View style={tw`p-1`}>
         {icon !== "" && <Icon name={icon} size={50} color={"black"} />}
