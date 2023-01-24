@@ -168,7 +168,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   return (
     <View>
-      <ScrollView style={tw`bg-main-2`}>
+      <ScrollView style={tw`bg-main-200`}>
         <ModalChoice
           visible={audioModalVisible}
           titles={["wybrać z plików czy nagrać", "Wybierz Audio", "Nagraj Audio"]}
@@ -285,7 +285,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
           {isEdit && (
             <>
               <TextInput
-                style={tw`bg-white text-2xl border-4 border-secondary-1 `}
+                style={tw`bg-white text-2xl border-4 border-secondary-100 `}
                 placeholder="Nazwa"
                 value={name}
                 onChangeText={(text) => {
@@ -293,7 +293,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 }}
                 label="Nazwa Punktu"></TextInput>
               <TextInput
-                style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-1 border-4`}
+                style={tw`h-60 text-2xl rounded-xl my-4 bg-white border-secondary-100 border-4`}
                 placeholder="Opis"
                 value={description}
                 onChangeText={(text) => {

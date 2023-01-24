@@ -20,7 +20,7 @@ const Rating = ({ onRatingChange, size = 50, style, disabled = false }: RatingPr
         return (
           <Icon
             key={index}
-            style={tw`${disabled ? "text-main-9 " : "text-main-6"} flex`}
+            style={tw`${disabled ? "text-main-900 " : "text-main-6"} flex`}
             name={"star"}
             size={size}
             solid={index > number || disabled ? false : true}

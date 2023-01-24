@@ -26,8 +26,8 @@ export function ModalChoice({
       visible={visible}
       onRequestClose={onRequestClose}>
       <View
-        style={tw`flex items-center justify-center h-full bg-opacity-60 bg-black border-8 border-secondary-1`}>
-        <View style={tw`w-4/5 bg-main-1 p-4 border-4 border-secondary-9`}>
+        style={tw`flex items-center justify-center h-full bg-opacity-60 bg-black border-8 border-secondary-100`}>
+        <View style={tw`w-4/5 bg-main-100 p-4 border-4 border-secondary-900`}>
           <Text style={tw`text-2xl font-bold`}>{titles[0]}</Text>
           <View style={tw`flex flex-row justify-center px-4 py-4 text-3xl`}>
             <SquareButton

@@ -1,57 +1,55 @@
-// import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-// import { useEffect, useState } from "react";
-import { StatusBar } from "react-native";
-// import { Button } from "react-native-paper";
-// import MapboxGL from "@rnmapbox/maps";
-// import MapView, { Circle, Marker, Polyline , enableLatestRenderer } from "react-native-maps";
-// import { cloneDeep } from "lodash";
+import { StatusBar, Text } from "react-native";
+import { useFonts, Inter_900Black } from "@expo-google-fonts/inter";
+import {
+  OpenSans_700Bold,
+  OpenSans_800ExtraBold,
+  OpenSans_600SemiBold,
+  OpenSans_500Medium,
+  OpenSans_400Regular,
+  OpenSans_300Light,
+} from "@expo-google-fonts/open-sans";
 
-// import { RoundedButton } from "./src/components/RoundedButton";
-// import { exampleGeojsonFeatureCollection, exampleGeojsonFeatureCollection_Shape } from "./src/utils/maps";
-// import CircleIcon from "./src/utils/Icons";
-// import { featuresRynek, waypointsApp } from "./src/providedfiles/Export";
-import MapEditScreen from "./src/screens/MapEditScreen";
+import * as SplashScreen from "expo-splash-screen";
+import * as TaskManager from "expo-task-manager";
+import * as Location from "expo-location";
+import { LatLng } from "react-native-maps";
+import { useAtom } from "jotai";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
+
+import MapEditScreen from "./src/screens/MapEditScreen";
 import HomeScreen from "./src/screens/HomeScreen";
-// import { NativeWindStyleSheet, useColorScheme } from "nativewind";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
 import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
-import {
-  createNewMap,
-  ensureMapDirExists,
-  listAllMaps,
-  validateDownloadTracker,
-} from "./src/utils/FileSystemManager";
-
-import * as TaskManager from "expo-task-manager";
-import * as Location from "expo-location";
+import { validateDownloadTracker } from "./src/utils/FileSystemManager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
-import { LatLng } from "react-native-maps";
 import LogInScreen from "./src/screens/LogInScreen";
 import OptionsScreen from "./src/screens/OptionsScreen";
 import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 import MapWebPreview from "./src/screens/MapWebPreviewScreen";
-import { Provider, useAtom } from "jotai";
 import { initialRegionAtom } from "./src/config/AtomsState";
+import AppText from "./src/components/AppText";
+import { useDeviceContext } from "twrnc";
+import tw from "./src/lib/tailwind";
 
-// MapboxGL.setWellKnownTileServer('Mapbox')
-// MapboxGL.setAccessToken('sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ')
-
+SplashScreen.preventAutoHideAsync();
 const Navigator = createNativeStackNavigator();
 validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
 export default function App() {
   const isTunnel = false;
+
   const navigationRef = useNavigationContainerRef();
+  useDeviceContext(tw, { withDeviceColorScheme: false });
 
   const [currentScreen, setCurrentScreen] = useState("");
   const [, setInitialRegion] = useAtom(initialRegionAtom);
+
   useEffect(() => {
     TaskManager.unregisterAllTasksAsync();
     setInitialRegion({
@@ -76,6 +74,26 @@ export default function App() {
     });
   }, []);
 
+  const [fontsLoaded] = useFonts({
+    Inter_900Black,
+    OpenSans_700Bold,
+    OpenSans_800ExtraBold,
+    OpenSans_600SemiBold,
+    OpenSans_500Medium,
+    OpenSans_400Regular,
+    OpenSans_300Light,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     //TODO finish settings screen
     //[x] finish mapselect screen
@@ -87,6 +105,8 @@ export default function App() {
     <>
       {/* <Provider> */}
       {isTunnel && <StatusBar style="auto" />}
+      {/* <Text style={{ fontFamily: "OpenSans_700Bold", fontSize: 20 }}>Inter Black</Text> */}
+
       <NavigationContainer
         ref={navigationRef}
         onStateChange={(key) => {
@@ -122,7 +142,7 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const xd = useMapStore.getState().setNotSaved;
   const xd2 = useMapStore.getState().notSaved;
-  !xd && xd(true);//needed, otherwise we get rerendered xD
+  !xd && xd(true); //needed, otherwise we get rerendered xD
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
     return;

@@ -25,11 +25,11 @@ const SelectNameModal = ({
       visible={visible}
       onRequestClose={onRequestClose}>
       <View
-        style={tw`flex items-center justify-center h-full bg-opacity-60 bg-black border-8 border-secondary-1`}>
-        <View style={tw`w-4/5 bg-main-1 p-4 border-4 border-secondary-9`}>
+        style={tw`flex items-center justify-center h-full bg-opacity-60 bg-black border-8 border-secondary-100`}>
+        <View style={tw`w-4/5 bg-main-100 p-4 border-4 border-secondary-900`}>
           <Text style={tw`text-2xl font-bold`}>Wybierz Nazwę dla swojej mapy</Text>
           <TextInput
-            style={tw`bg-main-1 border-2 border-secondary-9`}
+            style={tw`bg-main-100 border-2 border-secondary-900`}
             onChangeText={(text) => setName(text)}
             value={name}
           />

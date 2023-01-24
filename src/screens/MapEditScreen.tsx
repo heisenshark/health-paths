@@ -510,7 +510,11 @@ const MapEditScreen = ({ navigation, route }) => {
           )}
 
           {(isInRecordingState || isRecordedHealthPath) && (
-            <TrackLine isRecordingFinished={!isRecording} isEdit={true} coords={fullPath} />
+            <TrackLine
+              isRecordingFinished={!isRecording}
+              isEdit={isRecordedHealthPath}
+              coords={fullPath}
+            />
           )}
         </MapView>
       </View>

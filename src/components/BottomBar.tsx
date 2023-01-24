@@ -69,9 +69,9 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   if (navigationRef.isReady() && navigationRef?.getCurrentRoute()?.name === "LogIn") return <></>;
   return (
     <>
-      <Text>{currentRoute}</Text>
+      {/* <Text>{currentRoute}</Text> */}
       <View
-        style={tw`h-[28] bg-white flex-row items-center justify-around border-b-4 border-t-4 border-secondary-8`}>
+        style={tw`h-[26] bg-white flex-row items-center justify-evenly border-b-4 border-t-4 border-secondary-800`}>
         {!tabs.includes(currentRoute) ? (
           tabGUI()
         ) : (

@@ -35,7 +35,7 @@ const SquareButton = ({
       style={[
         [
           tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg border-2 bg-main-${
-            disabled ? 9 : uberActive ? "2" : "1"
+            disabled ? 900 : uberActive ? "400" : "100"
           }`,
           style,
         ],

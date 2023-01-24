@@ -205,11 +205,11 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={tw`bg-main-1 h-1/1`}>
-      <Text style={tw`text-5xl text-center py-8 bg-main-2 font-bold`}>NAGRAJ AUDIO</Text>
+    <View style={tw`bg-main-100 h-1/1`}>
+      <Text style={tw`text-5xl text-center py-8 bg-main-200 font-bold`}>NAGRAJ AUDIO</Text>
 
       <Text
-        style={tw`text-8xl text-center text-secondary-9 my-8 mx-4 bg-white pt-24 pb-0 border-[2] rounded-3xl `}>
+        style={tw`text-8xl text-center text-secondary-900 my-8 mx-4 bg-white pt-24 pb-0 border-[2] rounded-3xl `}>
         {milisToMinutesAndSeconds(soundmilis)}
         <Text style={tw`text-3xl`}>
           {(Math.floor((soundmilis / 10) % 100) + "").padStart(2, "0")}

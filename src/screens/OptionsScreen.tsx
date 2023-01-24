@@ -65,7 +65,15 @@ const OptionsScreen = ({ navigation, route }) => {
 
   return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
-      <Text style={tw`text-3xl p-10 pb-2`}>Opcje Użytkownika</Text>
+      <View
+        style={[
+          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          { alignItems: "center" },
+        ]}>
+        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
+          OPCJE UŻYTKOWNIKA
+        </Text>
+      </View>
       <Text style={tw`text-3xl pb-10`}>Zalogowany jako</Text>
       <Image
         style={tw`h-40 aspect-square rounded-full `}

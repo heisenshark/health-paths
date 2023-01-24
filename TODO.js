@@ -6,8 +6,9 @@
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
 //TODO make GUI of adding map points so clunky it makes less requests to api
-
-
+//TODO zrobić wreszcie limit na waypointy oraz stoppointy 10/20
+//TODO ustawić limit wielkości maczki z mapą oraz zredukować jakośc nagrywanego audio 
+//TODO naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
 <MOTYWACJA>
     
 
