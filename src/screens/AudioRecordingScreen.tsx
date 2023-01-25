@@ -11,61 +11,58 @@ interface AudioRecordingScreenProps {}
 //Ok, ten screen dostaje route z stoppoints, nagrywa audio i zwraca route
 //właśnie do stoppoints tylko ze ścieżką do audio
 //ewentualnie zrobię ten komponent jako modal
-//TODO naprawić buga który uniemożliwia zastopowanie nagrywania audio
+//[x] naprawić buga który uniemożliwia zastopowanie nagrywania audio
 const AudioRecordingScreen = ({ navigation, route }) => {
   const nav = useNavigation();
   const [status, setStatus] = useRecordingState(RecordingStatus.NO_RECORD);
-  const [recording, setRecording] = useState<Recording>();
-  const [soundUri, setSoundUri] = useState();
+  // const [recording, setRecording] = useState<Recording>();
+  const [soundUri, setSoundUri] = useState<string>();
   // const [soundObject, setSoundObject] = useState<Sound>();
   const soundObject = useRef<Sound>(new Audio.Sound());
   const recordingObject = useRef<Recording>(new Audio.Recording());
   const [soundmilis, setSoundmilis] = useState(0);
   const [audioStatus, setAudioStatus] = useState({});
   const [recordingStatus, setRecordingStatus] = useState();
+  const resetTimer = useRef<any>();
   //statey aplikacji
   // brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
-
+  const maxDuration = 300000; //5min
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove");
       stopSound();
       stopRecording();
     });
+    return unsub;
   }, [navigation]);
 
   async function startRecording() {
     await stopSound();
-
     const elo = await Audio.requestPermissionsAsync(); //może przenieść to gdzie indziej
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
       playsInSilentModeIOS: true,
     });
     setSoundmilis(0);
+
     try {
       console.log("Starting recording..");
       recordingObject.current = new Audio.Recording();
       const status = await recordingObject.current.getStatusAsync();
       console.log(status);
-
       if (status.isRecording === true) await recordingObject.current.stopAndUnloadAsync();
       await recordingObject.current.prepareToRecordAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      recordingObject.current.setOnRecordingStatusUpdate((status) => {
+      recordingObject.current.setOnRecordingStatusUpdate(async (status) => {
+        // console.log("elo");
+
         if (status.isRecording) setSoundmilis(status.durationMillis);
-        if (status.durationMillis >= 300000) {
-          stopRecording();
-          ToastAndroid.show(
-            "Nagranie zakończone ponieważ przekraczało 5 minut",
-            ToastAndroid.SHORT
-          );
-        }
       });
-      recordingObject.current.setProgressUpdateInterval(16);
+      recordingObject.current.setProgressUpdateInterval(100);
       await recordingObject.current.startAsync();
       setStatus(RecordingStatus.RECORDING);
+      startResetTimer();
     } catch (error) {
       console.log(error);
     }
@@ -73,26 +70,32 @@ const AudioRecordingScreen = ({ navigation, route }) => {
 
   async function pauseRecording() {
     setStatus(RecordingStatus.PAUSED);
-    console.log("Pausing recording..");
-    await recording.pauseAsync();
+    console.log("Pausing recording..", recordingObject.current);
+    stopResetTimer();
+    await recordingObject.current.pauseAsync();
     console.log("Recording paused");
   }
 
   async function resumeRecording() {
     setStatus(RecordingStatus.RECORDING);
     console.log("Resuming recording..");
-    await recording.startAsync();
+    await recordingObject.current.startAsync();
+    startResetTimer();
     console.log("Recording resumed");
   }
 
   async function stopRecording() {
-    console.log("Stopping recording..");
+    console.log("Stopping recording..", recordingObject.current);
+    if (!recordingObject.current) return;
     const status = await recordingObject.current.getStatusAsync();
-    if (status === undefined || status.isRecording === false) return;
-    recordingObject.current.stopAndUnloadAsync();
-    setRecording(undefined); // to zrobi się w następnej klatce renderowania
+    console.log(status);
+
+    if (status === undefined || status.isDoneRecording) return;
+    if (status.canRecord) recordingObject.current.stopAndUnloadAsync();
+
     const uri = recordingObject.current.getURI();
     console.log("Recording stopped and stored at", uri);
+    stopResetTimer();
     setStatus(RecordingStatus.RECORDED);
     setSoundUri(uri);
     setSoundmilis(0);
@@ -104,11 +107,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     await soundObject.current.getStatusAsync().then((status) => {
       console.log(status);
     });
-    // await soundObject.unloadAsync();
     await soundObject.current.pauseAsync();
-    // await new Promise((resolve) => setTimeout(resolve, 100));
-    // console.log("after 0.1s");
-
     return;
   }
 
@@ -227,6 +226,20 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     }
   };
 
+  function startResetTimer() {
+    stopResetTimer();
+    const elo = setTimeout(async () => {
+      console.log("przekroczono 5 minut");
+      stopRecording();
+      ToastAndroid.show("Nagranie zakończone ponieważ przekraczało 5 minut", ToastAndroid.SHORT);
+    }, maxDuration - soundmilis);
+    resetTimer.current = elo;
+  }
+
+  function stopResetTimer() {
+    if (resetTimer.current !== undefined) clearTimeout(resetTimer.current);
+  }
+
   return (
     <View style={tw`bg-slate-100 h-1/1`}>
       <Text
@@ -249,16 +262,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
         style={tw`flex flex-row justify-center my-4 mx-4 py-4 bg-main-100 rounded-xl elevation-5`}>
         {recordingGui()}
       </View>
-
-      <SquareButton
-        style={tw`self-center mt-3 elevation-5`}
-        onPress={() => {
-          navigation.goBack();
-        }}
-        size={30}
-        icon="arrow-left"
-        label="Wróć"
-      />
     </View>
   );
 };

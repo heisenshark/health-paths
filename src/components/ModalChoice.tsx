@@ -73,7 +73,7 @@ export function ModalChoice({
         </View>
         <View style={tw`w-full p-4 flex flex-row justify-center items-center`}>
           <SquareButton
-            label={"Wróć"}
+            label={"Anuluj"}
             size={20}
             onPress={onRequestClose}
             icon="arrow-left"></SquareButton>
