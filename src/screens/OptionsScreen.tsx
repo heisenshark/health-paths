@@ -66,10 +66,8 @@ const OptionsScreen = ({ navigation, route }) => {
 
   async function logOut() {
     await firebase.auth().signOut();
-    // console.log(DbUser());
     GoogleSignin.signOut();
     setIsLogged(false);
-    // logOut();
   }
   return DbUser() !== undefined ? (
     <ScrollView style={tw`flex`} contentContainerStyle={""}>
@@ -98,11 +96,11 @@ const OptionsScreen = ({ navigation, route }) => {
       </View>
 
       <TileButton
-        style={tw`mx-10 my-8`}
+        style={tw`mx-10 my-4`}
         label="Wyloguj"
         icon="door-open"
         onPress={logOut}></TileButton>
-      <TileButton style={tw`mx-10 mb-8`} label="Inne Ustawienia" icon="cog"></TileButton>
+      <TileButton style={tw`mx-10 mb-4`} label="Inne Ustawienia" icon="cog"></TileButton>
     </ScrollView>
   ) : (
     <View style={tw`flex items-center`}>
@@ -124,6 +122,7 @@ const OptionsScreen = ({ navigation, route }) => {
             })
             .catch((err) => {
               console.log(err);
+              setIsLogged(false);
             })
         }>
         <Text style={tw`text-xl text-center p-6`}>Zaloguj się przez google</Text>

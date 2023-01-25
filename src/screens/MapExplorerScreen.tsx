@@ -13,6 +13,7 @@ import {
   togglePrivate,
   Users,
 } from "../config/firebase";
+import { useForceUpdate } from "../hooks/useForceUpdate";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import {
@@ -35,8 +36,8 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(true);
   const [additionalOptions, setAdditionalOptions] = useState([]);
   const [mapsState, setMapsState] = useState("local");
-
   const [webDisabled, setWebDisabled] = useState(false);
+  const force = useForceUpdate();
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   const refreshMaps = async () => {
@@ -160,8 +161,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "ustaw na prywatną",
         icon: "minus-circle",
         onPress: async () => {
-          await togglePrivate(map.id, true);
-          map.visibility = "private";
+          try {
+            await togglePrivate(map.id, true);
+            map.visibility = "private";
+            force();
+          } catch (e) {
+            console.log(e);
+          }
         },
         disabled: isPrivate,
       },
@@ -169,8 +175,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "ustaw na publiczną",
         icon: "minus-circle",
         onPress: async () => {
-          await togglePrivate(map.id, false);
-          map.visibility = "public";
+          try {
+            await togglePrivate(map.id, false);
+            map.visibility = "public";
+            force();
+          } catch (e) {
+            console.log(e);
+          }
         },
         disabled: !isPrivate,
       },
@@ -180,13 +191,23 @@ const MapExplorerScreen = ({ navigation, route }) => {
         onPress: async () => {
           await deleteMapWeb(map.id);
           console.log("usunieto");
-          await fetchUserMaps();
+          setUserMaps(userMaps.filter((m) => m.id !== map.id));
         },
       },
     ];
   }
 
   function renderMaps() {
+    if (maps.length === 0)
+      return (
+        <View style={tw`h-100 flex items-center justify-center`}>
+          <Text style={tw`text-3xl text-center`}>Brak map...</Text>
+          <Text style={tw`text-xl w-2/3 text-center`} numberOfLines={2}>
+            Możesz jakieś dodać w Sekcji Planuj oraz Nagraj
+          </Text>
+        </View>
+      );
+
     return maps
       .filter((map) => {
         return (
@@ -198,65 +219,77 @@ const MapExplorerScreen = ({ navigation, route }) => {
         // if (map.imagePreview) console.log({ aa: getURI(map, map.imagePreview) });
 
         return (
-          <Card
+          <TouchableOpacity
             key={map.map_id}
-            style={tw`flex flex-row my-1 mx-2`}
+            style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
             onPress={() => {
               selectedMap.current = map;
               setModalVisible(true);
               setAdditionalOptions(localOptions());
             }}>
-            <Card.Content style={tw`flex flex-row`}>
+            <View style={tw`flex flex-row pr-24`}>
               <Image
-                style={tw`flex-0 h-20 w-20 bg-white mr-2`}
+                style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
                 source={{
                   uri: map.imageIcon === undefined ? imagePlaceholder : getURI(map, map.imageIcon),
                 }}></Image>
-
-              <View style={tw`flex-1`}>
-                <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
+              <View style={tw`flex-auto flex flex-col rounded-xl items-stretch`}>
+                <Text style={tw`text-xl font-bold`} ellipsizeMode="tail" numberOfLines={1}>
                   {map.name}
                 </Text>
-                <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
-                <Text style={tw`text-xl`}>{map.map_id}</Text>
+                <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
+                  {getCityAdress(map.location)}
+                </Text>
+                {/* <Text style={tw`text-xl`}>{map.map_id}</Text> */}
               </View>
-            </Card.Content>
-          </Card>
+            </View>
+          </TouchableOpacity>
         );
       });
   }
 
   function renderUserMaps() {
+    if (userMaps.length === 0)
+      return (
+        <View style={tw`h-100 flex items-center justify-center`}>
+          <Text style={tw`text-3xl text-center`}>Brak map...</Text>
+          <Text style={tw`text-xl w-2/3 text-center`} numberOfLines={2}>
+            Możesz jakieś dodać w zakładce Lokalne
+          </Text>
+        </View>
+      );
+
     return userMaps.map((map) => {
       if (map.previewRef) console.log({ aa: map.previewRef });
-
       return (
-        <Card
+        <TouchableOpacity
           key={map.id}
-          style={tw`flex flex-row my-1 mx-2`}
+          style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
           onPress={() => {
             selectedMap.current = map;
             console.log({ map, modalVisible });
-
             setAdditionalOptions(webOptions(map, map.visibility === "private"));
             setModalVisible(true);
           }}>
-          <Card.Content style={tw`flex flex-row`}>
+          <View style={tw`flex flex-row pr-24`}>
             <Image
-              style={tw`flex-0 h-20 w-20 bg-white mr-2`}
+              style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
               source={{
                 uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
               }}></Image>
 
-            <View style={tw`flex-1`}>
-              <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
+            <View style={tw`flex-auto flex flex-col rounded-xl items-stretch`}>
+              <Text style={tw`text-xl font-bold`} ellipsizeMode="tail" numberOfLines={1}>
                 {map.name}
               </Text>
-              <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
-              <Text style={tw`text-xl`}>{map.id}</Text>
+              <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
+                {getCityAdress(map.location)}
+              </Text>
+              <Text>{map.visibility === "private" ? "prywatna" : "publiczna"}</Text>
+              {/* <Text style={tw`text-xl`} numberOfLines={1}>{map.id}</Text> */}
             </View>
-          </Card.Content>
-        </Card>
+          </View>
+        </TouchableOpacity>
       );
     });
   }
@@ -276,7 +309,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
           { alignItems: "center" },
         ]}>
         <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          LOKALNE TRASY
+          MOJE TRASY
         </Text>
       </View>
       <View style={tw`flex flex-row`}>

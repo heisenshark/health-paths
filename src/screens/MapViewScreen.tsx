@@ -29,7 +29,7 @@ const MapViewScreen = ({ navigation, route }) => {
 
   const begin = currentMap.path[0];
   const end = currentMap.path[currentMap.path.length - 1];
-  const waypointsPlaceholder = [begin,end];
+  const waypointsPlaceholder = [begin, end];
   const wpoints = currentMap.waypoints.length > 0 ? currentMap.waypoints : waypointsPlaceholder;
 
   useEffect(() => {
@@ -68,7 +68,12 @@ const MapViewScreen = ({ navigation, route }) => {
               params: { editedWaypoint: stopPoint, isEdit: false },
             });
           }}></StopPoints>
-        <Polyline coordinates={currentMap.path} strokeColor="#000" strokeWidth={3} />
+        <Polyline
+          coordinates={currentMap.path}
+          strokeWidth={6}
+          strokeColor="#ffc800"
+          lineDashPattern={[0]}
+        />
       </MapView>
     </View>
   );

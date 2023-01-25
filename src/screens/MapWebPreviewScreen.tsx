@@ -48,7 +48,11 @@ const MapWebPreview = ({ navigation, route }) => {
   const compareInfo = (map: MapDocument, record: DownloadTrackerRecord): string => {
     // const downloadDate = new Date(record.downloadDate.seconds * 1000);
     // const uploadDate = new Date(map.createdAt.seconds * 1000);
-    console.log(map.createdAt, record.downloadDate, record.downloadDate.seconds + 10 < map.createdAt.seconds);
+    console.log(
+      map.createdAt,
+      record.downloadDate,
+      record.downloadDate.seconds + 10 < map.createdAt.seconds
+    );
 
     if (record === undefined) return "download";
     if (record.downloadDate.seconds + 10 < map.createdAt.seconds) return "update";
@@ -114,8 +118,7 @@ const MapWebPreview = ({ navigation, route }) => {
             onPress={async () => {
               const info = await getdownloadTrackerKey(mapa.id);
               const m = await loadMap("", info.mapId);
-              setCurrentMap(m);
-              navigation.navigate("PodgladMap");
+              navigation.navigate("PodgladMap", { map: m });
             }}></SquareButton>
           <SquareButton
             style={tw`flex-1 ml-4 h-10`}

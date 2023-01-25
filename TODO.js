@@ -12,7 +12,7 @@
 //TODO zrobić opcje screen
 //TODO zrobić Pomoc screen
 //TODO naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
-
+//TODO Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
 
 <MOTYWACJA>
     

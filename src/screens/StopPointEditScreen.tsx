@@ -115,6 +115,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
     console.log(JSON.stringify(result, null, 2));
   }, [result]);
   const handleError = (err: unknown) => {
+    setAudioModalVisible(false);
+
     if (DocumentPicker.isCancel(err)) {
       console.warn("cancelled");
       // User cancelled the picker, exit any dialogs or menus and move on
@@ -138,6 +140,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   const pickImage = async ({ isCamera }: { isCamera: boolean }) => {
     // No permissions request is necessary for launching the image library
+
+    setImageModalVisible(false);
     let result = isCamera
       ? await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -152,7 +156,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
         quality: 0.3,
       });
     console.log(result);
-
     if (result.canceled) return;
 
     setImage(result.assets[0].uri);
@@ -166,57 +169,57 @@ const StopPointEditScreen = ({ navigation, route }) => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding">
+    <KeyboardAvoidingView style={tw`h-full`} behavior="padding">
       <Text style={tw`text-3xl font-bold bg-slate-200 pt-4 pl-6 pb-2 border-b-4 border-slate-400`}>
         {isEdit && "Edytuj"} Punkt Zdrowia:
       </Text>
-      <ScrollView style={tw`bg-slate-200`}>
-        <ModalChoice
-          visible={audioModalVisible}
-          titles={["Jak dodać audio?", "Wybierz z plików", "Nagraj"]}
-          buttonIcons={["file", "microphone"]}
-          actionLeft={function (): void {
-            DocumentPicker.pickSingle({
-              presentationStyle: "fullScreen",
-              copyTo: "cachesDirectory",
-              type: [types.audio],
+      <ModalChoice
+        visible={audioModalVisible}
+        titles={["Jak dodać audio?", "Wybierz z plików", "Nagraj"]}
+        buttonIcons={["file", "microphone"]}
+        actionLeft={function (): void {
+          DocumentPicker.pickSingle({
+            presentationStyle: "fullScreen",
+            copyTo: "cachesDirectory",
+            type: [types.audio],
+          })
+            .then((res) => {
+              setResult(res);
+              setAudioModalVisible(false);
+              let soundObj = {
+                media_id: uuid.v4(),
+                path: res.uri,
+                type: "audio",
+                storage_type: "cache",
+              } as MediaFile;
+              if (soundType === "intro") {
+                waypointDiff.introduction_audio = soundObj;
+                setIntroSoundUri(res.uri);
+              }
+              if (soundType === "navigation") {
+                setNavigationSoundUri(res.uri);
+                waypointDiff.navigation_audio = soundObj;
+              }
             })
-              .then((res) => {
-                setResult(res);
-                setAudioModalVisible(false);
-                let soundObj = {
-                  media_id: uuid.v4(),
-                  path: res.uri,
-                  type: "audio",
-                  storage_type: "cache",
-                } as MediaFile;
-                if (soundType === "intro") {
-                  waypointDiff.introduction_audio = soundObj;
-                  setIntroSoundUri(res.uri);
-                }
-                if (soundType === "navigation") {
-                  setNavigationSoundUri(res.uri);
-                  waypointDiff.navigation_audio = soundObj;
-                }
-              })
-              .catch(handleError);
-          }}
-          actionRight={function (): void {
-            setAudioModalVisible(false);
-            navigation.navigate("NagrywanieAudio", { ...route.params, soundType: soundType });
-          }}
-          onRequestClose={function (): void {
-            setAudioModalVisible(false);
-          }}
-        />
-        <ModalChoice
-          visible={imageModalVisible}
-          titles={["jak dodać zdjęcie?", "Dodaj z kamery", "Wybierz z plików"]}
-          buttonIcons={["camera", "file"]}
-          actionLeft={() => pickImage({ isCamera: true })}
-          actionRight={() => pickImage({ isCamera: false })}
-          onRequestClose={() => setImageModalVisible(false)}
-        />
+            .catch(handleError);
+        }}
+        actionRight={function (): void {
+          setAudioModalVisible(false);
+          navigation.navigate("NagrywanieAudio", { ...route.params, soundType: soundType });
+        }}
+        onRequestClose={function (): void {
+          setAudioModalVisible(false);
+        }}
+      />
+      <ModalChoice
+        visible={imageModalVisible}
+        titles={["jak dodać zdjęcie?", "Dodaj z kamery", "Wybierz z plików"]}
+        buttonIcons={["camera", "file"]}
+        actionLeft={() => pickImage({ isCamera: true })}
+        actionRight={() => pickImage({ isCamera: false })}
+        onRequestClose={() => setImageModalVisible(false)}
+      />
+      <ScrollView style={tw`bg-slate-200 flex-auto`}>
         <View style={tw`px-4 pb-4 flex-col`}>
           <View>
             <Image
@@ -325,7 +328,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
           )}
           {isEdit && (
             <TileButton
-              style={tw`mx-10 mb-20`}
+              style={tw`mx-10`}
               label="Zapisz"
               onPress={() => {
                 console.log("clicked save", name, description, introsoundUri, image);

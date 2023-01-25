@@ -60,7 +60,6 @@ GoogleSignin.configure({
   webClientId: "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
 });
 
-
 export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
@@ -69,7 +68,6 @@ export const stor = firebase.storage();
 //   firebase.storage().useEmulator("localhost", 9199);
 //   console.log("elo firebase devmode");
 // }
-
 
 export const db = firestore();
 
@@ -168,8 +166,7 @@ export const deleteMapWeb = async (webId: string) => {
     await deleteFile(previewRef);
   }
   await docref.delete();
-  console.log("deleted" , docref.path);
-  
+  console.log("deleted", docref.path);
 };
 
 export const addRating = async (rating: RatingDocument) => {
@@ -178,23 +175,19 @@ export const addRating = async (rating: RatingDocument) => {
 };
 
 export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
-  try {
-    await Pathes.doc(mapId).set(
-      {
-        visibility: isPrivate ? "private" : "public",
-      },
-      { merge: true }
-    );
-    const doc = await Pathes.doc(mapId).get();
-    // console.log(doc.data(), isPrivate, doc.data().storeRef);
-    const task = stor.ref(doc.data().storeRef).updateMetadata({
-      customMetadata: { visibility: isPrivate ? "private" : "public" },
-    });
+  await Pathes.doc(mapId).set(
+    {
+      visibility: isPrivate ? "private" : "public",
+    },
+    { merge: true }
+  );
+  const doc = await Pathes.doc(mapId).get();
+  // console.log(doc.data(), isPrivate, doc.data().storeRef);
+  const task = stor.ref(doc.data().storeRef).updateMetadata({
+    customMetadata: { visibility: isPrivate ? "private" : "public" },
+  });
 
-    task.then((res) => {
-      console.log(res, isPrivate ? "private" : "public");
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  task.then((res) => {
+    console.log(res, isPrivate ? "private" : "public");
+  });
 };

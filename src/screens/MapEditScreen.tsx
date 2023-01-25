@@ -43,12 +43,14 @@ import {
 } from "../config/AtomsState";
 import MapGUIButton from "../components/MapGUIButton";
 import { useShowable } from "../hooks/useShowable";
+import { useForceUpdate } from "../hooks/useForceUpdate";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //TODO make is moving stoppoint and is movingwaypoint into state machine
 //TODO Dodać przyciski powiększania dodawania itp
 //TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
 //TODO Rozdzielić na kilka pure komponentów
+//TODO fix the bug with the map animate camera on start
 //[x] Dodać możliwość tworzenia waypointów
 //[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
 
@@ -115,11 +117,6 @@ const MapEditScreen = ({ navigation, route }) => {
 
   //[x] dodać automatyczne robienie cover photo dla mapy
   //[x] Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
-
-  function useForceUpdate() {
-    const [value, setValue] = useState(0);
-    return () => setValue((value) => value + 1);
-  }
 
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
@@ -276,7 +273,7 @@ const MapEditScreen = ({ navigation, route }) => {
       (async () => {
         const loc = await Location.getCurrentPositionAsync();
         console.log(loc);
-        await new Promise((r) => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 100));
         mapRef.current.animateToRegion(
           {
             latitude: loc.coords.latitude,
@@ -341,9 +338,8 @@ const MapEditScreen = ({ navigation, route }) => {
     }, [navigation])
   );
 
-  const animateToPoint = async (point: LatLng) => {
-    const time = 300;
-    mapRef.current.animateCamera({ center: point }, { duration: time });
+  const animateToPoint = async (point: LatLng, zoom: number = undefined, time: number = 300) => {
+    mapRef.current.animateCamera({ center: point, zoom: zoom ?? undefined }, { duration: time });
     await new Promise((resolve) => setTimeout(resolve, time));
   };
 
@@ -469,7 +465,6 @@ const MapEditScreen = ({ navigation, route }) => {
                 center: coordinate.nativeEvent.coordinate,
                 zoom: 15,
               });
-            isWatchingposition && console.log("watching pos render");
           }}>
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers
@@ -588,11 +583,15 @@ const MapEditScreen = ({ navigation, route }) => {
           style={tw`self-end border-b-2 mt-auto`}
           label={"centruj"}
           icon="location-arrow"
-          onPress={() => {
+          onPress={async () => {
             setIsWatchingposition((p) => !p);
+            if (isWatchingposition) return;
+            const loc = await Location.getCurrentPositionAsync({});
+            animateToPoint(loc.coords as LatLng, 15, 100);
           }}
         />
         <MapGUIButton
+          colorOverride={showHandles && "bg-main-500"}
           style={tw`self-end mt-auto`}
           label={"pokaż"}
           icon="map-pin"

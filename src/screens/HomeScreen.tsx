@@ -68,7 +68,7 @@ const HomeScreen = ({ navigation }) =>
         </Text>
       </View>
       {data.map((item) => (
-        <TileButton {...item} style={tw`mx-10 mb-8`} key={item.id} />
+        <TileButton {...item} style={tw`mx-10 mb-4`} key={item.id} />
       ))}
     </View>
   );

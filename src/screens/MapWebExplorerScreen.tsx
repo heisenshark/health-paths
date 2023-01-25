@@ -1,14 +1,15 @@
 import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 import { Card } from "react-native-paper";
 import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
+import { useForceUpdate } from "../hooks/useForceUpdate";
 import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import { downloadMap } from "../utils/FileSystemManager";
-import { getCityAdress } from "../utils/HelperFunctions";
+import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
 import LogInScreen from "./LogInScreen";
 
 //[x] przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
@@ -22,6 +23,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
   ]);
   const [maps, setMaps] = useState<MapDocument[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const force = useForceUpdate();
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
@@ -57,9 +59,13 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   return (
     <View style={tw`h-full`}>
-      <View style={tw`bg-main-100 flex justify-center shadow-md`}>
-        <Text style={tw`text-4xl font-bold m-0 pt-2 pl-4 shadow-md`}>
-          <Text>LOKALNE ŚCIEŻKI</Text>
+      <View
+        style={[
+          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          { alignItems: "center" },
+        ]}>
+        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
+          ŚCIEŻKI WEB
         </Text>
       </View>
       {/* <Searchbar
@@ -68,74 +74,41 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
         value={searchQuery}
         onChangeText={onChangeSearch}></Searchbar> */}
       <ScrollView>
-        {maps
-          // .filter((map) => {
-          //   return (
-          //     map.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-          //     map.location.toLowerCase().includes(searchQuery.toLowerCase().trim())
-          //   );
-          // })
-          .map((map) => {
-            return (
-              <Card key={map.id} style={tw`flex flex-row my-1 mx-2`}>
-                <Card.Content style={tw`flex flex-row`}>
-                  {/* <Image style={tw`flex-0 h-20 w-20 bg-black mr-2`}></Image> */}
+        {maps.length === 0 && (
+          <View style={tw`h-100 flex justify-center items-center`}>
+            <Text style={tw`text-center text-3xl font-bold`}>Nie znaleziono ścieżek</Text>
+          </View>
+        )}
 
-                  <View style={tw`flex-1`}>
-                    <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
-                      {map.name}
-                    </Text>
-                    {/* <Text style={tw`font-bold pr-2`} numberOfLines={1}>
-                      {map.id}
-                    </Text> */}
-                    <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
-                  </View>
-                  {map.ownerId === DbUser() && (
-                    <SquareButton
-                      label="Privacy"
-                      style={tw`ml-auto flex-1`}
-                      size={10}
-                      disabled={false}
-                      onPress={() => {
-                        console.log("map.visibility === \"public\"", map.visibility === "public");
+        {maps.map((map) => {
+          return (
+            <TouchableOpacity
+              key={map.id}
+              style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
+              onPress={() => {
+                console.log(map);
+                navigation.navigate("MapWebPreviewScreen", { webMap: map });
+              }}>
+              <View style={tw`flex flex-row pr-24`}>
+                <Image
+                  style={tw`flex-0 h-20 w-20 bg-white mr-2`}
+                  source={{
+                    uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
+                  }}></Image>
 
-                        // downloadMap(map);
-                        togglePrivate(map.id, map.visibility === "public").then(() => {
-                          console.log("end");
-                        });
-                      }}></SquareButton>
-                  )}
-                  <SquareButton
-                    label="Go to Preview"
-                    style={tw`ml-auto flex-1`}
-                    size={10}
-                    disabled={false}
-                    onPress={() => {
-                      console.log(map);
-                      navigation.navigate("MapWebPreviewScreen", { webMap: map });
-                      // togglePrivate(map.id, map.visibility === "public").then(() => {
-                      //   listAllMaps();
-                      //   console.log("end");
-                      // });
-                    }}></SquareButton>
-                  {/* <SquareButton
-                    label="togglePrivate"
-                    style={tw`ml-auto flex-1`}
-                    size={10}
-                    disabled={false}
-                    onPress={() => {
-                      console.log("map.visibility === \"public\"", map.visibility === "public");
-                      console.log(map);
-
-                      togglePrivate(map.id, map.visibility === "public").then(() => {
-                        listAllMaps();
-                        console.log("end");
-                      });
-                    }}></SquareButton> */}
-                </Card.Content>
-              </Card>
-            );
-          })}
+                <View style={tw`flex-1`}>
+                  <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
+                    {map.name}
+                  </Text>
+                  <Text style={tw`font-bold pr-2`} numberOfLines={1}>
+                    {map.id}
+                  </Text>
+                  <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
