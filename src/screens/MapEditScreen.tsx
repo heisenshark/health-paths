@@ -453,7 +453,11 @@ const MapEditScreen = ({ navigation, route }) => {
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
           onTouchStart={() => {
-            setTipMessage("Dotknij aby dodać lub edytować punkt");
+            setTipMessage(
+              mapEditState === "Idle"
+                ? "Dotknij aby dodać lub edytować punkt"
+                : "Dotknij aby przenieśc punkt"
+            );
             showTip();
           }}
           onPress={onPressMap}

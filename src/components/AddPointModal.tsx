@@ -42,7 +42,7 @@ const AddPointModal = ({
             <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
               <SquareButton
                 style={tw`mx-2 `}
-                size={30}
+                size={25}
                 icon="edit"
                 label="Na początek"
                 onPress={() => {
@@ -52,7 +52,7 @@ const AddPointModal = ({
               {waypointsLength >= 2 && (
                 <SquareButton
                   style={tw`mx-2 `}
-                  size={30}
+                  size={25}
                   icon="edit"
                   label="Jako punkt Trasy"
                   onPress={() => {
@@ -63,7 +63,7 @@ const AddPointModal = ({
               {waypointsLength >= 1 && (
                 <SquareButton
                   style={tw`mx-2 `}
-                  size={30}
+                  size={25}
                   icon="edit"
                   label="Na koniec"
                   onPress={() => {
@@ -76,7 +76,7 @@ const AddPointModal = ({
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 border-black `}
-              size={30}
+              size={25}
               label="Jako Punkt Stopu"
               icon="edit"
               onPress={() => {
@@ -86,7 +86,7 @@ const AddPointModal = ({
 
             <SquareButton
               style={tw`mx-2 `}
-              size={30}
+              size={25}
               icon="arrow-left"
               label="Wróć"
               onPress={hide}></SquareButton>

@@ -40,14 +40,13 @@ const HomeScreen = ({ navigation }) =>
       id: 3,
       label: "Pomoc",
       icon: "question",
-      onPress: () => navigation.navigate("LogIn"),
+      onPress: () => navigation.navigate("Pomoc"),
     },
     {
       id: 4,
       label: "Wyjdź",
       icon: "door-open",
-      onPress: () => BackHandler.exitApp()
-      ,
+      onPress: () => BackHandler.exitApp(),
     },
   ];
 

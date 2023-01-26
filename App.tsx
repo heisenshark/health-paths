@@ -43,6 +43,7 @@ import { useDeviceContext } from "twrnc/dist/esm/hooks";
 import * as Linking from "expo-linking";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { parse, Url } from "url";
+import HelpScreen from "./src/screens/HelpScreen"
 
 SplashScreen.preventAutoHideAsync();
 const Navigator = createNativeStackNavigator();
@@ -164,6 +165,7 @@ export default function App() {
           <Navigator.Screen name="MapWebPreviewScreen" component={MapWebPreview} />
           <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
           <Navigator.Screen name="LogIn" component={LogInScreen} />
+          <Navigator.Screen name="Pomoc" component={HelpScreen} />
         </Navigator.Navigator>
       </NavigationContainer>
 

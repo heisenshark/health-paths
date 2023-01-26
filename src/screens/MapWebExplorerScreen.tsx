@@ -95,7 +95,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
                 console.log(map);
                 navigation.navigate("MapWebPreviewScreen", { webMap: map });
               }}>
-              <View style={tw`flex flex-row pr-24`}>
+              <View style={tw`flex flex-row`}>
                 <Image
                   style={tw`flex-0 h-20 w-20 bg-white mr-2`}
                   source={{

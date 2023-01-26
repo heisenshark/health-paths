@@ -31,6 +31,7 @@ import {
   loadMap,
 } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
+import TileButton from "../components/TileButton";
 //[x] make this screen work
 //[x] maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
@@ -230,26 +231,31 @@ const MapWebPreview = ({ navigation, route }) => {
         />
         <Text style={tw`text-3xl font-bold`}>TRASA</Text>
       </View>
-      <ScrollView style={tw`pt-3 flex-col bg-slate-200`}>
-        <Text style={tw`mx-4 font-bold text-2xl flex-auto`} ellipsizeMode="tail">
-          {mapa.name}
-        </Text>
-        <View style={tw`w-full flex flex-row mx-4 mt-4`}>
-          <Image
-            style={tw`flex-0 h-30 w-30 bg-white mr-2 rounded-md border-2 border-black`}
-            source={{ uri: mapa.iconRef !== "" ? mapa.iconRef : imagePlaceholder }}></Image>
-          <View style={tw`flex flex-col w-2/3 items-start`}>
-            <Text style={tw`text-lg bg-black text-white rounded-lg p-2 px-4 mr-auto`}>
-              Dystans: {formatDistance(mapa?.distance)}
-            </Text>
-            <Text style={tw`text-lg text-right`}>
-              Dodano: {formatTime(mapa?.createdAt?.seconds)}
-            </Text>
+
+      <ScrollView style={tw`pt-3 flex-col bg-slate-200 h-full`}>
+        <View>
+          <Text style={tw`mx-4 font-bold text-2xl flex-auto`} ellipsizeMode="tail">
+            {mapa.name}
+          </Text>
+          <View style={tw`w-full flex flex-row mx-4 mt-4`}>
+            <Image
+              style={tw`flex-0 h-30 w-30 bg-white mr-2 rounded-md border-2 border-black`}
+              source={{ uri: mapa.iconRef !== "" ? mapa.iconRef : imagePlaceholder }}></Image>
+            <View style={tw`flex-initial flex flex-col items-start justify-center`}>
+              <Text
+                style={tw`text-left text-lg font-bold underline flex-initial`}
+                numberOfLines={2}>
+                Lokacja: {getCityAdress(mapa.location) || "Brak"}
+              </Text>
+              <Text style={tw`text-lg text-right`}>
+                Dodano: {formatTime(mapa?.createdAt?.seconds)}
+              </Text>
+              <Text style={tw`text-lg bg-black text-white rounded-lg p-2 px-4 mr-auto`}>
+                Dystans: {formatDistance(mapa?.distance)}
+              </Text>
+            </View>
           </View>
         </View>
-        <Text style={tw`ml-4 text-left text-xl underline`}>
-          Lokacja startowa: {getCityAdress(mapa.location) || "Brak"}
-        </Text>
         <View
           style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300`}
           pointerEvents={disabled ? "none" : "auto"}>
@@ -269,41 +275,35 @@ const MapWebPreview = ({ navigation, route }) => {
             <Text style={tw`text-lg text-left ml-4`}>Jesteś właścicielem tej mapy</Text>
           </>
         )}
-        <View style={tw`ml-4 mt-4 mb-10`}>
-          <Text style={tw`text-2xl`}>Opinie użytkowników </Text>
-          {mapa.ratingCount > 0 ? (
-            <Text style={tw`text-3xl`}>
-              {(mapa.rating / mapa.ratingCount).toFixed(2)} ({mapa.ratingCount})
-            </Text>
-          ) : (
-            <Text style={tw`text-2xl`}>Brak ocen</Text>
-          )}
+        <View style={tw`mt-4 mb-2 mx-14 p-4 rounded-xl bg-slate-300 `}>
+          <Text style={tw`text-2xl text-center`}>
+            Ocena:{" "}
+            {mapa.ratingCount > 0 ? (
+              <Text style={tw`text-3xl`}>
+                {(mapa.rating / mapa.ratingCount).toFixed(2)} ({mapa.ratingCount})
+              </Text>
+            ) : (
+              <Text style={tw`text-2xl`}>Brak ocen</Text>
+            )}
+          </Text>
         </View>
 
         {DbUser() !== undefined && (
           <View style={tw`flex flex-col justify-center items-center`}>
-            <Text style={tw`text-3xl text-center`}>Oceń mape</Text>
             <Rating
               style={tw`w-10/12 justify-around mb-4`}
               onRatingChange={(rating) => {
                 rate.current = rating;
-              }}></Rating>
-            <View style={tw`flex-row`}>
-              <SquareButton
-                style={tw`flex-1 mx-20 h-10 mb-10`}
-                label={"Oceń"}
-                onPress={ratingAdd}></SquareButton>
-            </View>
+              }}
+              onSubmit={ratingAdd}></Rating>
           </View>
         )}
-        <View style={tw`flex-row`}>
-          <SquareButton
-            style={tw`flex-1 mx-20 h-10 mb-10`}
-            label={"Udostępnij"}
-            onPress={() => {
-              onShare();
-            }}></SquareButton>
-        </View>
+
+        {mapa.visibility === "public" && (
+          <View style={tw`flex flex-initial mx-10 mb-10`}>
+            <TileButton style={tw``} size={40} label="Udostępnij!" icon="share" onPress={onShare} />
+          </View>
+        )}
       </ScrollView>
     </>
   );

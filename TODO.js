@@ -5,13 +5,13 @@
 //[x] finish presentation about the project
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
-//TODO make GUI of adding map points so clunky it makes less requests to api
+//x[] make GUI of adding map points so clunky it makes less requests to api
 //TODO zrobić wreszcie limit na waypointy oraz stoppointy 10/20
-//TODO ustawić limit wielkości maczki z mapą oraz zredukować jakośc nagrywanego audio 
-//TODO naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
-//TODO zrobić opcje screen
+//TODO ustawić limit wielkości maczki z mapą  
+//[x] naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
+//TODO zrobić ustawienia screen
 //TODO zrobić Pomoc screen
-//TODO naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
+//[x] naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
 //TODO Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
 
 <MOTYWACJA>

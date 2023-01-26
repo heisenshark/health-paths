@@ -15,7 +15,6 @@ interface StopPointsProps {
   selectedStop?: Waypoint;
   stopPointPressed: (stopPoint: Waypoint) => void;
 }
-//TODO fajnie byłoby zrobić jakąś galerię miejsc z tych punktów stopu
 
 const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsProps) => {
   const navigationRef = useNavigation();
