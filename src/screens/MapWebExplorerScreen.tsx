@@ -75,7 +75,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
           { alignItems: "center" },
         ]}>
         <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          ŚCIEŻKI WEB
+          PUBLICZNE ŚCIEŻKI
         </Text>
       </View>
 

@@ -12,21 +12,20 @@ interface AudioRecordingScreenProps {}
 //właśnie do stoppoints tylko ze ścieżką do audio
 //ewentualnie zrobię ten komponent jako modal
 //[x] naprawić buga który uniemożliwia zastopowanie nagrywania audio
+//TODO zrobi nagrywanie w niszej jakoci
 const AudioRecordingScreen = ({ navigation, route }) => {
   const nav = useNavigation();
   const [status, setStatus] = useRecordingState(RecordingStatus.NO_RECORD);
-  // const [recording, setRecording] = useState<Recording>();
   const [soundUri, setSoundUri] = useState<string>();
-  // const [soundObject, setSoundObject] = useState<Sound>();
   const soundObject = useRef<Sound>(new Audio.Sound());
   const recordingObject = useRef<Recording>(new Audio.Recording());
   const [soundmilis, setSoundmilis] = useState(0);
   const [audioStatus, setAudioStatus] = useState({});
   const [recordingStatus, setRecordingStatus] = useState();
   const resetTimer = useRef<any>();
-  //statey aplikacji
-  // brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
-  const maxDuration = 300000; //5min
+  //stany aplikacji
+  //brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
+  const maxDuration = 180_000; //3min
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove");
@@ -51,9 +50,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       const status = await recordingObject.current.getStatusAsync();
       console.log(status);
       if (status.isRecording === true) await recordingObject.current.stopAndUnloadAsync();
-      await recordingObject.current.prepareToRecordAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      await recordingObject.current.prepareToRecordAsync(Audio.RecordingOptionsPresets.LOW_QUALITY);
       recordingObject.current.setOnRecordingStatusUpdate(async (status) => {
         // console.log("elo");
 
@@ -256,7 +253,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
         {/* <Text style={tw`text-3xl`}>{soundmilis}</Text> */}
       </Text>
       <Text style={tw`text-xl text-center py-2 bg-slate-300 rounded-3xl mx-4 mb-2 elevation-5`}>
-        Plik audio może mieć maksymalnie 5 minut.
+        Plik audio może mieć maksymalnie 3 minuty.
       </Text>
       <View
         style={tw`flex flex-row justify-center my-4 mx-4 py-4 bg-main-100 rounded-xl elevation-5`}>

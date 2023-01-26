@@ -29,6 +29,7 @@ import Animated, {
   FadeInRight,
   FadeInUp,
   FadeOutDown,
+  FadeOutLeft,
   FadeOutRight,
   FadeOutUp,
 } from "react-native-reanimated";
@@ -46,11 +47,11 @@ import { useShowable } from "../hooks/useShowable";
 import { useForceUpdate } from "../hooks/useForceUpdate";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
-//TODO make is moving stoppoint and is movingwaypoint into state machine
-//TODO Dodać przyciski powiększania dodawania itp
-//TODO Dodać logikę komponentu na tryby edycji ścieżek i inne
+//[x] make is moving stoppoint and is movingwaypoint into state machine
+//[x] Dodać przyciski powiększania dodawania itp
+//[x] Dodać logikę komponentu na tryby edycji ścieżek i inne
 //TODO Rozdzielić na kilka pure komponentów
-//TODO fix the bug with the map animate camera on start
+//[x] fix the bug with the map animate camera on start
 //[x] Dodać możliwość tworzenia waypointów
 //[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
 
@@ -61,6 +62,8 @@ export type curmodalOpenType =
   | "StopPoint"
   | "AddPoint"
   | "EditWaypoint";
+
+const zoomlevels = [7, 10, 13, 16, 18, 20];
 
 const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
@@ -334,7 +337,7 @@ const MapEditScreen = ({ navigation, route }) => {
     useCallback(() => {
       checkRecording();
       return () => {
-        resetCurrentMap();
+        // resetCurrentMap();
       };
     }, [navigation])
   );
@@ -446,6 +449,7 @@ const MapEditScreen = ({ navigation, route }) => {
           showsMyLocationButton={false}
           showsCompass={true}
           minZoomLevel={7}
+          maxZoomLevel={20}
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
           onTouchStart={() => {
@@ -457,6 +461,7 @@ const MapEditScreen = ({ navigation, route }) => {
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
             mapRef.current.getCamera().then((c) => {
+              console.log("zoom", zoom);
               setZoom(156543.03392 / Math.pow(2, c.zoom));
             });
           }}
@@ -587,7 +592,7 @@ const MapEditScreen = ({ navigation, route }) => {
           onPress={async () => {
             setIsWatchingposition((p) => !p);
             if (isWatchingposition) return;
-            const loc = await Location.getCurrentPositionAsync({});
+            const loc = await Location.getLastKnownPositionAsync();
             animateToPoint(loc.coords as LatLng, 15, 100);
           }}
         />
@@ -604,6 +609,34 @@ const MapEditScreen = ({ navigation, route }) => {
         />
         {/* <Text>{currentModalOpen}</Text>
         <Text>{notSaved ? "not Saved" : "saved"}</Text> */}
+      </Animated.View>
+
+      <Animated.View
+        style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
+        entering={FadeInLeft}
+        exiting={FadeOutLeft}>
+        <MapGUIButton
+          disabled={zoom <= 0.1493}
+          style={tw`self-end border-r-2 mt-auto`}
+          size={20}
+          label={"przybliż"}
+          icon="search-plus"
+          onPress={async () => {
+            const cam = await mapRef.current.getCamera();
+            mapRef.current.animateCamera({ zoom: cam.zoom + 1 });
+          }}
+        />
+        <MapGUIButton
+          disabled={zoom >= 1222}
+          size={20}
+          style={tw`self-end mt-auto`}
+          label={"oddal"}
+          icon="search-minus"
+          onPress={async () => {
+            const cam = await mapRef.current.getCamera();
+            mapRef.current.animateCamera({ zoom: cam.zoom - 1 });
+          }}
+        />
       </Animated.View>
 
       {blockInteractability && (

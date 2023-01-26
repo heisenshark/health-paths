@@ -11,6 +11,10 @@ import uuid from "react-native-uuid";
 import { MediaFile } from "../utils/interfaces";
 import { getURI } from "./../utils/FileSystemManager";
 
+//TODO dodać limity na nazwę i opis, nazwa 40 opis 300 imo
+//TODO opis multiline
+//TODO animować modal
+
 interface MapInfoModalProps {
   visible: boolean;
   onRequestClose: () => void;
@@ -21,6 +25,9 @@ interface MapInfoModalProps {
     mapIcon: MediaFile
   ) => Promise<boolean>;
 }
+
+const nameLimit = 40;
+const descLimit = 300;
 
 const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) => {
   const [currentMap] = useMapStore((state) => [state.currentMap]);
@@ -35,6 +42,7 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
     setSaveAsNew(false);
     if (visible) {
       console.log(currentMap.imageIcon);
+      console.log(currentMap);
 
       setName({ error: false, text: currentMap.name });
       setError("");
@@ -85,8 +93,49 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
       visible={visible}
       onRequestClose={onRequestClose}>
       <View style={tw`bg-transparent w-full h-full flex flex-col-reverse`}>
-        <View style={tw`bg-white w-full`}>
-          <Text style={tw`text-lg p-5`}>Dodaj informacje o ścieżce</Text>
+        <View style={tw`bg-slate-100 border-t-4 border-slate-50 w-full`}>
+          <Text style={tw`text-2xl p-5`}>Dodaj informacje o ścieżce</Text>
+
+          <View style={tw`flex flex-row mx-6 justify-around`}>
+            <Image
+              style={tw`aspect-square w-20 h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
+              source={{ uri: image }}
+            />
+            <SquareButton
+              style={tw`my-4 w-56`}
+              labelStyle={tw`text-xl`}
+              label={"Wybierz ikonę ścieżki"}
+              onPress={() => pickImage({ isCamera: false })}></SquareButton>
+          </View>
+
+          <TextInput
+            style={tw`text-lg mx-5 mb-2`}
+            label={"Nazwa"}
+            value={name.text}
+            onChangeText={(text) => {
+              if (text !== "" && error !== "") {
+                setError("");
+              }
+              if (text.length > 40) setError("Nazwa nie może być dłuższa niż 40 znaków");
+              setName({ error: text === "" || text.length > 40, text: text });
+            }}
+            error={name.error}
+          />
+          <TextInput
+            style={tw`text-lg mx-5 mb-2 h-40`}
+            label={"Opis"}
+            value={desc}
+            multiline={true}
+            onChangeText={(text) => {
+              if (text.length > 300) setError("Opis nie może być dłuższy niż 300 znaków");
+              setDesc(text);
+            }}
+            focusable={true}
+          />
+          {error !== "" && (
+            <Text style={tw`text-xl text-red-500 ml-7 text-left font-bold`}>{error}</Text>
+          )}
+
           <View style={tw`mx-3`}>
             <CheckBox
               textStyle={tw`text-xl`}
@@ -104,40 +153,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
                 setSaveAsNew((n) => !n);
               }}></CheckBox>
           </View>
-          <TextInput
-            style={tw`text-lg mx-5 mb-2`}
-            label={"Nazwa"}
-            value={name.text}
-            onChangeText={(text) => {
-              if (text !== "" && error !== "") {
-                setError("");
-              }
-              setName({ error: text === "", text: text });
-            }}
-            error={name.error}
-          />
-          {<Text style={tw`text-red-500 ml-7 text-left pb-2`}>{error}</Text>}
-          <TextInput
-            style={tw`text-lg mx-5 mb-2`}
-            label={"Opis"}
-            value={desc}
-            onChangeText={(text) => {
-              setDesc(text);
-            }}
-            focusable={true}
-          />
-          <View style={tw`flex flex-row mx-6 justify-around`}>
-            <Image
-              style={tw`aspect-square w-20 h-auto justify-center self-center my-4 border-4 border-black rounded-2xl`}
-              source={{ uri: image }}
-            />
-            <SquareButton
-              style={tw`my-4 w-56`}
-              labelStyle={tw`text-xl`}
-              label={"Wybierz ikonę mapy"}
-              onPress={() => pickImage({ isCamera: false })}></SquareButton>
-          </View>
-
           <View style={tw`mx-5 my-2 flex flex-row justify-between`}>
             <SquareButton
               style={tw`flex-1 mx-2`}

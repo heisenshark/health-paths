@@ -14,7 +14,7 @@ import { useMapStore } from "./../stores/store";
 import LogInScreen from "./LogInScreen";
 
 const HomeScreen = ({ navigation }) =>
-//TODO przycisk podłóżny
+//[x] przycisk podłóżny
 {
   useEffect(() => {
     // navigation.navigate("NagrywanieAudio");

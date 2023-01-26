@@ -32,12 +32,11 @@ import {
 } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
 //[x] make this screen work
-//TODO maybe add some button disable stuff so user cant make two requests at once
+//[x] maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
-  const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
-
   const [mapa, setMapa] = useState<MapDocument>(null);
   const [optionsState, setOptionsState] = useState("download");
+  const [disabled, setDisabled] = useState(false);
   const rate = useRef<number>(0);
   console.log(mapa);
   const formatTime = (time: number) => {
@@ -136,6 +135,7 @@ const MapWebPreview = ({ navigation, route }) => {
       rating: firebase.firestore.FieldValue.increment(ratingSum),
       ratingCount: firebase.firestore.FieldValue.increment(addition),
     });
+    ToastAndroid.show("Oceniono", ToastAndroid.SHORT);
     fetchMap();
   }
 
@@ -161,102 +161,98 @@ const MapWebPreview = ({ navigation, route }) => {
     }
   };
 
+  async function onDownload() {
+    setDisabled(true);
+    try {
+      await downloadMap(mapa);
+    } catch (e) {
+      ToastAndroid.show(e, ToastAndroid.SHORT);
+    }
+    setOptionsState("delete");
+    setDisabled(false);
+  }
+
+  async function onDelete() {
+    setDisabled(true);
+    try {
+      const info = await getdownloadTrackerKey(mapa.id);
+      await deleteMap(info.mapId);
+    } catch (e) {
+      ToastAndroid.show(e, ToastAndroid.SHORT);
+    }
+    setOptionsState("download");
+    setDisabled(false);
+  }
+
+  async function onShow() {
+    setDisabled(true);
+    try {
+      const info = await getdownloadTrackerKey(mapa.id);
+      const m = await loadMap("", info.mapId);
+      setDisabled(false);
+      navigation.navigate("PodgladMap", { map: m });
+    } catch (e) {
+      ToastAndroid.show(e, ToastAndroid.SHORT);
+    }
+  }
+
   function renderOptions() {
     switch (optionsState) {
     case "download":
-      return (
-        <SquareButton
-          style={tw`flex-1 ml-4 h-10`}
-          label={"pobierz"}
-          onPress={async () => {
-            await downloadMap(mapa);
-            setOptionsState("delete");
-          }}></SquareButton>
-      );
+      return <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pobierz"} onPress={onDownload} />;
     case "update":
       return (
         <>
-          <SquareButton
-            style={tw`flex-1 ml-4 h-10`}
-            label={"zaktualizuj"}
-            onPress={async () => {
-              await downloadMap(mapa);
-              setOptionsState("delete");
-            }}></SquareButton>
-          <SquareButton
-            style={tw`flex-1 ml-4 h-10`}
-            label={"usuń"}
-            onPress={async () => {
-              const info = await getdownloadTrackerKey(mapa.id);
-              await deleteMap(info.mapId);
-              setOptionsState("download");
-            }}></SquareButton>
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"zaktualizuj"} onPress={onDownload} />
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"} onPress={onDelete} />
         </>
       );
     case "delete":
       return (
         <>
-          <SquareButton
-            style={tw`flex-1 ml-4 h-10`}
-            label={"pokaż"}
-            onPress={async () => {
-              const info = await getdownloadTrackerKey(mapa.id);
-              const m = await loadMap("", info.mapId);
-              navigation.navigate("PodgladMap", { map: m });
-            }}></SquareButton>
-          <SquareButton
-            style={tw`flex-1 ml-4 h-10`}
-            label={"usuń"}
-            onPress={async () => {
-              const info = await getdownloadTrackerKey(mapa.id);
-              await deleteMap(info.mapId);
-              setOptionsState("download");
-            }}></SquareButton>
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pokaż"} onPress={onShow} />
+          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"} onPress={onDelete} />
         </>
       );
     }
   }
 
-  if (!mapa)
-    return (
-      <>
-        <Text style={tw`text-3xl`}>Ładowanie...</Text>
-      </>
-    );
+  if (!mapa) return <Text style={tw`text-3xl`}>Ładowanie...</Text>;
   return (
     <>
-      <View style={tw`bg-slate-300`}>
+      <View style={tw`bg-slate-300 border-b-2 border-slate-500 flex flex-row items-center`}>
         <SquareButton
           style={tw`m-2`}
           size={18}
           label="wróć"
           icon={"arrow-left"}
-          onPress={() => {
-            navigation.goBack();
-          }}></SquareButton>
+          onPress={() => navigation.goBack()}
+        />
+        <Text style={tw`text-3xl font-bold`}>TRASA</Text>
       </View>
       <ScrollView style={tw`pt-3 flex-col bg-slate-200`}>
-        <View style={tw` flex flex-row mx-4 mt-4`}>
+        <Text style={tw`mx-4 font-bold text-2xl flex-auto`} ellipsizeMode="tail">
+          {mapa.name}
+        </Text>
+        <View style={tw`w-full flex flex-row mx-4 mt-4`}>
           <Image
-            style={tw`flex-0 h-30 w-30 bg-white mr-2 rounded-md`}
+            style={tw`flex-0 h-30 w-30 bg-white mr-2 rounded-md border-2 border-black`}
             source={{ uri: mapa.iconRef !== "" ? mapa.iconRef : imagePlaceholder }}></Image>
-          <View>
-            <Text style={tw`text-2xl mt-2 flex-1`} numberOfLines={2}>
-              {mapa.name}
-            </Text>
+          <View style={tw`flex flex-col w-2/3 items-start`}>
             <Text style={tw`text-lg bg-black text-white rounded-lg p-2 px-4 mr-auto`}>
               Dystans: {formatDistance(mapa?.distance)}
             </Text>
             <Text style={tw`text-lg text-right`}>
-              Data dodania: {formatTime(mapa?.createdAt?.seconds)}
+              Dodano: {formatTime(mapa?.createdAt?.seconds)}
             </Text>
           </View>
         </View>
         <Text style={tw`ml-4 text-left text-xl underline`}>
-          Lokacja startowa: {getCityAdress(mapa.location)}
+          Lokacja startowa: {getCityAdress(mapa.location) || "Brak"}
         </Text>
         <View
-          style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300 `}>
+          style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300`}
+          pointerEvents={disabled ? "none" : "auto"}>
           {renderOptions()}
         </View>
 
@@ -294,15 +290,15 @@ const MapWebPreview = ({ navigation, route }) => {
               }}></Rating>
             <View style={tw`flex-row`}>
               <SquareButton
-                style={tw`flex-1 mx-4 h-10 mb-10`}
-                label={"Zrób cokolwiek"}
+                style={tw`flex-1 mx-20 h-10 mb-10`}
+                label={"Oceń"}
                 onPress={ratingAdd}></SquareButton>
             </View>
           </View>
         )}
         <View style={tw`flex-row`}>
           <SquareButton
-            style={tw`flex-1 mx-4 h-10 mb-10`}
+            style={tw`flex-1 mx-20 h-10 mb-10`}
             label={"Udostępnij"}
             onPress={() => {
               onShare();

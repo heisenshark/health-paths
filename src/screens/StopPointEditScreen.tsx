@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import SquareButton from "./../components/SquareButton";
-import { Icon } from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
 import Waypoint, { MediaFile } from "./../utils/interfaces";
 import { useEffect, useRef, useState } from "react";
@@ -95,6 +94,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
   );
 
   useEffect(() => {
+    if (!editedWaypoint) navigation.goBack();
     console.log("waypoint: ", editedWaypoint);
 
     if (editedWaypoint.image) setImage(getCurrentMediaURI(editedWaypoint.image));
@@ -114,6 +114,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     console.log(JSON.stringify(result, null, 2));
   }, [result]);
+
   const handleError = (err: unknown) => {
     setAudioModalVisible(false);
 
@@ -168,6 +169,37 @@ const StopPointEditScreen = ({ navigation, route }) => {
     } as MediaFile;
   };
 
+  function openAudioModal(type: "intro" | "navigation") {
+    setAudioModalVisible(true);
+    setSoundType(type);
+  }
+  function onAudioPick() {
+    DocumentPicker.pickSingle({
+      presentationStyle: "fullScreen",
+      copyTo: "cachesDirectory",
+      type: [types.audio],
+    })
+      .then((res) => {
+        setResult(res);
+        setAudioModalVisible(false);
+        let soundObj = {
+          media_id: uuid.v4(),
+          path: res.uri,
+          type: "audio",
+          storage_type: "cache",
+        } as MediaFile;
+        if (soundType === "intro") {
+          waypointDiff.introduction_audio = soundObj;
+          setIntroSoundUri(res.uri);
+        }
+        if (soundType === "navigation") {
+          setNavigationSoundUri(res.uri);
+          waypointDiff.navigation_audio = soundObj;
+        }
+      })
+      .catch(handleError);
+  }
+
   return (
     <KeyboardAvoidingView style={tw`h-full`} behavior="padding">
       <Text style={tw`text-3xl font-bold bg-slate-200 pt-4 pl-6 pb-2 border-b-4 border-slate-400`}>
@@ -177,32 +209,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
         visible={audioModalVisible}
         titles={["Jak dodać audio?", "Wybierz z plików", "Nagraj"]}
         buttonIcons={["file", "microphone"]}
-        actionLeft={function (): void {
-          DocumentPicker.pickSingle({
-            presentationStyle: "fullScreen",
-            copyTo: "cachesDirectory",
-            type: [types.audio],
-          })
-            .then((res) => {
-              setResult(res);
-              setAudioModalVisible(false);
-              let soundObj = {
-                media_id: uuid.v4(),
-                path: res.uri,
-                type: "audio",
-                storage_type: "cache",
-              } as MediaFile;
-              if (soundType === "intro") {
-                waypointDiff.introduction_audio = soundObj;
-                setIntroSoundUri(res.uri);
-              }
-              if (soundType === "navigation") {
-                setNavigationSoundUri(res.uri);
-                waypointDiff.navigation_audio = soundObj;
-              }
-            })
-            .catch(handleError);
-        }}
+        actionLeft={onAudioPick}
         actionRight={function (): void {
           setAudioModalVisible(false);
           navigation.navigate("NagrywanieAudio", { ...route.params, soundType: soundType });
@@ -236,62 +243,30 @@ const StopPointEditScreen = ({ navigation, route }) => {
             )}
           </View>
 
-          <View
-            style={tw`flex-row justify-between items-center my-4 bg-main-100 p-4 rounded-xl elevation-5`}>
-            <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
-              Intro Audio
-            </Text>
-            <View style={tw`flex-row`}>
-              {isEdit && (
-                <SquareButton
-                  style={tw`ml-auto mr-2 elevation-5`}
-                  label={"Edytuj"}
-                  icon="edit"
-                  onPress={() => {
-                    setAudioModalVisible(true);
-                    console.log("clicked modalshow");
-                    setSoundType("intro");
-                  }}></SquareButton>
-              )}
-              <SquareButton
-                style={tw`ml-auto elevation-5`}
-                label={"Odtwórz"}
-                icon="play"
-                onPress={() => {
-                  console.log(introsoundUri);
-                  console.log(soundType);
-                  playSound(introsoundUri);
-                }}></SquareButton>
-            </View>
-          </View>
-          <View
-            style={tw`flex-row justify-between items-center mb-4 bg-main-100 p-4 rounded-xl elevation-5`}>
-            <Text style={tw`text-3xl font-bold`} numberOfLines={2}>
-              Nav Audio
-            </Text>
-            <View style={tw`flex-row`}>
-              {isEdit && (
-                <SquareButton
-                  style={tw`ml-auto mr-2 elevation-5`}
-                  label={"Edytuj"}
-                  icon="edit"
-                  onPress={() => {
-                    setAudioModalVisible(true);
-                    console.log("clicked modalshow");
-                    setSoundType("navigation");
-                  }}></SquareButton>
-              )}
-              <SquareButton
-                style={tw`ml-auto elevation-5`}
-                label={"Odtwórz"}
-                icon="play"
-                onPress={() => {
-                  console.log(navigationSoundUri);
-                  console.log(soundType);
-                  playSound(navigationSoundUri);
-                }}></SquareButton>
-            </View>
-          </View>
+          <AudioPickPlay
+            label="Audio przewodnicze"
+            isPresent={navigationSoundUri !== undefined}
+            isEdit={isEdit}
+            onPlay={() => {
+              console.log(navigationSoundUri);
+              console.log(soundType);
+              playSound(navigationSoundUri);
+            }}
+            onPick={() => openAudioModal("navigation")}
+          />
+
+          <AudioPickPlay
+            label="Audio wprowadzające"
+            isPresent={introsoundUri !== undefined}
+            isEdit={isEdit}
+            onPlay={() => {
+              console.log(introsoundUri);
+              console.log(soundType);
+              playSound(introsoundUri);
+            }}
+            onPick={() => openAudioModal("intro")}
+          />
+
           {isEdit && (
             <>
               <TextInput
@@ -343,17 +318,36 @@ const StopPointEditScreen = ({ navigation, route }) => {
           )}
         </View>
       </ScrollView>
-      {/* <SquareButton
-        onPress={() => {
-          navigation.goBack();
-        }}
-        size={20}
-        // icon="left"
-        label="ZAPISZ"
-        style={tw`mt-3 absolute bottom-0 right-0 mr-4 mb-4`}
-      /> */}
     </KeyboardAvoidingView>
   );
 };
 
 export default StopPointEditScreen;
+
+const AudioPickPlay = ({ label, isEdit, isPresent, onPlay, onPick }) => {
+  return (
+    <View
+      style={tw`flex-row justify-between items-center mb-4 bg-main-100 p-4 rounded-xl elevation-5`}>
+      <Text style={tw`flex-1 text-xl font-bold`} numberOfLines={2}>
+        {label}
+      </Text>
+      <View style={tw`flex-initial flex-row`}>
+        {isEdit && (
+          <SquareButton
+            style={tw`ml-auto mr-2 elevation-5`}
+            label={isPresent ? "Edytuj" : "Dodaj"}
+            icon="edit"
+            onPress={onPick}
+          />
+        )}
+        <SquareButton
+          disabled={!isPresent}
+          style={tw`ml-auto elevation-5`}
+          label={"Odtwórz"}
+          icon="play"
+          onPress={onPlay}
+        />
+      </View>
+    </View>
+  );
+};

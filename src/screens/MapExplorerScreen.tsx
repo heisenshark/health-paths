@@ -26,8 +26,8 @@ import {
 import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
-//TODO uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
-
+//[x] uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
+//TODO dodać lepsze prompty do usuwania mapy i innych
 const MapExplorerScreen = ({ navigation, route }) => {
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
   const [maps, setMaps] = useState<HealthPath[]>([]);
@@ -240,7 +240,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                 <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
                   {getCityAdress(map.location)}
                 </Text>
-                {/* <Text style={tw`text-xl`}>{map.map_id}</Text> */}
+                <Text style={tw`text-sm`} numberOfLines={1}>{map.map_id}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -305,32 +305,12 @@ const MapExplorerScreen = ({ navigation, route }) => {
         actions={[...options, ...additionalOptions]}></OptionsModal>
       <View
         style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          tw`flex-0 flex flex-row bg-slate-200 border-b-2 border-slate-700  justify-center elevation-5`,
           { alignItems: "center" },
         ]}>
         <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
           MOJE TRASY
         </Text>
-      </View>
-      <View style={tw`flex flex-row`}>
-        <SquareButton
-          style={tw`flex flex-1 h-10 mx-4 my-2`}
-          uberActive={mapsState === "local"}
-          label="lokalne"
-          onPress={() => {
-            setMapsState("local");
-          }}
-        />
-        <SquareButton
-          style={tw`flex flex-1 h-10 mx-4 my-2`}
-          uberActive={mapsState === "web"}
-          label="web"
-          disabled={webDisabled}
-          onPress={() => {
-            fetchUserMaps();
-            setMapsState("web");
-          }}
-        />
       </View>
 
       {mapsState === "local" && (
@@ -345,6 +325,27 @@ const MapExplorerScreen = ({ navigation, route }) => {
         {mapsState === "local" && renderMaps()}
         {mapsState === "web" && renderUserMaps()}
       </ScrollView>
+      <View style={tw`flex flex-row border-b-2 border-slate-700`}>
+        <SquareButton
+          style={tw`flex flex-1 h-14 rounded-none border-0`}
+          uberActive={mapsState === "local"}
+          label="lokalne"
+          onPress={() => {
+            setMapsState("local");
+          }}
+        />
+        <View style={tw`border-l-2 border-slate-700`}></View>
+        <SquareButton
+          style={tw`flex flex-1 h-14 rounded-none border-0`}
+          uberActive={mapsState === "web"}
+          label="w chmurze"
+          disabled={webDisabled}
+          onPress={() => {
+            fetchUserMaps();
+            setMapsState("web");
+          }}
+        />
+      </View>
     </View>
   );
 };
