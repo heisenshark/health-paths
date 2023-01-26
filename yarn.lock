@@ -2280,15 +2280,15 @@
     prompts "^2.4.0"
     semver "^6.3.0"
 
-"@react-native-firebase/analytics@^16.5.0":
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-16.5.0.tgz#4fff5f9aa0366252d4e4d6705a1a9dc989fd5aa4"
-  integrity sha512-6HpQLOHcbOCA5YXETyPIwldOdT50HxEykI7LZv+JkGmkLDqUaZq3+VKX7eQVRbZX2ZFWCUi9R7IqRY4Ei27/vg==
+"@react-native-firebase/analytics@^16.5.2":
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-16.5.2.tgz#0e073a806a8d6f3c16df096a3cd2e3e0e4b8f8b0"
+  integrity sha512-UEfiSG8yE4rqyE7BYkIhENiQcPscgvLLIoZOi5tSEBMiJN2GLm8gs1eF/9VSIGFOVstU7juz744j/iEOmX6UIg==
 
-"@react-native-firebase/app@^16.5.0":
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-16.5.0.tgz#b8676ed7237b97f676b8d3a9d151dd83c2c01e40"
-  integrity sha512-Vi8F4+UVS+ybv7w/7m9UjZWWUjMTr/0nChZBv5aVqo84Afld99hN5YT2wdpF4QbDs39l92WLJYUT9LMCqvBKeg==
+"@react-native-firebase/app@^16.5.2":
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-16.5.2.tgz#b67866ce605f366409e3039fa461ac601065edb0"
+  integrity sha512-BKRFadp/oEu8y4jBvO7/+9bQjEoYJv/7tgZWXG2Pt+qiQLvL7PJCnWjN+OzBE8Vcfy7pAXQYQZ9vrDvm4evyOQ==
   dependencies:
     "@expo/config-plugins" "^5.0.4"
     opencollective-postinstall "^2.0.1"
@@ -2301,6 +2301,13 @@
   dependencies:
     "@expo/config-plugins" "^5.0.4"
     plist "^3.0.5"
+
+"@react-native-firebase/dynamic-links@^16.5.2":
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/dynamic-links/-/dynamic-links-16.5.2.tgz#ec17d8d07372e788ca948fa85da4f1f70c728991"
+  integrity sha512-Ge8Bd0WgW263Mzd7Iqg2O39GEOV3yyV4jZIg0hL0q4o82UUd8Id77MJ3LiSQ/2ag9V1oNWCZtRrl2ldOBbVLVA==
+  dependencies:
+    "@expo/config-plugins" "^5.0.4"
 
 "@react-native-firebase/firestore@^16.5.0":
   version "16.5.0"
@@ -4928,7 +4935,7 @@ expo-keep-awake@~11.0.1:
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-11.0.1.tgz#ee354465892a94040ffe09901b85b469e7d54fb3"
   integrity sha512-44ZjgLE4lnce2d40Pv8xsjMVc6R5GvgHOwZfkLYtGmgYG9TYrEJeEj5UfSeweXPL3pBFhXKfFU8xpGYMaHdP0A==
 
-expo-linking@~3.3.0:
+expo-linking@^3.3.0, expo-linking@~3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/expo-linking/-/expo-linking-3.3.0.tgz#3860af9da374f0187db75036f353ca6fe9231a15"
   integrity sha512-wXPzI2kijnql2L2F6i8zP1zINTkYlcRXyh1iV3P6Bt57v6yZiiniZBnb6grJVj19LOmluNs0PYrbX1ZsHBChCg==
@@ -8075,6 +8082,11 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
+punycode@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.3.2.tgz#9653a036fb7c1ee42342f2325cceefea3926c48d"
+  integrity sha512-RofWgt/7fL5wP1Y7fxE7/EmTLzQVnB0ycyibJ0OOHIlJqTNzglYFxVwETOcIoJqJmpDXJ9xImDv+Fq34F/d4Dw==
+
 punycode@^2.1.0, punycode@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
@@ -8115,6 +8127,11 @@ query-string@^7.1.3:
     filter-obj "^1.1.0"
     split-on-first "^1.0.0"
     strict-uri-encode "^2.0.0"
+
+querystring@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
+  integrity sha512-X/xY82scca2tau62i9mDyU9K+I+djTMUsvwf7xnUX5GLvVzgJybOJf4Y6o9Zx3oJK/LSXg5tTZBjwzqVPaPO2g==
 
 querystringify@^2.1.1:
   version "2.2.0"
@@ -9817,6 +9834,14 @@ url-parse@^1.5.9:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
+
+url@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/url/-/url-0.11.0.tgz#3838e97cfc60521eb73c525a8e55bfdd9e2e28f1"
+  integrity sha512-kbailJa29QrtXnxgq+DdCEGlbTeYM2eJUxsz6vjZavrCYPMIFHMKQmSKYAIuUK2i7hgPm28a8piX5NTUtM/LKQ==
+  dependencies:
+    punycode "1.3.2"
+    querystring "0.2.0"
 
 use-latest-callback@^0.1.5:
   version "0.1.5"

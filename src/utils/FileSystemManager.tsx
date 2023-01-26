@@ -438,6 +438,8 @@ async function UploadMapFolder(id: string, privacy: "public" | "private" = "publ
       console.log("somehow map distance is 0");
     }
 
+
+    
     const data = {
       ownerId: DbUser(),
       ownerName: user.user.name,

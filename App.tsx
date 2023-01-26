@@ -14,8 +14,12 @@ import * as TaskManager from "expo-task-manager";
 import * as Location from "expo-location";
 import { LatLng } from "react-native-maps";
 import { useAtom } from "jotai";
-import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
-import * as Speech from 'expo-speech';
+import {
+  NavigationContainer,
+  StackActions,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
+import * as Speech from "expo-speech";
 
 import MapEditScreen from "./src/screens/MapEditScreen";
 import HomeScreen from "./src/screens/HomeScreen";
@@ -36,20 +40,51 @@ import { initialRegionAtom } from "./src/config/AtomsState";
 import AppText from "./src/components/AppText";
 import tw from "./src/lib/tailwind";
 import { useDeviceContext } from "twrnc/dist/esm/hooks";
+import * as Linking from "expo-linking";
+import dynamicLinks from "@react-native-firebase/dynamic-links";
+import { parse, Url } from "url";
 
 SplashScreen.preventAutoHideAsync();
 const Navigator = createNativeStackNavigator();
 validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
+const sensitiveTabs = ["Nagraj", "Planuj", "NagrywanieAudio", "EdycjaMap"];
+
 export default function App() {
   const isTunnel = false;
 
   const navigationRef = useNavigationContainerRef();
   useDeviceContext(tw);
-  
+
   const [currentScreen, setCurrentScreen] = useState("");
   const [, setInitialRegion] = useAtom(initialRegionAtom);
+
+  const handleNav = (to: string, options: object) => {
+    const route = navigationRef.getCurrentRoute().name;
+    useMapStore.getState().setNavAction(() => {
+      if (sensitiveTabs.includes(route)) navigationRef.dispatch(StackActions.replace(to, options));
+      else navigationRef.navigate(to, options);
+    });
+  };
+
+  const handleDynamicLink = (link) => {
+    console.log(navigationRef.current.getCurrentRoute());
+
+    console.log(link);
+    const parsedUrl = parse(link.url, true);
+    if (link.url) {
+      if (parsedUrl.pathname === "/pathes" && parsedUrl.query["id"]) {
+        handleNav("MapWebPreviewScreen", { id: parsedUrl.query["id"] });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
+    // When the component is unmounted, remove the listener
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     TaskManager.unregisterAllTasksAsync();
@@ -112,7 +147,8 @@ export default function App() {
         ref={navigationRef}
         onStateChange={(key) => {
           setCurrentScreen(key.routes[key.index].name);
-        }}>
+        }}
+        fallback={<AppText>Ładowanie...</AppText>}>
         <Navigator.Navigator
           screenOptions={{
             headerShown: false,
@@ -141,9 +177,11 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const locationss = useLocationTrackingStore.getState().locations;
   const rec = useLocationTrackingStore.getState().currentRecording;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
-  const xd = useMapStore.getState().setNotSaved;
-  const xd2 = useMapStore.getState().notSaved;
-  !xd && xd(true); //needed, otherwise we get rerendered xD
+  const setNotSaved = useMapStore.getState().setNotSaved;
+  const notSaved = useMapStore.getState().notSaved;
+  console.log("setting not saved", notSaved);
+
+  !notSaved && setNotSaved(true); //needed, otherwise we get rerendered xD
   if (error) {
     console.log("LOCATION_TRACKING task ERROR:", error);
     return;

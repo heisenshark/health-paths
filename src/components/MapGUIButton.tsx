@@ -53,7 +53,7 @@ const MapGUIButton = ({
       </View>
       <Text
         style={[
-          tw`text-sm text-center leading-4 underline font-black p-1 w-[${size}]`,
+          tw`text-base text-center leading-4 underline font-black p-1 w-[${size}]`,
           labelStyle,
         ]}>
         {label}

@@ -1,7 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View, Image, TextInput } from "react-native";
 import { Card } from "react-native-paper";
 import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
@@ -16,29 +16,39 @@ import LogInScreen from "./LogInScreen";
 //[x] jak dodawać lokację do bazy w suuumie XD
 //[x] zrobić pobieranie i odzipowanie
 //TODO zrobić obsługę manadżera pobrań
+
+const limit = 3;
+
 const MapWebExplorerScreen = ({ navigation, route }) => {
   const [currentMap, setCurrentMap] = useMapStore((state) => [
     state.currentMap,
     state.setCurrentMap,
   ]);
   const [maps, setMaps] = useState<MapDocument[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [showLoadMore, setShowLoadMore] = useState(true);
+  const track = useRef(null);
   const force = useForceUpdate();
-
-  const onChangeSearch = (query: string) => setSearchQuery(query);
-
-  const listAllMaps = () => {
-    db.collection("Pathes")
+  const listMaps = () => {
+    let query = db
+      .collection("Pathes")
       .where("visibility", "==", "public")
+      .orderBy("createdAt", "desc")
+      .limit(limit);
+    if (track.current !== null) query = query.startAfter(track.current);
+    query
       .get()
       .then((querySnapshot) => {
-        let maps = [];
+        let m = [];
         querySnapshot.forEach((doc) => {
           const d = doc.data() as MapDocument;
           d.id = doc.id;
-          maps.push(d);
+          m.push(d);
         });
-        setMaps(maps);
+        setMaps((prev) => [...prev, ...m]);
+
+        track.current = querySnapshot.docs[querySnapshot.docs.length - 1];
+        setShowLoadMore(!querySnapshot.empty && querySnapshot.size === limit);
+        if (querySnapshot.empty) track.current = 0;
       })
       .catch((error) => {
         console.log("Error getting documents: ", error);
@@ -47,13 +57,13 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     console.log("elo");
-    listAllMaps();
+    listMaps();
   }, [navigation]);
 
   useFocusEffect(
     React.useCallback(() => {
       console.log("On Focus, fetching the maps");
-      listAllMaps();
+      // listMaps();
     }, [])
   );
 
@@ -68,11 +78,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
           ŚCIEŻKI WEB
         </Text>
       </View>
-      {/* <Searchbar
-        placeholder="Wyszukaj ścieżkę"
-        style={tw`shadow-md`}
-        value={searchQuery}
-        onChangeText={onChangeSearch}></Searchbar> */}
+
       <ScrollView>
         {maps.length === 0 && (
           <View style={tw`h-100 flex justify-center items-center`}>
@@ -109,6 +115,17 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           );
         })}
+        {showLoadMore && (
+          <View style={tw`w-full flex items-center`}>
+            <SquareButton
+              label="Załaduj więcej"
+              size={30}
+              icon="arrow-down"
+              onPress={() => {
+                if (track.current !== 0) listMaps();
+              }}></SquareButton>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

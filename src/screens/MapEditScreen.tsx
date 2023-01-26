@@ -274,6 +274,7 @@ const MapEditScreen = ({ navigation, route }) => {
         const loc = await Location.getCurrentPositionAsync();
         console.log(loc);
         await new Promise((r) => setTimeout(r, 100));
+        if (!mapRef.current) return;
         mapRef.current.animateToRegion(
           {
             latitude: loc.coords.latitude,

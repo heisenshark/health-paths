@@ -1,6 +1,16 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Text, View, StyleSheet, ScrollView, Button, Image } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ScrollView,
+  Button,
+  Image,
+  ToastAndroid,
+  Share,
+  Alert,
+} from "react-native";
 import tw from "../lib/tailwind";
 import { db, DbUser, MapDocument } from "./../config/firebase";
 import SquareButton from "./../components/SquareButton";
@@ -26,7 +36,7 @@ import { useMapStore } from "../stores/store";
 const MapWebPreview = ({ navigation, route }) => {
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
 
-  const [mapa, setMapa] = useState<MapDocument>({});
+  const [mapa, setMapa] = useState<MapDocument>(null);
   const [optionsState, setOptionsState] = useState("download");
   const rate = useRef<number>(0);
   console.log(mapa);
@@ -61,6 +71,26 @@ const MapWebPreview = ({ navigation, route }) => {
 
   useEffect(() => {
     const m = route.params.webMap;
+    if (!m) {
+      console.log(route.params.id);
+      if (!route.params.id) navigation.goBack();
+      Pathes.doc(route.params.id)
+        .get()
+        .then((doc) => {
+          if (!doc.exists) {
+            ToastAndroid.show("Mapa nie istnieje", ToastAndroid.SHORT);
+            navigation.goBack();
+          } else {
+            console.log("Document data:", doc.data());
+            setUpMap({ id: doc.id, ...doc.data() } as MapDocument);
+          }
+        });
+      return;
+    }
+    setUpMap(m);
+  }, []);
+
+  function setUpMap(m: MapDocument) {
     setMapa(m as MapDocument);
     console.log(m);
     const date = new Date(m.createdAt.seconds * 1000);
@@ -75,7 +105,61 @@ const MapWebPreview = ({ navigation, route }) => {
         setOptionsState(state);
       }
     });
-  }, []);
+  }
+
+  async function ratingAdd() {
+    // console.log("rate", rate.current);
+    const r = rate.current as number;
+
+    const prevValue = await db
+      .collection("Ratings")
+      .doc(mapa.id + DbUser())
+      .get();
+
+    const dta = prevValue.data();
+
+    const elo = await db
+      .collection("Ratings")
+      .doc(mapa.id + DbUser())
+      .set({
+        mapId: mapa.id,
+        userId: DbUser(),
+        rating: r,
+      });
+    console.log("ssss");
+
+    let ratingSum = rate.current;
+    if (dta && dta.rating) ratingSum -= dta.rating;
+    const addition = dta ? 0 : 1;
+    console.log("ratingSum", ratingSum, mapa.id);
+    await Pathes.doc(mapa.id).update({
+      rating: firebase.firestore.FieldValue.increment(ratingSum),
+      ratingCount: firebase.firestore.FieldValue.increment(addition),
+    });
+    fetchMap();
+  }
+
+  const onShare = async () => {
+    try {
+      const message =
+        `Zapraszam do pobrania trasy ${mapa.name} w aplikacji Ścieżki Zdrowia. ` +
+        `https://healthpaths.page.link/?link=https://example.com/pathes?id%3D${mapa.id}&apn=com.heisenshark.healthpaths`;
+      const result = await Share.share({
+        message: message,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      Alert.alert(error.message);
+    }
+  };
 
   function renderOptions() {
     switch (optionsState) {
@@ -133,6 +217,12 @@ const MapWebPreview = ({ navigation, route }) => {
     }
   }
 
+  if (!mapa)
+    return (
+      <>
+        <Text style={tw`text-3xl`}>Ładowanie...</Text>
+      </>
+    );
   return (
     <>
       <View style={tw`bg-slate-300`}>
@@ -206,40 +296,18 @@ const MapWebPreview = ({ navigation, route }) => {
               <SquareButton
                 style={tw`flex-1 mx-4 h-10 mb-10`}
                 label={"Zrób cokolwiek"}
-                onPress={async () => {
-                  // console.log("rate", rate.current);
-                  const r = rate.current as number;
-
-                  const prevValue = await db
-                    .collection("Ratings")
-                    .doc(mapa.id + DbUser())
-                    .get();
-
-                  const dta = prevValue.data();
-
-                  const elo = await db
-                    .collection("Ratings")
-                    .doc(mapa.id + DbUser())
-                    .set({
-                      mapId: mapa.id,
-                      userId: DbUser(),
-                      rating: r,
-                    });
-                  console.log("ssss");
-
-                  let ratingSum = rate.current;
-                  if (dta && dta.rating) ratingSum -= dta.rating;
-                  const addition = dta ? 0 : 1;
-                  console.log("ratingSum", ratingSum, mapa.id);
-                  await Pathes.doc(mapa.id).update({
-                    rating: firebase.firestore.FieldValue.increment(ratingSum),
-                    ratingCount: firebase.firestore.FieldValue.increment(addition),
-                  });
-                  fetchMap();
-                }}></SquareButton>
+                onPress={ratingAdd}></SquareButton>
             </View>
           </View>
         )}
+        <View style={tw`flex-row`}>
+          <SquareButton
+            style={tw`flex-1 mx-4 h-10 mb-10`}
+            label={"Udostępnij"}
+            onPress={() => {
+              onShare();
+            }}></SquareButton>
+        </View>
       </ScrollView>
     </>
   );
