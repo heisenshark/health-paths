@@ -3,6 +3,7 @@ import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
+import Icon from "react-native-vector-icons/FontAwesome5";
 import OptionsModal from "../components/OptionsModal";
 import SquareButton from "../components/SquareButton";
 import {
@@ -227,20 +228,25 @@ const MapExplorerScreen = ({ navigation, route }) => {
               setModalVisible(true);
               setAdditionalOptions(localOptions());
             }}>
-            <View style={tw`flex flex-row pr-24`}>
+            <View style={tw`flex flex-row pr-2`}>
               <Image
                 style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
                 source={{
                   uri: map.imageIcon === undefined ? imagePlaceholder : getURI(map, map.imageIcon),
                 }}></Image>
               <View style={tw`flex-auto flex flex-col rounded-xl items-stretch`}>
-                <Text style={tw`text-xl font-bold`} ellipsizeMode="tail" numberOfLines={1}>
+                <Text
+                  style={tw`flex-initial text-xl font-bold`}
+                  ellipsizeMode="tail"
+                  numberOfLines={1}>
                   {map.name}
                 </Text>
                 <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
                   {getCityAdress(map.location)}
                 </Text>
-                <Text style={tw`text-sm`} numberOfLines={1}>{map.map_id}</Text>
+                <Text style={tw`text-sm`} numberOfLines={1}>
+                  {map.map_id}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -271,7 +277,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             setAdditionalOptions(webOptions(map, map.visibility === "private"));
             setModalVisible(true);
           }}>
-          <View style={tw`flex flex-row pr-24`}>
+          <View style={tw`flex flex-row pr-2`}>
             <Image
               style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
               source={{
@@ -285,7 +291,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
               <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
                 {getCityAdress(map.location)}
               </Text>
-              <Text>{map.visibility === "private" ? "prywatna" : "publiczna"}</Text>
+              <Text style={tw`text-xl text-right`}>
+                <Icon name={map.visibility === "public" ? "eye" : "eye-slash"}></Icon>{" "}
+                {map.visibility === "private" ? "prywatna" : "publiczna"}
+              </Text>
               {/* <Text style={tw`text-xl`} numberOfLines={1}>{map.id}</Text> */}
             </View>
           </View>
