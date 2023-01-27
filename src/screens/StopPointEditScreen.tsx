@@ -302,19 +302,21 @@ const StopPointEditScreen = ({ navigation, route }) => {
             </>
           )}
           {isEdit && (
-            <TileButton
-              style={tw`mx-10`}
-              label="Zapisz"
-              onPress={() => {
-                console.log("clicked save", name, description, introsoundUri, image);
-                editedWaypoint.displayed_name = name;
-                editedWaypoint.description = description;
-                Object.assign(editedWaypoint, waypointDiff);
-                console.log(editedWaypoint);
-                setNotSaved(true);
-                navigation.goBack();
-              }}
-            />
+            <View style={tw`h-40`}>
+              <TileButton
+                style={tw`mx-10`}
+                label="Zapisz"
+                onPress={() => {
+                  console.log("clicked save", name, description, introsoundUri, image);
+                  editedWaypoint.displayed_name = name;
+                  editedWaypoint.description = description;
+                  Object.assign(editedWaypoint, waypointDiff);
+                  console.log(editedWaypoint);
+                  setNotSaved(true);
+                  navigation.goBack();
+                }}
+              />
+            </View>
           )}
         </View>
       </ScrollView>

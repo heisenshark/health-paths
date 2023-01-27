@@ -43,9 +43,8 @@ import { useDeviceContext } from "twrnc/dist/esm/hooks";
 import * as Linking from "expo-linking";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { parse, Url } from "url";
-import HelpScreen from "./src/screens/HelpScreen"
+import HelpScreen from "./src/screens/HelpScreen";
 
-SplashScreen.preventAutoHideAsync();
 const Navigator = createNativeStackNavigator();
 validateDownloadTracker();
 console.log(StatusBar.currentHeight);
@@ -63,10 +62,11 @@ export default function App() {
 
   const handleNav = (to: string, options: object) => {
     const route = navigationRef.getCurrentRoute().name;
-    useMapStore.getState().setNavAction(() => {
-      if (sensitiveTabs.includes(route)) navigationRef.dispatch(StackActions.replace(to, options));
-      else navigationRef.navigate(to, options);
-    });
+    if (sensitiveTabs.includes(route))
+      useMapStore.getState().setNavAction(() => {
+        navigationRef.dispatch(StackActions.replace(to, options));
+      });
+    else navigationRef.navigate(to, options);
   };
 
   const handleDynamicLink = (link) => {
@@ -110,26 +110,6 @@ export default function App() {
       }
     });
   }, []);
-
-  const [fontsLoaded] = useFonts({
-    Inter_900Black,
-    OpenSans_700Bold,
-    OpenSans_800ExtraBold,
-    OpenSans_600SemiBold,
-    OpenSans_500Medium,
-    OpenSans_400Regular,
-    OpenSans_300Light,
-  });
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     //TODO finish settings screen

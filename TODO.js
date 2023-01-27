@@ -13,6 +13,8 @@
 //TODO zrobić Pomoc screen
 //[x] naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
 //TODO Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
+//TODO upoewnić się że w release buildzie będzie się dało logować przez google i naprawić opcje screen z logowaniem się(jest mało responsywny)
+//TODO upewnić się że aplikacja prosi o uprawnienia do lokalizacji
 
 <MOTYWACJA>
     

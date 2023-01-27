@@ -1,7 +1,7 @@
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid } from "react-native";
 import { Button } from "react-native-elements";
 import tw from "../lib/tailwind";
 import { useUserStore } from "../stores/store";
@@ -25,27 +25,6 @@ const OptionsScreen = ({ navigation, route }) => {
     });
   }, [route.key]);
 
-  const addPath = async () => {
-    const data = {
-      ownerId: DbUser(),
-      description: "opis",
-      name: "mapka",
-      age: 12,
-      rating: 0,
-      ratingCount: 0,
-      distance: 2137,
-      visibility: "public",
-      createdAt: firestore.FieldValue.serverTimestamp(),
-    };
-    console.log(data);
-    Pathes.add(data);
-  };
-  const logPaths = async () => {
-    const users = await Pathes.get();
-    users.forEach((n) => console.log(n));
-    return users;
-  };
-
   const logIn = async () => {
     try {
       const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -59,6 +38,7 @@ const OptionsScreen = ({ navigation, route }) => {
       const usr = await GoogleSignin.getCurrentUser();
       setUser(usr);
     } catch (e) {
+      ToastAndroid.show("Błąd logowania", ToastAndroid.LONG);
       console.log("err");
       console.log(e);
     }

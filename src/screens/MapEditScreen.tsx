@@ -473,7 +473,6 @@ const MapEditScreen = ({ navigation, route }) => {
             isWatchingposition &&
               mapRef.current.animateCamera({
                 center: coordinate.nativeEvent.coordinate,
-                zoom: 15,
               });
           }}>
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}

@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { View } from "react-native";
 import MapView, { Polyline, Region } from "react-native-maps";
 import { Markers } from "../components/Markers";
+import SquareButton from "../components/SquareButton";
 import StopPoints from "../components/StopPoints";
 import { showHandlesAtom, zoomAtom } from "../config/AtomsState";
 import tw from "../lib/tailwind";
@@ -75,6 +76,16 @@ const MapViewScreen = ({ navigation, route }) => {
           lineDashPattern={[0]}
         />
       </MapView>
+
+      <View style={tw`absolute top-2 left-2`} >
+        <SquareButton
+          style={tw`m-2`}
+          size={18}
+          label="wróć"
+          icon={"arrow-left"}
+          onPress={() => navigation.goBack()}
+        />
+      </View>
     </View>
   );
 };

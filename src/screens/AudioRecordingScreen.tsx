@@ -25,7 +25,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   const resetTimer = useRef<any>();
   //stany aplikacji
   //brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
-  const maxDuration = 180_000; //3min
+  const maxDuration = 180000; //3min
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
       console.log("beforeRemove");
