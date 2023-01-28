@@ -27,6 +27,7 @@
     "@react-navigation/bottom-tabs": "^6.4.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
+    "@react-navigation/stack": "^6.3.11",
     "@rnmapbox/maps": "^10.0.0-beta.56",
     "@supabase/supabase-js": "^2.2.2",
     "@types/react": "~18.0.24",

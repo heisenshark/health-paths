@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import MapCard from "../components/MapCard";
 import OptionsModal from "../components/OptionsModal";
 import SquareButton from "../components/SquareButton";
 import {
@@ -222,42 +223,19 @@ const MapExplorerScreen = ({ navigation, route }) => {
           map.location.toLowerCase().includes(searchQuery.toLowerCase().trim())
         );
       })
-      .map((map) => {
-        // if (map.imagePreview) console.log({ aa: getURI(map, map.imagePreview) });
-
-        return (
-          <TouchableOpacity
-            key={map.map_id}
-            style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
-            onPress={() => {
-              selectedMap.current = map;
-              setModalVisible(true);
-              setAdditionalOptions(localOptions());
-            }}>
-            <View style={tw`flex flex-row pr-2`}>
-              <Image
-                style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
-                source={{
-                  uri: map.imageIcon === undefined ? imagePlaceholder : getURI(map, map.imageIcon),
-                }}></Image>
-              <View style={tw`flex-auto flex flex-col rounded-xl items-stretch`}>
-                <Text
-                  style={tw`flex-initial text-xl font-bold`}
-                  ellipsizeMode="tail"
-                  numberOfLines={1}>
-                  {map.name}
-                </Text>
-                <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
-                  {getCityAdress(map.location)}
-                </Text>
-                <Text style={tw`text-sm`} numberOfLines={1}>
-                  {map.map_id}
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        );
-      });
+      .map((map) => (
+        <MapCard
+          // id={map.map_id}
+          name={map.name}
+          location={map.location}
+          icon={getURI(map, map.imageIcon)}
+          onPress={() => {
+            selectedMap.current = map;
+            setModalVisible(true);
+            setAdditionalOptions(localOptions());
+          }}
+        />
+      ));
   }
 
   function renderUserMaps() {
@@ -271,42 +249,20 @@ const MapExplorerScreen = ({ navigation, route }) => {
         </View>
       );
 
-    return userMaps.map((map) => {
-      if (map.previewRef) console.log({ aa: map.previewRef });
-      return (
-        <TouchableOpacity
-          key={map.id}
-          style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
-          onPress={() => {
-            selectedMap.current = map;
-            console.log({ map, modalVisible });
-            setAdditionalOptions(webOptions(map, map.visibility === "private"));
-            setModalVisible(true);
-          }}>
-          <View style={tw`flex flex-row pr-2`}>
-            <Image
-              style={tw`flex-0 h-20 w-20 bg-white border-2 border-black rounded-lg mr-2`}
-              source={{
-                uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
-              }}></Image>
-
-            <View style={tw`flex-auto flex flex-col rounded-xl items-stretch`}>
-              <Text style={tw`text-xl font-bold`} ellipsizeMode="tail" numberOfLines={1}>
-                {map.name}
-              </Text>
-              <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
-                {getCityAdress(map.location)}
-              </Text>
-              <Text style={tw`text-xl text-right`}>
-                <Icon name={map.visibility === "public" ? "eye" : "eye-slash"}></Icon>{" "}
-                {map.visibility === "private" ? "prywatna" : "publiczna"}
-              </Text>
-              {/* <Text style={tw`text-xl`} numberOfLines={1}>{map.id}</Text> */}
-            </View>
-          </View>
-        </TouchableOpacity>
-      );
-    });
+    return userMaps.map((map) => (
+      <MapCard
+        icon={map.iconRef}
+        name={map.name}
+        location={map.location}
+        visibility={map.visibility}
+        onPress={() => {
+          selectedMap.current = map;
+          console.log({ map, modalVisible });
+          setAdditionalOptions(webOptions(map, map.visibility === "private"));
+          setModalVisible(true);
+        }}
+      />
+    ));
   }
 
   return (
@@ -320,9 +276,17 @@ const MapExplorerScreen = ({ navigation, route }) => {
         actions={[...options, ...additionalOptions]}></OptionsModal>
       <View
         style={[
-          tw`flex-0 flex flex-row bg-slate-200 border-b-2 border-slate-700  justify-center elevation-5`,
+          tw`flex-0 flex flex-row bg-slate-200 border-b-2 border-slate-700  justify-start elevation-5`,
           { alignItems: "center" },
         ]}>
+        <SquareButton
+          style={tw`m-2 self-start`}
+          size={18}
+          label="wróć"
+          icon={"arrow-left"}
+          onPress={() => navigation.goBack()}
+        />
+
         <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
           MOJE TRASY
         </Text>
@@ -342,18 +306,20 @@ const MapExplorerScreen = ({ navigation, route }) => {
       </ScrollView>
       <View style={tw`flex flex-row border-b-2 border-slate-700`}>
         <SquareButton
-          style={tw`flex flex-1 h-14 rounded-none border-0`}
+          style={tw`flex flex-1 h-14 rounded-none border-b-0 border-r-0 border-main-700 rounded-tl-3xl`}
           uberActive={mapsState === "local"}
           label="lokalne"
+          labelStyle={tw`text-3xl`}
           onPress={() => {
             setMapsState("local");
           }}
         />
-        <View style={tw`border-l-2 border-slate-700`}></View>
+        <View style={tw`border-l-2 border-main-700`}></View>
         <SquareButton
-          style={tw`flex flex-1 h-14 rounded-none border-0`}
+          style={tw`flex flex-1 h-14 rounded-none border-b-0 border-l-0 border-main-700 rounded-tr-3xl `}
           uberActive={mapsState === "web"}
           label="w chmurze"
+          labelStyle={tw`text-3xl`}
           disabled={webDisabled}
           onPress={() => {
             fetchUserMaps();

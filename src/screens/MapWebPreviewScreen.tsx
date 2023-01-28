@@ -84,6 +84,14 @@ const MapWebPreview = ({ navigation, route }) => {
             console.log("Document data:", doc.data());
             setUpMap({ id: doc.id, ...doc.data() } as MapDocument);
           }
+        })
+        .catch((err) => {
+          console.log(err);
+          ToastAndroid.show(
+            "Błąd odczytu mapy, upewnij się że czy na pewno jest publiczna",
+            ToastAndroid.LONG
+          );
+          navigation.goBack();
         });
       return;
     }

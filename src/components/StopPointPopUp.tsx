@@ -37,7 +37,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 border-black `}
-              size={30}
+              size={25}
               label="Usuń"
               icon="trash"
               onPress={() => {
@@ -46,7 +46,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
               }}></SquareButton>
             <SquareButton
               style={tw`mx-2 `}
-              size={30}
+              size={25}
               icon="edit"
               label="Edytuj"
               onPress={() => {
@@ -55,8 +55,8 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
               }}></SquareButton>
             <SquareButton
               style={tw`mx-2 `}
-              size={30}
-              icon="arrow-left"
+              size={25}
+              icon="map-pin"
               label="Przenieś"
               onPress={() => {
                 onMove();
@@ -66,7 +66,7 @@ const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: 
           <View style={tw`mx-5 mb-6 flex flex-row justify-around`}>
             <SquareButton
               style={tw`mx-2 `}
-              size={30}
+              size={25}
               icon="arrow-left"
               label="Wróć"
               onPress={hide}></SquareButton>

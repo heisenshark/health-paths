@@ -73,7 +73,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
     <>
       {/* <Text>{currentRoute}</Text> */}
       <View
-        style={tw`h-[26] bg-slate-300 flex-row items-center justify-evenly border-b-4 border-t-4 border-t-slate-200 border-slate-600`}>
+        style={tw`h-[26] bg-slate-600 flex-row items-center justify-evenly border-t-4 border-t-slate-400`}>
         {!tabs.includes(currentRoute) ? (
           tabGUI()
         ) : (

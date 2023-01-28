@@ -63,11 +63,11 @@ GoogleSignin.configure({
 export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
-// if (__DEV__) {
-//   firestore().useEmulator("localhost", 8081);
-//   firebase.storage().useEmulator("localhost", 9199);
-//   console.log("elo firebase devmode");
-// }
+if (__DEV__) {
+  firestore().useEmulator("localhost", 8081);
+  firebase.storage().useEmulator("localhost", 9199);
+  console.log("elo firebase devmode");
+}
 
 export const db = firestore();
 

@@ -45,17 +45,35 @@ import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { parse, Url } from "url";
 import HelpScreen from "./src/screens/HelpScreen";
 import OtherSettingsScreen from "./src/screens/OtherSettingsScreen";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { getLocationPermissions } from "./src/utils/HelperFunctions";
 
-const Navigator = createNativeStackNavigator();
+const Navigator = createNativeStackNavigator<RootStackParamList>();
 validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
 const sensitiveTabs = ["Nagraj", "Planuj", "NagrywanieAudio", "EdycjaMap"];
 
+type RootStackParamList = {
+  Trasy: undefined;
+  Opcje: undefined;
+  Nagraj: undefined;
+  Planuj: undefined;
+  EdycjaMap: undefined;
+  NagrywanieAudio: undefined;
+  PrzegladanieMap: undefined;
+  PrzegladanieWebMap: undefined;
+  MapWebPreviewScreen: undefined;
+  PodgladMap: undefined;
+  LogIn: undefined;
+  Pomoc: undefined;
+  Settings: undefined;
+};
+
 export default function App() {
   const isTunnel = false;
 
-  const navigationRef = useNavigationContainerRef();
+  const navigationRef = useNavigationContainerRef<RootStackParamList>();
   useDeviceContext(tw);
 
   const [currentScreen, setCurrentScreen] = useState("");
@@ -91,24 +109,18 @@ export default function App() {
   useEffect(() => {
     TaskManager.unregisterAllTasksAsync();
     setInitialRegion({
-      latitude: 0,
-      longitude: 0,
-      latitudeDelta: 0.2,
-      longitudeDelta: 0.1,
+      latitude: 52,
+      longitude: 19,
+      latitudeDelta: 2.5,
+      longitudeDelta: 2.5,
     });
-    Location.getLastKnownPositionAsync().then((location) => {
-      if (location) {
-        const coords = location.coords as LatLng;
-        console.log("startApp", coords);
-
-        setInitialRegion({
-          ...coords,
-          latitudeDelta: 0.2,
-          longitudeDelta: 0.1,
-          // latitude: 1,
-          // longitude: 1,
-        });
-      }
+    getPermsAndSetLocation().then((coords) => {
+      if (!coords) return;
+      setInitialRegion({
+        ...coords,
+        latitudeDelta: 0.2,
+        longitudeDelta: 0.1,
+      });
     });
   }, []);
 
@@ -198,3 +210,13 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
       );
   }
 });
+
+async function getPermsAndSetLocation() {
+  const perms = await getLocationPermissions();
+  if (!perms) return undefined;
+  const location = await Location.getLastKnownPositionAsync();
+  if (!location) return undefined;
+  const coords = location.coords as LatLng;
+  console.log("startApp", coords);
+  return coords;
+}

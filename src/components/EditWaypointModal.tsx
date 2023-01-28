@@ -41,8 +41,8 @@ const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
             <SquareButton
               style={tw`mx-2`}
               size={25}
-              icon="edit"
-              label="przenieś"
+              icon="map-pin"
+              label="Przenieś"
               onPress={() => {
                 onMove();
                 hide();

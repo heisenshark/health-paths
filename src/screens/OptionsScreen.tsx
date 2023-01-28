@@ -17,16 +17,20 @@ const OptionsScreen = ({ navigation, route }) => {
   const [user, setUser] = useState(undefined as User | undefined);
   const [pathes, setPathes] = useState([]);
 
+  const [inactive, setInactive] = useState(false);
+
   useEffect(() => {
     console.log("navchange options");
     if (DbUser() === undefined) return;
     GoogleSignin.getCurrentUser().then((u) => {
       setUser(u);
+      setIsLogged(true);
     });
   }, [route.key, DbUser()]);
 
   const logIn = async () => {
     try {
+      setInactive(true);
       const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const { idToken } = await GoogleSignin.signIn();
       // Create a Google credential with the token
@@ -38,7 +42,12 @@ const OptionsScreen = ({ navigation, route }) => {
       const usr = await GoogleSignin.getCurrentUser();
       setUser(usr);
       setIsLogged(true);
+      setInactive(false);
+      console.log("logged");
     } catch (e) {
+      console.log("kecz");
+
+      setInactive(false);
       setIsLogged(false);
       if (e.code === statusCodes.SIGN_IN_CANCELLED) return;
       if (e.code === statusCodes.IN_PROGRESS) return;
@@ -59,7 +68,7 @@ const OptionsScreen = ({ navigation, route }) => {
     await GoogleSignin.signOut();
   }
   return (
-    <ScrollView style={tw`flex`}>
+    <View style={tw`flex`} pointerEvents={inactive ? "none" : "auto"}>
       <View
         style={[
           tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
@@ -84,12 +93,13 @@ const OptionsScreen = ({ navigation, route }) => {
               <Text style={tw`text-3xl text-center`}>{user?.user?.name}</Text>
             </View>
           </View>
-
-          <TileButton
-            style={tw`mx-10 my-4`}
-            label="Wyloguj"
-            icon="door-open"
-            onPress={logOut}></TileButton>
+          <View style={tw`h-40`}>
+            <TileButton
+              style={tw`mx-10 my-4`}
+              label="Wyloguj"
+              icon="door-open"
+              onPress={logOut}></TileButton>
+          </View>
         </>
       ) : (
         <View style={tw`flex items-center`}>
@@ -102,12 +112,14 @@ const OptionsScreen = ({ navigation, route }) => {
           </View>
         </View>
       )}
-      <TileButton
-        style={tw`mx-10 mb-4`}
-        label="Inne Ustawienia"
-        icon="cog"
-        onPress={() => navigation.navigate("Settings")}></TileButton>
-    </ScrollView>
+      <View style={tw`h-40`}>
+        <TileButton
+          style={tw`mx-10 mb-4`}
+          label="Inne Ustawienia"
+          icon="cog"
+          onPress={() => navigation.navigate("Settings")}></TileButton>
+      </View>
+    </View>
   );
 };
 

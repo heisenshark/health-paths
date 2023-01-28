@@ -3,6 +3,7 @@ import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image, TextInput } from "react-native";
 import { Card } from "react-native-paper";
+import MapCard from "../components/MapCard";
 import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
 import { useForceUpdate } from "../hooks/useForceUpdate";
@@ -71,11 +72,19 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
     <View style={tw`h-full`}>
       <View
         style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-start elevation-5`,
           { alignItems: "center" },
         ]}>
-        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          PUBLICZNE ŚCIEŻKI
+        <SquareButton
+          style={tw`m-2 self-start`}
+          size={18}
+          label="wróć"
+          icon={"arrow-left"}
+          onPress={() => navigation.goBack()}
+        />
+
+        <Text style={tw`text-left text-slate-800 text-4xl mt-2 mb-2 ml-4 font-medium underline`}>
+          PUBLICZNE
         </Text>
       </View>
 
@@ -88,31 +97,17 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
         {maps.map((map) => {
           return (
-            <TouchableOpacity
+            <MapCard
               key={map.id}
-              style={tw`flex flex-col my-1 mx-2 bg-main-100 px-2 py-2 rounded-xl elevation-3`}
+              name={map.name}
+              id={map.id}
+              icon={map.iconRef}
+              location={map.location}
               onPress={() => {
                 console.log(map);
                 navigation.navigate("MapWebPreviewScreen", { webMap: map });
-              }}>
-              <View style={tw`flex flex-row`}>
-                <Image
-                  style={tw`flex-0 h-20 w-20 bg-white mr-2`}
-                  source={{
-                    uri: map.iconRef === "" ? imagePlaceholder : map.iconRef,
-                  }}></Image>
-
-                <View style={tw`flex-1`}>
-                  <Text style={tw`text-xl font-bold pr-2`} numberOfLines={1}>
-                    {map.name}
-                  </Text>
-                  <Text style={tw`font-bold pr-2`} numberOfLines={1}>
-                    {map.id}
-                  </Text>
-                  <Text style={tw`text-xl`}>{getCityAdress(map.location)}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+              }}
+            />
           );
         })}
         {showLoadMore && (

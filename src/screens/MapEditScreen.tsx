@@ -65,7 +65,7 @@ export type curmodalOpenType =
 
 const zoomlevels = [7, 10, 13, 16, 18, 20];
 
-const [maxWaypoints, maxStops] = [10, 2];
+const [maxWaypoints, maxStops] = [10, 20];
 
 const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;

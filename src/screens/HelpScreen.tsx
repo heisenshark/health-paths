@@ -29,9 +29,17 @@ const HelpScreen = ({ route, navigation }) => {
     <View style={tw`flex bg-slate-100 h-full`}>
       <View
         style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
+          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-start elevation-5`,
           { alignItems: "center" },
         ]}>
+        <SquareButton
+          style={tw`m-2 self-start`}
+          size={18}
+          label="wróć"
+          icon={"arrow-left"}
+          onPress={() => navigation.goBack()}
+        />
+
         <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
           POMOC
         </Text>
