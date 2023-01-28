@@ -1,26 +1,33 @@
 //[x] learn zutshand and try to think about it
 //[x] learn firestore
-//TODO finish firestore database
-//TODO finish firestorage Rules
+//[x] finish firestore database
+//[x] finish firestorage Rules
 //[x] finish presentation about the project
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
-//x[] make GUI of adding map points so clunky it makes less requests to api
+//[x] make GUI of adding map points so clunky it makes less requests to api
 //[x] zrobić wreszcie limit na waypointy oraz stoppointy 10/20
 //[x] ustawić limit wielkości maczki z mapą  
-//TODO dodać error handling do tego xD
+//[x] dodać error handling do tego xD 
 //[x] naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
 //[x] zrobić ustawienia screen
-//TODO zrobić Pomoc screen
 //[x] naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
-//TODO Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
+//[x] Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
 //[x] upoewnić się że w release buildzie będzie się dało logować przez google i naprawić opcje screen z logowaniem się(jest mało responsywny)
 //[x] stan bez interakcji w opcje screen
-//TODO stan bez interakcji w moje mapy upload
+//[x] stan bez interakcji w moje mapy upload
 //[x] upewnić się że aplikacja prosi o uprawnienia do lokalizacji
-//TODO upewnić się że prompt z niezapisaniem działa poprawnie
+//[x] upewnić się że prompt z niezapisaniem działa poprawnie działa całkiem poprawnie xDDDD
 //[x] ustawić toasta na logowaniu aby wyświetlał prawidłowy błąd na cancel
+//TODO zrobić Pomoc screen
 //TODO dodać nienatywną klawiaturę do aplikacji 
+
+//TODO prompt w przypadku usuwania mapy, czy aby na pewno
+//[x] mapViewScreen lepszy update zooma oraz dodanie zooma do mapy
+
+
+//TODO naprawić buga który jest w mapedit screen, można wywołać infinite rerender pętlę dodając kilka waypointów przed renderem trasy
+
 
 
 

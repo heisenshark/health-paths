@@ -14,6 +14,8 @@ import { db, stor, addMap, MapDocument, Pathes, Users } from "../config/firebase
 import { calculateDistance } from "./HelperFunctions";
 import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
+import { ToastAndroid } from "react-native";
+import Rating from "../components/Rating";
 const mapDir = fs.documentDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/files
 const cacheDir = fs.cacheDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/cache
 /*
@@ -343,15 +345,16 @@ async function deleteMap(id: string) {
   await fs.deleteAsync(mapNameDir);
 }
 
-async function UploadMapFolder(id: string, privacy: "public" | "private" = "public") {
+async function UploadMapFolder(
+  id: string,
+  privacy: "public" | "private" = "public"
+): Promise<boolean> {
   let mapNameDir = `${mapDir}_${id}/`;
   let target = `${cacheDir}_${id}.zip`;
   const tracker = (await loadDownloadTracker()) as DownloadTracker;
 
   try {
     let mapinfo = await loadMapInfo(id);
-    // console.log(user.user.);
-
     //Tutaj jest kawałek kodu odopowiadający za sprawdzenie wlasciciela mapy
     //jeśli właścicielem jest użytkownik uploadujący mapę to updateujemy ją
     //jeśli nie to tworzymy nową mapę i uploadujemy
@@ -407,15 +410,9 @@ async function UploadMapFolder(id: string, privacy: "public" | "private" = "publ
       cacheControl: "no-store", // disable caching
       customMetadata: { visibility: privacy },
     });
-    task.on("state_changed", (taskSnapshot) => {
-      console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
-    });
-    task.then(() => {
-      console.log("HealthPath uploaded to the bucket!");
-    });
-    task.catch((e) => {
-      console.log(e);
-    });
+    await task;
+    console.log("HealthPath uploaded to the bucket!");
+
     let iconURL = undefined;
     let previewURL = undefined;
     if (icon) {
@@ -438,8 +435,6 @@ async function UploadMapFolder(id: string, privacy: "public" | "private" = "publ
       console.log("somehow map distance is 0");
     }
 
-
-    
     const data = {
       ownerId: DbUser(),
       ownerName: user.user.name,
@@ -455,9 +450,17 @@ async function UploadMapFolder(id: string, privacy: "public" | "private" = "publ
       location: mapinfo.location,
       createdAt: firestore.FieldValue.serverTimestamp(),
     } as MapDocument;
+
+    if (!createNewInstance && mapinfo.webId) {
+      delete data["rating"];
+      delete data["ratingCount"];
+      console.log(data);
+    }
+
     let docid = undefined;
-    if (mapinfo.webId) docid = await addMap(data, mapinfo.webId);
-    else docid = await addMap(data);
+    if (mapinfo.webId) {
+      docid = await addMap(data, mapinfo.webId);
+    } else docid = await addMap(data);
     console.log(docid, id);
 
     await saveMapInfo({ ...mapinfo, webId: docid }, id);
@@ -470,9 +473,11 @@ async function UploadMapFolder(id: string, privacy: "public" | "private" = "publ
 
     console.log(tracker);
     await saveDownloadTracker(tracker);
+    return true;
   } catch (err) {
+    ToastAndroid.show("Coś Poszło nie tak", ToastAndroid.LONG);
     console.log(err);
-    return;
+    return false;
   }
 }
 

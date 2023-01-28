@@ -39,6 +39,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [additionalOptions, setAdditionalOptions] = useState([]);
   const [mapsState, setMapsState] = useState("local");
   const [webDisabled, setWebDisabled] = useState(false);
+
+  const [disabled, setDisabled] = useState(false);
+
   const force = useForceUpdate();
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
@@ -126,14 +129,18 @@ const MapExplorerScreen = ({ navigation, route }) => {
             {
               text: "Publiczna",
               onPress: async () => {
+                setDisabled(true);
                 await zipUploadMapFolder(selectedMap.current.map_id, "public");
+                setDisabled(false);
                 refreshMaps();
               },
             },
             {
               text: "Prywatna",
               onPress: async () => {
+                setDisabled(true);
                 await zipUploadMapFolder(selectedMap.current.map_id, "private");
+                setDisabled(false);
                 refreshMaps();
               },
             },
@@ -225,10 +232,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
       })
       .map((map) => (
         <MapCard
-          // id={map.map_id}
+          key={map.map_id}
           name={map.name}
           location={map.location}
-          icon={getURI(map, map.imageIcon)}
+          icon={map.imageIcon === undefined ? "" : getURI(map, map.imageIcon)}
           onPress={() => {
             selectedMap.current = map;
             setModalVisible(true);
@@ -251,6 +258,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
 
     return userMaps.map((map) => (
       <MapCard
+        key={map.id}
         icon={map.iconRef}
         name={map.name}
         location={map.location}
@@ -266,7 +274,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View style={tw`h-full`}>
+    <View style={tw`h-full`} pointerEvents={disabled ? "none" : "auto"}>
       <OptionsModal
         visible={modalVisible}
         label={"Co chcesz zrobić z mapą?"}

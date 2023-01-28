@@ -240,13 +240,14 @@ const MapEditScreen = ({ navigation, route }) => {
 
       if (typeof good === "string") {
         ToastAndroid.show(good, ToastAndroid.SHORT);
-        setNotSaved(false);
+        setNotSaved(true);
         setBlockInteractability(false);
         return true;
       } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
     } catch (e) {
       console.log(e, "AAAAAA");
     }
+    setNotSaved(false);
     setBlockInteractability(false);
     return false;
   };
@@ -353,7 +354,7 @@ const MapEditScreen = ({ navigation, route }) => {
     useCallback(() => {
       checkRecording();
       return () => {
-        // resetCurrentMap();
+        if (!notSaved) resetCurrentMap();//HACK, mogą być problemy jak przenosisz się do innrgo ekranu 
       };
     }, [navigation])
   );
@@ -368,8 +369,8 @@ const MapEditScreen = ({ navigation, route }) => {
     console.log(mapEditState);
     if (mapEditState === "Idle") {
       setPointPivot(e.nativeEvent.coordinate);
-      await animateToPoint(e.nativeEvent.coordinate);
       mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
+      await animateToPoint(e.nativeEvent.coordinate);
       setMapEditState("Idle");
       setSelectedStop(null);
       setSelectedWaypoint(null);
@@ -636,8 +637,8 @@ const MapEditScreen = ({ navigation, route }) => {
             force();
           }}
         />
-        {/* <Text>{currentModalOpen}</Text>
-        <Text>{notSaved ? "not Saved" : "saved"}</Text> */}
+        <Text>{currentModalOpen}</Text>
+        <Text>{notSaved ? "not Saved" : "saved"}</Text>
       </Animated.View>
 
       <Animated.View

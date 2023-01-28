@@ -131,7 +131,7 @@ export default function App() {
     //[x] finish mymaps screen
     //[x] add tracking position and making tracks by gps
     //[x] dodać możliwość eksportu mapy
-    //TODO dodać możliwość udostępnienia mapy przez watsapp
+    //[x] dodać możliwość udostępnienia mapy przez watsapp
     <>
       {/* <Provider> */}
       {isTunnel && <StatusBar style="auto" />}

@@ -3,6 +3,8 @@ import * as React from "react";
 import { useEffect, useRef } from "react";
 import { View } from "react-native";
 import MapView, { Polyline, Region } from "react-native-maps";
+import Animated, { FadeInLeft, FadeOutLeft } from "react-native-reanimated";
+import MapGUIButton from "../components/MapGUIButton";
 import { Markers } from "../components/Markers";
 import SquareButton from "../components/SquareButton";
 import StopPoints from "../components/StopPoints";
@@ -36,6 +38,11 @@ const MapViewScreen = ({ navigation, route }) => {
   useEffect(() => {
     console.log(currentMap.path);
     console.log("uef");
+    setTimeout(() => {
+      mapRef.current.getCamera().then((c) => {
+        setZoom(156543.03392 / Math.pow(2, c.zoom));
+      });
+    }, 1);
     return () => {
       resetCurrentMap();
     };
@@ -48,6 +55,8 @@ const MapViewScreen = ({ navigation, route }) => {
         style={tw`flex-1`}
         initialRegion={initialRegion}
         customMapStyle={mapstyleSilver}
+        maxZoomLevel={20}
+        minZoomLevel={7}
         onRegionChangeComplete={(e, { isGesture }) =>
           mapRef.current.getCamera().then((c) => {
             setZoom(156543.03392 / Math.pow(2, c.zoom));
@@ -77,7 +86,7 @@ const MapViewScreen = ({ navigation, route }) => {
         />
       </MapView>
 
-      <View style={tw`absolute top-2 left-2`} >
+      <View style={tw`absolute top-2 left-2`}>
         <SquareButton
           style={tw`m-2`}
           size={18}
@@ -86,6 +95,33 @@ const MapViewScreen = ({ navigation, route }) => {
           onPress={() => navigation.goBack()}
         />
       </View>
+      <Animated.View
+        style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
+        entering={FadeInLeft}
+        exiting={FadeOutLeft}>
+        <MapGUIButton
+          disabled={zoom <= 0.1493}
+          style={tw`self-end border-r-2 mt-auto`}
+          size={20}
+          label={"przybliż"}
+          icon="search-plus"
+          onPress={async () => {
+            const cam = await mapRef.current.getCamera();
+            mapRef.current.animateCamera({ zoom: cam.zoom + 1 });
+          }}
+        />
+        <MapGUIButton
+          disabled={zoom >= 1222}
+          size={20}
+          style={tw`self-end mt-auto`}
+          label={"oddal"}
+          icon="search-minus"
+          onPress={async () => {
+            const cam = await mapRef.current.getCamera();
+            mapRef.current.animateCamera({ zoom: cam.zoom - 1 });
+          }}
+        />
+      </Animated.View>
     </View>
   );
 };

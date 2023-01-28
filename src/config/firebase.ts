@@ -32,8 +32,8 @@ export interface MapDocument {
   ownerName: string;
   description: string;
   name: string;
-  rating: number;
-  ratingCount: number;
+  rating?: number;
+  ratingCount?: number;
   distance: number;
   location: string;
   visibility: "public" | "private";
@@ -64,9 +64,9 @@ export const stor = firebase.storage();
 // set the host and the port property to connect to the emulator
 // set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
 if (__DEV__) {
-  firestore().useEmulator("localhost", 8081);
-  firebase.storage().useEmulator("localhost", 9199);
-  console.log("elo firebase devmode");
+  // firestore().useEmulator("localhost", 8081);
+  // firebase.storage().useEmulator("localhost", 9199);
+  // console.log("elo firebase devmode");
 }
 
 export const db = firestore();
@@ -120,7 +120,7 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
     doc = await Pathes.add(map);
     id = doc.id;
   } else {
-    await Pathes.doc(webId).set(map);
+    await Pathes.doc(webId).set(map, { merge: true });
     doc = map;
     id = webId;
     doc["id"] = webId;

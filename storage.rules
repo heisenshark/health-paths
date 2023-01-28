@@ -11,7 +11,7 @@ service firebase.storage {
           resource.metadata.visibility == "public"||
           request.auth.uid == userId;
       allow write: if
-          request.auth.uid == userId&&request.resource.size < 20 * 1024 * 1024 ;
+          request.auth.uid == userId&&request.resource.size < 40 * 1024 * 1024 ;
     }
 
   }
