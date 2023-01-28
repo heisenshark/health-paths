@@ -1,4 +1,6 @@
 import { LatLng } from "react-native-maps";
+import * as Location from "expo-location";
+
 export const calculateDistance = (path: LatLng[]) => {
   let distance = 0;
   for (let i = 0; i < path.length - 1; i++) {
@@ -75,7 +77,12 @@ function decode(t) {
   return points;
 }
 
-export function getRoute(origin: LatLng, destination: LatLng, apikey = "***REMOVED***",  mode = "WALKING") {
+export function getRoute(
+  origin: LatLng,
+  destination: LatLng,
+  apikey = "***REMOVED***",
+  mode = "WALKING"
+) {
   const directionsServiceBaseUrl = "https://maps.googleapis.com/maps/api/directions/json";
   mode = "WALKING";
   // Define the URL to call. Only add default parameters to the URL if it's a string.
@@ -111,6 +118,18 @@ export function getRoute(origin: LatLng, destination: LatLng, apikey = "***REMOV
       return Promise.reject(`Error: ${err}`);
     });
 }
+
+export async function getLocationPermissions(): Promise<boolean> {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  console.log(status);
+  let ss = await Location.requestBackgroundPermissionsAsync();
+  console.log(ss.status);
+  if (status !== "granted" || ss.status !== "granted") {
+    return false;
+  }
+  return true;
+}
+
 // console.log("elo from helper functions");
 // getRoute(
 //   {

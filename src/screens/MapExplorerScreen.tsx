@@ -124,11 +124,17 @@ const MapExplorerScreen = ({ navigation, route }) => {
           Alert.alert("Przesyłanie mapy", "Wybierz prywatność", [
             {
               text: "Publiczna",
-              onPress: async () => await zipUploadMapFolder(selectedMap.current.map_id, "public"),
+              onPress: async () => {
+                await zipUploadMapFolder(selectedMap.current.map_id, "public");
+                refreshMaps();
+              },
             },
             {
               text: "Prywatna",
-              onPress: async () => await zipUploadMapFolder(selectedMap.current.map_id, "private"),
+              onPress: async () => {
+                await zipUploadMapFolder(selectedMap.current.map_id, "private");
+                refreshMaps();
+              },
             },
             { text: "Anuluj", onPress: () => console.log("OK Pressed") },
           ]);

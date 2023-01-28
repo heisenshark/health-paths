@@ -44,6 +44,7 @@ import * as Linking from "expo-linking";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { parse, Url } from "url";
 import HelpScreen from "./src/screens/HelpScreen";
+import OtherSettingsScreen from "./src/screens/OtherSettingsScreen";
 
 const Navigator = createNativeStackNavigator();
 validateDownloadTracker();
@@ -146,6 +147,7 @@ export default function App() {
           <Navigator.Screen name="PodgladMap" component={MapViewScreen} />
           <Navigator.Screen name="LogIn" component={LogInScreen} />
           <Navigator.Screen name="Pomoc" component={HelpScreen} />
+          <Navigator.Screen name="Settings" component={OtherSettingsScreen} />
         </Navigator.Navigator>
       </NavigationContainer>
 

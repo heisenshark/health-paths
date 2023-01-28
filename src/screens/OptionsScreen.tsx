@@ -1,4 +1,4 @@
-import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
+import { GoogleSignin, statusCodes, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid } from "react-native";
@@ -23,7 +23,7 @@ const OptionsScreen = ({ navigation, route }) => {
     GoogleSignin.getCurrentUser().then((u) => {
       setUser(u);
     });
-  }, [route.key]);
+  }, [route.key, DbUser()]);
 
   const logIn = async () => {
     try {
@@ -37,20 +37,29 @@ const OptionsScreen = ({ navigation, route }) => {
       await auth().signInWithCredential(googleCredential);
       const usr = await GoogleSignin.getCurrentUser();
       setUser(usr);
+      setIsLogged(true);
     } catch (e) {
-      ToastAndroid.show("Błąd logowania", ToastAndroid.LONG);
-      console.log("err");
-      console.log(e);
+      setIsLogged(false);
+      if (e.code === statusCodes.SIGN_IN_CANCELLED) return;
+      if (e.code === statusCodes.IN_PROGRESS) return;
+      if (e.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        ToastAndroid.show(
+          "Nie masz zainstalowanych Google Play Services, więc nie możesz się zalogować",
+          ToastAndroid.LONG
+        );
+        return;
+      }
+      ToastAndroid.show("Błąd logowania " + e, ToastAndroid.LONG);
     }
   };
 
   async function logOut() {
-    await firebase.auth().signOut();
-    GoogleSignin.signOut();
     setIsLogged(false);
+    await firebase.auth().signOut();
+    await GoogleSignin.signOut();
   }
-  return DbUser() !== undefined ? (
-    <ScrollView style={tw`flex`} contentContainerStyle={""}>
+  return (
+    <ScrollView style={tw`flex`}>
       <View
         style={[
           tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
@@ -60,54 +69,45 @@ const OptionsScreen = ({ navigation, route }) => {
           OPCJE UŻYTKOWNIKA
         </Text>
       </View>
+      {isLogged ? (
+        <>
+          <Text
+            style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-xl mb-4 elevation-5`}>
+            Zalogowano jako
+          </Text>
+          <View style={tw`w-full flex justify-center items-center rounded-xl`}>
+            <View style={tw`flex items-center bg-main-100 p-4 rounded-3xl elevation-5 `}>
+              <Image
+                style={tw`h-40 aspect-square rounded-full border-4 border-black border-opacity-50`}
+                source={{ uri: user?.user?.photo ?? imagePlaceholder }}
+              />
+              <Text style={tw`text-3xl text-center`}>{user?.user?.name}</Text>
+            </View>
+          </View>
 
-      <Text
-        style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-xl mb-4 elevation-5`}>
-        Zalogowano jako
-      </Text>
-      <View style={tw`w-full flex justify-center items-center rounded-xl`}>
-        <View style={tw`flex items-center bg-main-100 p-4 rounded-3xl elevation-5 `}>
-          <Image
-            style={tw`h-40 aspect-square rounded-full border-4 border-black border-opacity-50`}
-            source={{ uri: user?.user?.photo ?? imagePlaceholder }}
-          />
-          <Text style={tw`text-3xl text-center`}>{user?.user?.name}</Text>
+          <TileButton
+            style={tw`mx-10 my-4`}
+            label="Wyloguj"
+            icon="door-open"
+            onPress={logOut}></TileButton>
+        </>
+      ) : (
+        <View style={tw`flex items-center`}>
+          <Text
+            style={tw`p-6 rounded-lg text-3xl text-center font-bold underline bg-slate-400 elevation-5`}>
+            Zaloguj się aby korzystać z funkcji internetowych
+          </Text>
+          <View style={tw`flex h-44 w-78`}>
+            <TileButton style={tw`my-4`} label="Logowanie Google" icon="google" onPress={logIn} />
+          </View>
         </View>
-      </View>
-
+      )}
       <TileButton
-        style={tw`mx-10 my-4`}
-        label="Wyloguj"
-        icon="door-open"
-        onPress={logOut}></TileButton>
-      <TileButton style={tw`mx-10 mb-4`} label="Inne Ustawienia" icon="cog"></TileButton>
+        style={tw`mx-10 mb-4`}
+        label="Inne Ustawienia"
+        icon="cog"
+        onPress={() => navigation.navigate("Settings")}></TileButton>
     </ScrollView>
-  ) : (
-    <View style={tw`flex items-center`}>
-      <Text style={tw`text-3xl p-10 pb-2`}>Opcje Użytkownika</Text>
-      <Text style={tw`text-3xl pb-10`}>Zaloguj się aby korzystać z opcji</Text>
-      {/* <Button
-        title="Zaloguj"
-        onPress={() => {
-          navigation.navigate("LogIn");
-        }}
-      /> */}
-      <TouchableOpacity
-        style={tw`w-10/12 h-4/12 bg-red-100 flex items-center justify-center border-4 rounded-2xl`}
-        onPress={() =>
-          logIn()
-            .then(() => {
-              console.log("Signed in with Google!");
-              setIsLogged(true);
-            })
-            .catch((err) => {
-              console.log(err);
-              setIsLogged(false);
-            })
-        }>
-        <Text style={tw`text-xl text-center p-6`}>Zaloguj się przez google</Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 

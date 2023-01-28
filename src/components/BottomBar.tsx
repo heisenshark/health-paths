@@ -15,7 +15,7 @@ export interface BottomBarProps {
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   // console.log();
   const [setNavAction] = useMapStore((state) => [state.setNavAction]);
-  const tabs = ["EdycjaMap","NagrywanieAudio"];
+  const tabs = ["EdycjaMap", "NagrywanieAudio", "Settings"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
 
   const tryToNavigate = (route: string, options?: any) => {
@@ -59,7 +59,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
           icon={"map"}
         />
         <SquareButton
-          label={"Opcje"}
+          label={"Profil"}
           uberActive={currentRoute === "Opcje"}
           onPress={() => tryToNavigate("Opcje")}
           icon={"lock"}

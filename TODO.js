@@ -6,15 +6,20 @@
 //[x] dokończyć naukę tailwinda i dodać custom style czyli kolorki
 //[x] przekonwertować projekt do typescripta
 //x[] make GUI of adding map points so clunky it makes less requests to api
-//TODO zrobić wreszcie limit na waypointy oraz stoppointy 10/20
+//[x] zrobić wreszcie limit na waypointy oraz stoppointy 10/20
 //TODO ustawić limit wielkości maczki z mapą  
 //[x] naprawić prolbemy z zapisywaniem tej samej mapy jako nową xD
-//TODO zrobić ustawienia screen
+//[x] zrobić ustawienia screen
 //TODO zrobić Pomoc screen
 //[x] naprawić problem jaki może nastąpić, czyli pokazywanie się podwójnych modali
 //TODO Naprawić buga z resetowaniem opinii po ponownym uploadzie mapy 
 //TODO upoewnić się że w release buildzie będzie się dało logować przez google i naprawić opcje screen z logowaniem się(jest mało responsywny)
 //TODO upewnić się że aplikacja prosi o uprawnienia do lokalizacji
+//TODO stan bez interakcji w opcje screen
+//TODO stan bez interakcji w moje mapy upload
+//TODO upewnić się że aplikacja prosi o uprawnienia do lokalizacji
+//TODO upewnić się że prompt z niezapisaniem działa poprawnie
+//TODO ustawić toasta na logowaniu aby wyświetlał prawidłowy błąc na cancel
 
 <MOTYWACJA>
     

@@ -18,7 +18,7 @@ import TrackLine from "../components/TrackLine";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
-import { getRoute } from "../utils/HelperFunctions";
+import { getLocationPermissions, getRoute } from "../utils/HelperFunctions";
 import StopPointPopUp from "../components/StopPointPopUp";
 import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
@@ -64,6 +64,8 @@ export type curmodalOpenType =
   | "EditWaypoint";
 
 const zoomlevels = [7, 10, 13, 16, 18, 20];
+
+const [maxWaypoints, maxStops] = [10, 2];
 
 const MapEditScreen = ({ navigation, route }) => {
   let isPathEditable = false;
@@ -135,11 +137,25 @@ const MapEditScreen = ({ navigation, route }) => {
     //HACK may not work propertly
     switch (type) {
     case "waypoint":
+      if (waypoints.length >= maxWaypoints) {
+        ToastAndroid.show(
+          "Nie dodano, maksymalna ilość punktów trasy została osiągnięta",
+          ToastAndroid.SHORT
+        );
+        return null;
+      }
       waypoints.splice(position, 0, cords);
       setNotSaved(true);
       force();
       break;
     case "stop":
+      if (stopPoints.length >= maxStops) {
+        ToastAndroid.show(
+          "Nie dodano, maksymalna ilość punktów stopu została osiągnięta",
+          ToastAndroid.SHORT
+        );
+        return null;
+      }
       const newStop = {
         waypoint_id: uuid.v4(),
         displayed_name: "",
@@ -401,6 +417,7 @@ const MapEditScreen = ({ navigation, route }) => {
         onStopPointAdd={() => {
           setCurrentModalOpen("None");
           const stoppint = addNewWaypoint(pointPivot, "stop");
+          if (stoppint === null) return;
           setTimeout(() => {
             navigation.navigate({
               name: "EdycjaMap",
@@ -527,7 +544,16 @@ const MapEditScreen = ({ navigation, route }) => {
         </MapView>
       </View>
 
-      {tipVisible && <TipDisplay tipMessage={tipMessage} />}
+      {tipVisible && (
+        <TipDisplay
+          tipMessage={tipMessage}
+          currentPoints={waypoints.length}
+          maxPoints={maxWaypoints}
+          currentStops={stopPoints.length}
+          maxStops={maxStops}
+          hideWaypoints={isInRecordingState}
+        />
+      )}
 
       <Animated.View
         style={tw`absolute w-auto mt-30 right-2 bg-main-200 self-end overflow-hidden rounded-2xl border-2`}
@@ -602,7 +628,7 @@ const MapEditScreen = ({ navigation, route }) => {
         <MapGUIButton
           colorOverride={showHandles && "bg-main-500"}
           style={tw`self-end mt-auto`}
-          label={"pokaż"}
+          label={showHandles ? "ukryj" : "pokaż"}
           icon="map-pin"
           onPress={() => {
             console.log(showHandles, fullPath, initialRegion);
@@ -657,17 +683,6 @@ export default MapEditScreen;
 function useLocationBackground() {
   const [isRecording, setIsRecording] = useState(false);
 
-  async function getPermissions(): Promise<boolean> {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    console.log(status);
-    let ss = await Location.requestBackgroundPermissionsAsync();
-    console.log(ss.status);
-    if (status !== "granted" || ss.status !== "granted") {
-      return false;
-    }
-    return true;
-  }
-
   async function startBackgroundTracking() {
     console.log("startBackgroundTracking");
 
@@ -685,7 +700,7 @@ function useLocationBackground() {
 
     setIsRecording(true);
     console.log("have permissions?");
-    const perms = await getPermissions();
+    const perms = await getLocationPermissions();
     if (!perms) return;
     console.log("have permissions");
 
@@ -751,23 +766,27 @@ function usePreventBack() {
     const backAction = () => {
       if (!useMapStore.getState().notSaved) return false;
       if (!navigation.isFocused()) return false;
-      Alert.alert("Czy na pewno chcesz wyjść?", "Twoja trasa nie zostanie zapisana", [
-        {
-          text: "Nie",
-          style: "cancel",
-          onPress: () => {
-            return;
+      Alert.alert(
+        "Porzucić zmiany?",
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+        [
+          {
+            text: "Nie",
+            style: "cancel",
+            onPress: () => {
+              return;
+            },
           },
-        },
-        {
-          text: "Tak",
-          onPress: () => {
-            useMapStore.getState().resetCurrentMap();
-            useMapStore.getState().setNotSaved(false);
-            navigation.goBack();
+          {
+            text: "Tak",
+            onPress: () => {
+              useMapStore.getState().resetCurrentMap();
+              useMapStore.getState().setNotSaved(false);
+              navigation.goBack();
+            },
           },
-        },
-      ]);
+        ]
+      );
       return true;
     };
 
