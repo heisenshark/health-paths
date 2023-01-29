@@ -154,10 +154,18 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "Usuń mapę",
         icon: "cloud-upload",
         onPress: () => {
-          deleteMap(selectedMap.current.map_id).then(() => {
-            setModalVisible(false);
-            refreshMaps();
-          });
+          Alert.alert("Usuwanie mapy", "Czy na pewno chcesz usunąć mapę z pamięci lokalnej?", [
+            {
+              text: "Tak",
+              onPress: async () => {
+                await deleteMap(selectedMap.current.map_id);
+                setModalVisible(false);
+                refreshMaps();
+              },
+            },
+            { text: "Anuluj", onPress: () => console.log("Anulowano") },
+          ]);
+          setModalVisible(false);
         },
       },
     ];
@@ -203,10 +211,20 @@ const MapExplorerScreen = ({ navigation, route }) => {
       {
         label: "usuń",
         icon: "minus-circle",
-        onPress: async () => {
-          await deleteMapWeb(map.id);
-          console.log("usunieto");
-          setUserMaps(userMaps.filter((m) => m.id !== map.id));
+        onPress: () => {
+          Alert.alert("Usuwanie mapy", "Czy na pewno chcesz usunąć mapę z bazy?", [
+            {
+              text: "Tak",
+              onPress: async () => {
+                await deleteMapWeb(map.id);
+                console.log("usunieto");
+                setUserMaps(userMaps.filter((m) => m.id !== map.id));
+                refreshMaps();
+              },
+            },
+            { text: "Anuluj", onPress: () => console.log("Anulowano") },
+          ]);
+          setModalVisible(false);
         },
       },
     ];

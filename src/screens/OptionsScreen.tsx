@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid } from "react-native";
 import { Button } from "react-native-elements";
 import tw from "../lib/tailwind";
-import { useUserStore } from "../stores/store";
 import firestore from "@react-native-firebase/firestore";
 import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
 import { firebase } from "@react-native-firebase/auth";

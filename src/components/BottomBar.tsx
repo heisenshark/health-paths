@@ -35,7 +35,8 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         <SquareButton
           label={"Pulpit"}
           uberActive={currentRoute === "Trasy" || !currentRoute}
-          onPress={() => tryToNavigate("Trasy")}
+          onPress={() => {tryToNavigate("Trasy"); console.log("siema");
+          }}
           icon={"home"}
         />
         <SquareButton

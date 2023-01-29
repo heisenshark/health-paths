@@ -20,14 +20,16 @@
 //[x] upewnić się że prompt z niezapisaniem działa poprawnie działa całkiem poprawnie xDDDD
 //[x] ustawić toasta na logowaniu aby wyświetlał prawidłowy błąd na cancel
 //TODO zrobić Pomoc screen
-//TODO dodać nienatywną klawiaturę do aplikacji 
+//TODO dodać nienatywną klawiaturę do aplikacji // może jednak nie 
 
-//TODO prompt w przypadku usuwania mapy, czy aby na pewno
+//[x] prompt w przypadku usuwania mapy, czy aby na pewno 
 //[x] mapViewScreen lepszy update zooma oraz dodanie zooma do mapy
 
 
 //TODO naprawić buga który jest w mapedit screen, można wywołać infinite rerender pętlę dodając kilka waypointów przed renderem trasy
-
+//TODO przetestować ekran nagrywnania 
+//TODO Zamienić alert na modal
+//[x] Zamienić download tracker na persistant store 
 
 
 

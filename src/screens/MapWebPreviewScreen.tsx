@@ -23,18 +23,14 @@ import { firebase } from "@react-native-firebase/auth";
 import { Card } from "react-native-paper";
 import Rating from "../components/Rating";
 import { Pathes } from "../config/firebase";
-import {
-  deleteMap,
-  downloadMap,
-  DownloadTrackerRecord,
-  getdownloadTrackerKey,
-  loadMap,
-} from "../utils/FileSystemManager";
+import { deleteMap, downloadMap, loadMap } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
+import { DownloadTrackerRecord, useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 //[x] make this screen work
 //[x] maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
+  const [downloadTracker] = useDownloadTrackingStore((state) => [state.downloadTracker]);
   const [mapa, setMapa] = useState<MapDocument>(null);
   const [optionsState, setOptionsState] = useState("download");
   const [disabled, setDisabled] = useState(false);
@@ -105,14 +101,14 @@ const MapWebPreview = ({ navigation, route }) => {
     const dateString = format(m.createdAt.seconds * 1000, "do LLLL yyyy", { locale: pl });
     console.log(dateString, "");
 
-    getdownloadTrackerKey(m.id).then((key) => {
-      console.log("key", key);
-      if (key !== undefined) {
-        const state = compareInfo(m, key);
-        console.log("state", state);
-        setOptionsState(state);
-      }
-    });
+    const entry = downloadTracker[m.id];
+
+    console.log("key", entry);
+    if (entry !== undefined) {
+      const state = compareInfo(m, entry);
+      console.log("state", state);
+      setOptionsState(state);
+    }
   }
 
   async function ratingAdd() {
@@ -184,7 +180,7 @@ const MapWebPreview = ({ navigation, route }) => {
   async function onDelete() {
     setDisabled(true);
     try {
-      const info = await getdownloadTrackerKey(mapa.id);
+      const info = downloadTracker[mapa.id];
       await deleteMap(info.mapId);
     } catch (e) {
       ToastAndroid.show(e, ToastAndroid.SHORT);
@@ -196,7 +192,7 @@ const MapWebPreview = ({ navigation, route }) => {
   async function onShow() {
     setDisabled(true);
     try {
-      const info = await getdownloadTrackerKey(mapa.id);
+      const info = downloadTracker[mapa.id];
       const m = await loadMap("", info.mapId);
       setDisabled(false);
       navigation.navigate("PodgladMap", { map: m });

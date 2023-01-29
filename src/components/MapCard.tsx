@@ -44,11 +44,11 @@ const MapCard = ({ id, icon, visibility, name, location, onPress }: Props) => {
             </Text>
           )}
 
-          {id !== undefined && (
+          {/* {id !== undefined && (
             <Text style={tw`text-xl`} numberOfLines={1}>
               {id}
             </Text>
-          )}
+          )} */}
         </View>
       </View>
     </TouchableOpacity>

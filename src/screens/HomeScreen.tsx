@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { uuidv4 } from "@firebase/util";
 import { firebase } from "@react-native-firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Text, View, Button, FlatList, BackHandler } from "react-native";
@@ -9,6 +10,7 @@ import SquareButton from "../components/SquareButton";
 import TileButton from "../components/TileButton";
 import { DbUser } from "../config/firebase";
 import tw from "../lib/tailwind";
+import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 import { HealthPath } from "../utils/interfaces";
 import { useMapStore } from "./../stores/store";
 import LogInScreen from "./LogInScreen";

@@ -30,7 +30,6 @@ import StopPointEditScreen from "./src/screens/StopPointEditScreen";
 import AudioRecordingScreen from "./src/screens/AudioRecordingScreen";
 import MapViewScreen from "./src/screens/MapViewScreen";
 import MapExplorerScreen from "./src/screens/MapExplorerScreen";
-import { validateDownloadTracker } from "./src/utils/FileSystemManager";
 import { useLocationTrackingStore, useMapStore } from "./src/stores/store";
 import LogInScreen from "./src/screens/LogInScreen";
 import OptionsScreen from "./src/screens/OptionsScreen";
@@ -47,9 +46,11 @@ import HelpScreen from "./src/screens/HelpScreen";
 import OtherSettingsScreen from "./src/screens/OtherSettingsScreen";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { getLocationPermissions } from "./src/utils/HelperFunctions";
+import { useDownloadTrackingStore } from "./src/stores/DownloadTrackingStore";
 
 const Navigator = createNativeStackNavigator<RootStackParamList>();
-validateDownloadTracker();
+// validateDownloadTracker();
+useDownloadTrackingStore.getState().validateDownloadTracker();
 console.log(StatusBar.currentHeight);
 
 const sensitiveTabs = ["Nagraj", "Planuj", "NagrywanieAudio", "EdycjaMap"];
@@ -171,7 +172,6 @@ export default function App() {
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useLocationTrackingStore.getState().addLocations;
   const locationss = useLocationTrackingStore.getState().locations;
-  const rec = useLocationTrackingStore.getState().currentRecording;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const setNotSaved = useMapStore.getState().setNotSaved;
   const notSaved = useMapStore.getState().notSaved;
@@ -196,7 +196,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
     console.log(stamp);
-    console.log(locationss.coords.length, rec);
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)

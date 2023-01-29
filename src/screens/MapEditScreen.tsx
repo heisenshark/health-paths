@@ -354,9 +354,11 @@ const MapEditScreen = ({ navigation, route }) => {
     useCallback(() => {
       checkRecording();
       return () => {
-        if (!notSaved) resetCurrentMap();//HACK, mogą być problemy jak przenosisz się do innrgo ekranu 
+        console.log(route.name,"aaaaaaa");
+        if (!notSaved && route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio")
+          resetCurrentMap(); //HACK, mogą być problemy jak przenosisz się do innrgo ekranu
       };
-    }, [navigation])
+    }, [navigation, route])
   );
 
   const animateToPoint = async (point: LatLng, zoom: number = undefined, time: number = 300) => {

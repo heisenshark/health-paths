@@ -6,8 +6,7 @@ import { mediaFiles } from "../providedfiles/Export";
 import { zip, unzip, unzipAssets, subscribe } from "react-native-zip-archive";
 import { firebase } from "@react-native-firebase/auth";
 import storage from "@react-native-firebase/storage";
-
-import { useUserStore } from "./../stores/store";
+import { loadMapInfo } from "./MapInfoLoader";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { db, stor, addMap, MapDocument, Pathes, Users } from "../config/firebase";
@@ -16,6 +15,7 @@ import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
 import { ToastAndroid } from "react-native";
 import Rating from "../components/Rating";
+import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 const mapDir = fs.documentDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/files
 const cacheDir = fs.cacheDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/cache
 /*
@@ -37,16 +37,7 @@ export {
   UploadMapFolder as zipUploadMapFolder,
   downloadMap,
   moveMap,
-};
-
-export interface DownloadTrackerRecord {
-  mapId: string;
-  webId: string;
-  downloadDate: FirebaseFirestoreTypes.Timestamp;
-}
-
-type DownloadTracker = {
-  [id: string]: DownloadTrackerRecord;
+  loadMapInfo,
 };
 
 //[x] upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
@@ -298,17 +289,6 @@ async function loadMap(name: string, id: string): Promise<HealthPath> {
   return map;
 }
 
-async function loadMapInfo(id: string): Promise<HealthPath> {
-  try {
-    const mapNameDir = `${mapDir}_${id}/`;
-    const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
-    return JSON.parse(mapInfo) as HealthPath;
-  } catch (error) {
-    console.log(error);
-    return undefined;
-  }
-}
-
 async function loadMapInfoDir(id: string): Promise<HealthPath> {
   return loadMapInfo(id.substring(1));
 }
@@ -339,8 +319,8 @@ async function deleteMap(id: string) {
   const mapNameDir = `${mapDir}_${id}/`;
   const info = await loadMapInfo(id);
   if (info.webId) {
-    const val = await getdownloadTrackerKey(info.webId);
-    if (val) await deleteDownloadTrackerKey(val.webId);
+    const entry = useDownloadTrackingStore.getState().downloadTracker[info.webId];
+    if (entry) useDownloadTrackingStore.getState().deleteRecord(info.webId);
   }
   await fs.deleteAsync(mapNameDir);
 }
@@ -351,7 +331,6 @@ async function UploadMapFolder(
 ): Promise<boolean> {
   let mapNameDir = `${mapDir}_${id}/`;
   let target = `${cacheDir}_${id}.zip`;
-  const tracker = (await loadDownloadTracker()) as DownloadTracker;
 
   try {
     let mapinfo = await loadMapInfo(id);
@@ -417,14 +396,14 @@ async function UploadMapFolder(
     let previewURL = undefined;
     if (icon) {
       const iconRef = stor.ref(`Maps/${DbUser()}/icons/_${id}_icon`);
-      const iconTask = await iconRef.putFile(icon, {
+      await iconRef.putFile(icon, {
         cacheControl: "no-store", // disable caching
       });
       iconURL = await iconRef.getDownloadURL();
     }
     if (preview) {
       const previewRef = stor.ref(`Maps/${DbUser()}/previews/_${id}_icon`);
-      const previewTask = await previewRef.putFile(preview, {
+      await previewRef.putFile(preview, {
         cacheControl: "no-store", // disable caching
       });
       previewURL = await previewRef.getDownloadURL();
@@ -465,14 +444,13 @@ async function UploadMapFolder(
 
     await saveMapInfo({ ...mapinfo, webId: docid }, id);
 
-    tracker[docid] = {
+    const record = {
       mapId: mapinfo.map_id,
       webId: docid,
       downloadDate: firestore.Timestamp.now(),
     };
+    useDownloadTrackingStore.getState().addRecord(docid, record);
 
-    console.log(tracker);
-    await saveDownloadTracker(tracker);
     return true;
   } catch (err) {
     ToastAndroid.show("Coś Poszło nie tak", ToastAndroid.LONG);
@@ -499,58 +477,9 @@ async function listAllMaps(): Promise<HealthPath[]> {
   return maps;
 }
 
-async function createDownloadTrackerIfNotExist() {
-  const dirInfo = await createIfNotExists(mapDir, { isFile: false });
-  const target = `${mapDir}downloadTracker.json`;
-  const fileInfo = await createIfNotExists(target, { isFile: true, content: "{}" });
-}
-
-async function saveDownloadTracker(xd: { [id: string]: DownloadTrackerRecord }) {
-  const target = `${mapDir}downloadTracker.json`;
-  await createDownloadTrackerIfNotExist();
-  await fs.writeAsStringAsync(target, JSON.stringify(xd));
-}
-
-async function loadDownloadTracker() {
-  const target = `${mapDir}downloadTracker.json`;
-  await createDownloadTrackerIfNotExist();
-  const data = await fs.readAsStringAsync(target);
-  return JSON.parse(data) as DownloadTracker;
-}
-
-export async function validateDownloadTracker() {
-  console.log("Validating download tracker");
-
-  const tracker = await loadDownloadTracker();
-  Object.entries(tracker).map(async (entry) => {
-    let key = entry[0];
-    let value = entry[1];
-    const path = value.mapId;
-    const mapInfo = await loadMapInfo(path);
-    if (mapInfo === undefined) {
-      console.log("MapInfo is undefined");
-      delete tracker[key];
-    }
-    // console.log(key, value);
-  });
-  await saveDownloadTracker(tracker);
-}
-
-export async function getdownloadTrackerKey(key: string) {
-  const tracker = await loadDownloadTracker();
-  return tracker[key];
-}
-
-export async function deleteDownloadTrackerKey(key: string) {
-  const tracker = await loadDownloadTracker();
-  delete tracker[key];
-  saveDownloadTracker(tracker);
-}
-
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
   const cacheInfo = await createIfNotExists(cacheDir);
-  const tracker = (await loadDownloadTracker()) as DownloadTracker;
   const reference = stor.ref(map.storeRef);
   let refName = reference.name;
   console.log(map, refName);
@@ -581,14 +510,12 @@ async function downloadMap(map: MapDocument) {
   if (!isUpdate && dirInfo.exists) mapInfo.map_id = altId;
   mapInfo.webId = map.id;
   saveMapInfo(mapInfo, refName.substring(1));
-  tracker[map.id] = {
+  const record = {
     mapId: mapInfo.map_id,
     webId: map.id,
     downloadDate: firestore.Timestamp.now(),
   };
-
-  console.log(tracker);
-  await saveDownloadTracker(tracker);
+  useDownloadTrackingStore.getState().addRecord(map.id, record);
 }
 
 async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {

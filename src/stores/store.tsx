@@ -7,23 +7,22 @@ import { headingDistanceTo } from "geolocation-utils";
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
 import auth, { firebase } from "@react-native-firebase/auth";
 import { DbUser } from "../config/firebase";
+import { devtools } from "zustand/middleware";
 
 interface MapStore {
-  currentMap: HealthPath;
-  maps: MapArray;
-  addMap: (map: HealthPath) => void;
   setCurrentMap: (map: HealthPath) => void;
   resetCurrentMap: () => void;
   clearMap: () => void;
   getUUID: () => string;
-  currentCamera: Camera;
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (media: MediaFile) => string;
   navAction: () => void | null;
   setNavAction: (action: () => void | null) => void;
   executeNavAction: () => void;
-  notSaved: boolean;
   setNotSaved: (saved: boolean) => void;
+  currentCamera: Camera;
+  notSaved: boolean;
+  currentMap: HealthPath;
 }
 
 interface MapArray {
@@ -32,10 +31,7 @@ interface MapArray {
 
 interface LocationTrackingStore {
   locations: { coords: LatLng[] };
-  addLocations: (location: LatLng[], timestamp: number) => void;
-  clearLocations: () => void;
   outputLocations: LatLng[];
-  testobject: { test: string[] };
   currentLine: {
     start: LatLng;
     end: LatLng;
@@ -43,10 +39,9 @@ interface LocationTrackingStore {
     headingDelta: number;
     headingLast: number;
   };
-  currentRecording: {
-    distance: number;
-  };
   highestTimestamp: number;
+  addLocations: (location: LatLng[], timestamp: number) => void;
+  clearLocations: () => void;
   setHighestTimestamp: (timestamp: number) => void;
   getOutputLocations: () => LatLng[];
 }
@@ -57,7 +52,8 @@ interface UserStore {
   logOut: () => Promise<void>;
   checkLogged: () => Promise<boolean>;
 }
-export const useMapStore = create<MapStore>((set, get) => ({
+
+const storemap = (set, get) => ({
   currentMap: {
     name: "",
     map_id: "",
@@ -66,26 +62,14 @@ export const useMapStore = create<MapStore>((set, get) => ({
     waypoints: [],
     stops: [],
   } as HealthPath,
-  maps: {
-    map1: {
-      name: "kato trasa",
-      map_id: "1",
-      description: "trasa krajoznawcza w katowicach",
-      location: "katowice",
-      waypoints: [],
-      stops: [],
-    } as HealthPath,
-  } as MapArray,
-  addMap: (map: HealthPath) => {
-    set((state) => {
-      const map_id = uuid.v4().toString();
-      if (map.map_id === undefined || map.map_id === "") map.map_id = map_id;
-      state.maps[map.map_id] = map;
-      console.log(state.maps);
-
-      return { maps: { ...state.maps } };
-    });
-  },
+  navAction: null,
+  currentCamera: {
+    center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
+    heading: 0,
+    pitch: 0,
+    zoom: 5.757617473602295,
+  } as Camera,
+  notSaved: false,
   setCurrentMap: (map: HealthPath) =>
     set(() => {
       if (map === undefined)
@@ -115,12 +99,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
     }));
   },
   getUUID: () => uuid.v4().toString(),
-  currentCamera: {
-    center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
-    heading: 0,
-    pitch: 0,
-    zoom: 5.757617473602295,
-  } as Camera,
+
   setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
   getCurrentMediaURI: (media: MediaFile) => {
     const state = get();
@@ -131,10 +110,8 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set(() => ({
       currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
     })),
-  notSaved: false,
   setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
 
-  navAction: null,
   setNavAction: (action: () => void | null) => set(() => ({ navAction: action })),
   executeNavAction: () => {
     const state = get();
@@ -153,121 +130,125 @@ export const useMapStore = create<MapStore>((set, get) => ({
     }));
     if (action) action();
   },
-}));
+});
 
-export const useLocationTrackingStore = create<LocationTrackingStore>((set, get) => ({
-  locations: { coords: [] },
-  addLocations: (location: LatLng[], timestamp: number) => {
-    //function is optimizing the path generation by removing points that are in a straight line
-    //or are close to each other
-    set((state) => {
-      const line = state.currentLine;
-      let recDistance = 0;
-      if (location.length === 0) return {};
-      if (line.start === undefined) {
-        line.start = line.end = location[0];
-        line.distance = line.headingDelta = 0;
-        line.headingLast = undefined;
-        console.log(line);
-      }
+export const useMapStore = create<MapStore>()(
+  devtools(storemap, { name: "mapstore", store: "Store Containing map" })
+);
 
-      for (let i = 0; i < location.length; i++) {
-        let hdt = headingDistanceTo(line.end, location[i]);
-        if (hdt.distance <= 1) {
-          continue;
-        }
-        if (line.headingLast === undefined) {
-          //when the line does have only one point
-          line.headingLast = hdt.heading;
-          line.headingDelta = 0;
-          line.end = location[i];
-          continue;
-        }
-        line.headingDelta += hdt.heading - line.headingLast;
-        if (
-          Math.abs(line.headingDelta) > 5 ||
-          Math.abs(line.headingLast - hdt.heading) > 2.5 ||
-          // line.distance > 100
-          false
-        ) {
-          //end line and start new one
-          recDistance += line.distance;
-          console.log(line, "new line");
-          state.locations.coords.push(line.start);
-          line.start = line.end;
-          line.end = location[i];
-          line.distance = line.headingDelta = 0;
-        }
-        line.headingLast = hdt.heading;
+export const useLocationTrackingStore = create<LocationTrackingStore>()(
+  devtools(
+    (set, get) => ({
+      locations: { coords: [] },
+      addLocations: (location: LatLng[], timestamp: number) => {
+        //function is optimizing the path generation by removing points that are in a straight line
+        //or are close to each other
+        set((state) => {
+          const line = state.currentLine;
+          let recDistance = 0;
+          if (location.length === 0) return {};
+          if (line.start === undefined) {
+            line.start = line.end = location[0];
+            line.distance = line.headingDelta = 0;
+            line.headingLast = undefined;
+            console.log(line);
+          }
 
-        console.log("hdt    ", hdt, line.distance);
-        line.distance += hdt.distance;
-        recDistance += hdt.distance;
-        line.end = location[i];
-      }
+          for (let i = 0; i < location.length; i++) {
+            let hdt = headingDistanceTo(line.end, location[i]);
+            if (hdt.distance <= 1) {
+              continue;
+            }
+            if (line.headingLast === undefined) {
+              //when the line does have only one point
+              line.headingLast = hdt.heading;
+              line.headingDelta = 0;
+              line.end = location[i];
+              continue;
+            }
+            line.headingDelta += hdt.heading - line.headingLast;
+            if (
+              Math.abs(line.headingDelta) > 5 ||
+              Math.abs(line.headingLast - hdt.heading) > 2.5 ||
+              // line.distance > 100
+              false
+            ) {
+              //end line and start new one
+              recDistance += line.distance;
+              console.log(line, "new line");
+              state.locations.coords.push(line.start);
+              line.start = line.end;
+              line.end = location[i];
+              line.distance = line.headingDelta = 0;
+            }
+            line.headingLast = hdt.heading;
 
-      // state.locations.coords.push(...location);
-      // state.locations
-      //   ? state.locations.push(location as LatLng)
-      //   : (state.locations = [location as LatLng]);
-      return {
-        locations: { coords: state.locations.coords },
-        outputLocations: [...state.locations.coords, line.start, line.end],
-        currentLine: {
-          start: line.start,
-          end: line.end,
-          distance: line.distance,
-          headingDelta: line.headingDelta,
-          headingLast: line.headingLast,
-        },
-        currentRecording: {
-          distance: state.currentRecording.distance + recDistance,
-        },
-        highestTimestamp: timestamp,
-      };
-    });
-  },
-  clearLocations: () => {
-    set(() => {
-      return {
-        locations: { coords: [] },
-        outputLocations: [],
-        currentLine: {
-          start: undefined,
-          end: undefined,
-          distance: 0,
-          headingDelta: undefined,
-          headingLast: undefined,
-        },
-        currentRecording: {
-          distance: 0,
-        },
-      };
-    });
-  },
-  testobject: { test: ["test1", "test2"] },
-  outputLocations: [],
-  getOutputLocations: () => {
-    const state = get();
-    return state.outputLocations;
-  },
-  currentLine: {
-    start: undefined,
-    end: undefined,
-    distance: 0,
-    headingDelta: undefined,
-    headingLast: undefined,
-  },
-  currentRecording: {
-    distance: 0,
-  },
-  highestTimestamp: 0,
-  setHighestTimestamp: (timestamp: number) => {
-    set((state) => {
-      return { highestTimestamp: timestamp };
-    });
-  },
-}));
+            console.log("hdt    ", hdt, line.distance);
+            line.distance += hdt.distance;
+            recDistance += hdt.distance;
+            line.end = location[i];
+          }
+
+          return {
+            locations: { coords: state.locations.coords },
+            outputLocations: [...state.locations.coords, line.start, line.end],
+            currentLine: {
+              start: line.start,
+              end: line.end,
+              distance: line.distance,
+              headingDelta: line.headingDelta,
+              headingLast: line.headingLast,
+            },
+            currentRecording: {
+              distance: state.currentRecording.distance + recDistance,
+            },
+            highestTimestamp: timestamp,
+          };
+        });
+      },
+      clearLocations: () => {
+        set(() => {
+          return {
+            locations: { coords: [] },
+            outputLocations: [],
+            currentLine: {
+              start: undefined,
+              end: undefined,
+              distance: 0,
+              headingDelta: undefined,
+              headingLast: undefined,
+            },
+            currentRecording: {
+              distance: 0,
+            },
+          };
+        });
+      },
+      outputLocations: [],
+      getOutputLocations: () => {
+        const state = get();
+        return state.outputLocations;
+      },
+      currentLine: {
+        start: undefined,
+        end: undefined,
+        distance: 0,
+        headingDelta: undefined,
+        headingLast: undefined,
+      },
+      currentRecording: {
+        distance: 0,
+      },
+      highestTimestamp: 0,
+      setHighestTimestamp: (timestamp: number) => {
+        set((state) => {
+          return { highestTimestamp: timestamp };
+        });
+      },
+    }),
+    { name: "locationTrackingStore", store: "Store Containing location tracking info" }
+  )
+);
 
 export const useUserStore = create<UserStore>((set, get) => ({
   user: undefined,
