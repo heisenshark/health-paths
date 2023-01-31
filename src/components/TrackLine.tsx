@@ -12,28 +12,33 @@ export interface TrackLineProps {
 }
 
 const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
-  const [line, getOutputLocations] = useLocationTrackingStore((state) => {
-    return [state.currentLine, state.getOutputLocations];
+  const [line, outLocations] = useLocationTrackingStore((state) => {
+    return [state.currentLine, state.outputLocations];
   });
 
   useEffect(() => {
-    console.log("TrackLine useEffect", isRecordingFinished);
+    console.log("outchange:   ", outLocations, isEdit, coords);
 
     return () => {};
-  });
+  }, [outLocations]);
 
   return (
     <>
       <Polyline
-        coordinates={isEdit ? coords : getOutputLocations() ? getOutputLocations() : []}
-        strokeColor={isRecordingFinished ? "yellow" : "red"}
+        coordinates={isEdit ? coords : outLocations ? outLocations : []}
+        strokeColor={isRecordingFinished ? "yellow" : "rgba(0,0,0,0)"}
         strokeWidth={8}
-        // lineDashPattern={[0]}
+        lineDashPattern={isRecordingFinished ? [0] : null}
+        zIndex={5}
+      />
+      <Polyline
+        coordinates={isEdit ? coords : outLocations ? outLocations : []}
+        strokeColor={isRecordingFinished ? "rgba(0,0,0,0)" : "red"}
+        strokeWidth={8}
         zIndex={4}
       />
-
-      {(getOutputLocations().length > 0 || isEdit) && (
-        <Marker coordinate={isEdit ? coords[0] : getOutputLocations()[0]} style={tw`flex`}>
+      {(outLocations.length > 0 || isEdit) && (
+        <Marker coordinate={isEdit ? coords[0] : outLocations[0]} style={tw`flex`}>
           <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
             <Text>Start</Text>
             <Image
@@ -46,13 +51,9 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
         </Marker>
       )}
 
-      {((getOutputLocations().length > 0 && isRecordingFinished) || isEdit) && (
+      {((outLocations.length > 0 && isRecordingFinished) || isEdit) && (
         <Marker
-          coordinate={
-            isEdit
-              ? coords[coords.length - 1]
-              : getOutputLocations()[getOutputLocations().length - 1]
-          }
+          coordinate={isEdit ? coords[coords.length - 1] : outLocations[outLocations.length - 1]}
           style={tw`flex`}>
           <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
             <Text>Koniec</Text>

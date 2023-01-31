@@ -172,7 +172,6 @@ export default function App() {
 
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useLocationTrackingStore.getState().addLocations;
-  const locationss = useLocationTrackingStore.getState().locations;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const setNotSaved = useMapStore.getState().setNotSaved;
   const notSaved = useMapStore.getState().notSaved;
@@ -196,12 +195,17 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * do ostatniego począku linii
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
-    console.log(stamp);
+    console.log("highest stamp", stamp);
+    console.log(
+      "stamps",
+      locations.map((n) => n.timestamp)
+    );
+    // console.log(Math.max(locations.map((n) => n.timestamp)));
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)
         .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
-      Math.max(locations.map((n) => n.timestamp))
+      Math.max(...locations.map((n) => n.timestamp))
     );
     if (locations.length > 1)
       console.log(

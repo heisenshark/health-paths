@@ -108,7 +108,7 @@ const MapEditScreen = ({ navigation, route }) => {
     useLocationBackground(alertShow);
   //[x] uprościć funkcje zooma na początku mapy
   //[x] zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
-  //TODO dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
+  //[x] dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
 
   //[x] dodać automatyczne robienie cover photo dla mapy
   //[x] Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
@@ -690,6 +690,8 @@ const MapEditScreen = ({ navigation, route }) => {
         />
         <Text>{currentModalOpen}</Text>
         <Text>{notSaved ? "not Saved" : "saved"}</Text>
+        <Text>{isInRecordingState ? "recstate" : "not recstate"}</Text>
+        <Text>{isRecording ? "rec" : "not rec"}</Text>
       </Animated.View>
 
       <Animated.View

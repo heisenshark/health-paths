@@ -30,7 +30,7 @@ import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
 //[x] uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
-//TODO dodać lepsze prompty do usuwania mapy i innych
+//[x] dodać lepsze prompty do usuwania mapy i innych
 const MapExplorerScreen = ({ navigation, route }) => {
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
   const [maps, setMaps] = useState<HealthPath[]>([]);

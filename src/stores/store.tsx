@@ -130,6 +130,8 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
         //function is optimizing the path generation by removing points that are in a straight line
         //or are close to each other
         set((state) => {
+          console.log("addLocations", location, timestamp, state.highestTimestamp);
+
           const line = state.currentLine;
           let recDistance = 0;
           if (location.length === 0) return {};
@@ -153,10 +155,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
               continue;
             }
             line.headingDelta += hdt.heading - line.headingLast;
-            if (
-              Math.abs(line.headingDelta) > 10 ||
-              Math.abs(line.headingLast - hdt.heading) > 5
-            ) {
+            if (Math.abs(line.headingDelta) > 5 || Math.abs(line.headingLast - hdt.heading) > 2.5) {
               //end line and start new one
               recDistance += line.distance;
               console.log(line, "new line");
