@@ -5,6 +5,7 @@ import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-na
 import { Card, Searchbar } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import MapCard from "../components/MapCard";
+import { ModalChoice, useAlertModal } from "../components/ModalChoice";
 import OptionsModal from "../components/OptionsModal";
 import SquareButton from "../components/SquareButton";
 import {
@@ -39,8 +40,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [additionalOptions, setAdditionalOptions] = useState([]);
   const [mapsState, setMapsState] = useState("local");
   const [webDisabled, setWebDisabled] = useState(false);
-
   const [disabled, setDisabled] = useState(false);
+
+  const [alertState, showAlert] = useAlertModal();
 
   const force = useForceUpdate();
   const onChangeSearch = (query: string) => setSearchQuery(query);
@@ -125,9 +127,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
             return;
           }
 
-          Alert.alert("Przesyłanie mapy", "Wybierz prywatność", [
+          showAlert("Przesyłanie mapy, wybierz prywatność", [
             {
               text: "Publiczna",
+              icon: "eye",
               onPress: async () => {
                 setDisabled(true);
                 await zipUploadMapFolder(selectedMap.current.map_id, "public");
@@ -137,6 +140,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             },
             {
               text: "Prywatna",
+              icon: "eye-slash",
               onPress: async () => {
                 setDisabled(true);
                 await zipUploadMapFolder(selectedMap.current.map_id, "private");
@@ -144,7 +148,6 @@ const MapExplorerScreen = ({ navigation, route }) => {
                 refreshMaps();
               },
             },
-            { text: "Anuluj", onPress: () => console.log("OK Pressed") },
           ]);
           setModalVisible(false);
         },
@@ -154,17 +157,22 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "Usuń mapę",
         icon: "cloud-upload",
         onPress: () => {
-          Alert.alert("Usuwanie mapy", "Czy na pewno chcesz usunąć mapę z pamięci lokalnej?", [
-            {
-              text: "Tak",
-              onPress: async () => {
-                await deleteMap(selectedMap.current.map_id);
-                setModalVisible(false);
-                refreshMaps();
+          showAlert(
+            "Czy na pewno chcesz usunąć mapę z pamięci?",
+            [
+              {
+                text: "Tak",
+                icon: "trash",
+                onPress: async () => {
+                  await deleteMap(selectedMap.current.map_id);
+                  setModalVisible(false);
+                  refreshMaps();
+                },
               },
-            },
-            { text: "Anuluj", onPress: () => console.log("Anulowano") },
-          ]);
+              { text: "Anuluj", icon: "arrow-left", onPress: () => console.log("Anulowano") },
+            ],
+            true
+          );
           setModalVisible(false);
         },
       },
@@ -212,18 +220,23 @@ const MapExplorerScreen = ({ navigation, route }) => {
         label: "usuń",
         icon: "minus-circle",
         onPress: () => {
-          Alert.alert("Usuwanie mapy", "Czy na pewno chcesz usunąć mapę z bazy?", [
-            {
-              text: "Tak",
-              onPress: async () => {
-                await deleteMapWeb(map.id);
-                console.log("usunieto");
-                setUserMaps(userMaps.filter((m) => m.id !== map.id));
-                refreshMaps();
+          showAlert(
+            "Czy na pewno chcesz usunąć mapę z internetu?",
+            [
+              {
+                text: "Tak",
+                icon: "trash",
+                onPress: async () => {
+                  await deleteMapWeb(map.id);
+                  console.log("usunieto");
+                  setUserMaps(userMaps.filter((m) => m.id !== map.id));
+                  refreshMaps();
+                },
               },
-            },
-            { text: "Anuluj", onPress: () => console.log("Anulowano") },
-          ]);
+              { text: "Anuluj", icon: "arrow-left", onPress: () => console.log("Anulowano") },
+            ],
+            true
+          );
           setModalVisible(false);
         },
       },
@@ -293,6 +306,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
 
   return (
     <View style={tw`h-full`} pointerEvents={disabled ? "none" : "auto"}>
+      <ModalChoice {...alertState} />
       <OptionsModal
         visible={modalVisible}
         label={"Co chcesz zrobić z mapą?"}

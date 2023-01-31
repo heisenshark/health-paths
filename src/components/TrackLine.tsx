@@ -26,9 +26,10 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
     <>
       <Polyline
         coordinates={isEdit ? coords : getOutputLocations() ? getOutputLocations() : []}
-        strokeColor="yellow"
-        strokeWidth={6}
-        lineDashPattern={[0]}
+        strokeColor={isRecordingFinished ? "yellow" : "red"}
+        strokeWidth={8}
+        // lineDashPattern={[0]}
+        zIndex={4}
       />
 
       {(getOutputLocations().length > 0 || isEdit) && (

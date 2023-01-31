@@ -16,7 +16,7 @@ interface OptionsModalProps {
 const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalProps) => {
   return (
     <Modal
-      animationType={"fade"}
+      animationType={"none"}
       transparent={true}
       visible={visible}
       onRequestClose={onRequestClose}>

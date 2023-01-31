@@ -163,12 +163,13 @@ export default function App() {
           <Navigator.Screen name="Settings" component={OtherSettingsScreen} />
         </Navigator.Navigator>
       </NavigationContainer>
-
       <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
+
       {/* </Provider> */}
     </>
   );
 }
+
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useLocationTrackingStore.getState().addLocations;
   const locationss = useLocationTrackingStore.getState().locations;

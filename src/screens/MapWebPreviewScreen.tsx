@@ -162,7 +162,7 @@ const MapWebPreview = ({ navigation, route }) => {
         // dismissed
       }
     } catch (error: any) {
-      Alert.alert(error.message);
+      ToastAndroid.show(error.message, ToastAndroid.SHORT);
     }
   };
 

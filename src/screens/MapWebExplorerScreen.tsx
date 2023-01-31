@@ -16,9 +16,9 @@ import LogInScreen from "./LogInScreen";
 //[x] przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
 //[x] jak dodawać lokację do bazy w suuumie XD
 //[x] zrobić pobieranie i odzipowanie
-//TODO zrobić obsługę manadżera pobrań
+//[x] zrobić obsługę manadżera pobrań
 
-const limit = 3;
+const limit = 10;
 
 const MapWebExplorerScreen = ({ navigation, route }) => {
   const [currentMap, setCurrentMap] = useMapStore((state) => [

@@ -207,7 +207,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
       </Text>
       <ModalChoice
         visible={audioModalVisible}
-        titles={["Jak dodać audio?", "Wybierz z plików", "Nagraj"]}
+        label="Jak dodać audio?"
+        titles={["Wybierz z plików", "Nagraj"]}
         buttonIcons={["file", "microphone"]}
         actionLeft={onAudioPick}
         actionRight={function (): void {
@@ -220,7 +221,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
       />
       <ModalChoice
         visible={imageModalVisible}
-        titles={["jak dodać zdjęcie?", "Dodaj z kamery", "Wybierz z plików"]}
+        label="jak dodać zdjęcie?"
+        titles={["Dodaj z kamery", "Wybierz z plików"]}
         buttonIcons={["camera", "file"]}
         actionLeft={() => pickImage({ isCamera: true })}
         actionRight={() => pickImage({ isCamera: false })}

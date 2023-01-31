@@ -1,4 +1,8 @@
-import { NavigationContainer, NavigationContainerRefWithCurrent } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  NavigationContainerRefWithCurrent,
+  useRoute,
+} from "@react-navigation/native";
 import * as React from "react";
 import { View, Text } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -19,14 +23,21 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   const sensitiveTabs = ["Nagraj", "Planuj"];
 
   const tryToNavigate = (route: string, options?: any) => {
+    console.log("routeto: ", route, "current: ", currentRoute);
+    console.log("navigation");
+
     if (route === currentRoute) return;
-    if (sensitiveTabs.includes(currentRoute))
-      setNavAction(() => {
-        if (sensitiveTabs.includes(route))
-          navigationRef.dispatch(StackActions.replace(route, options));
-        else navigationRef.navigate(route, options);
+    if (sensitiveTabs.includes(currentRoute)) {
+      navigationRef.setParams({
+        ...navigationRef.getCurrentRoute().params,
+        navigateTo: { route, params: options },
       });
-    else navigationRef.navigate(route, options);
+      // setNavAction(() => {
+      //   if (sensitiveTabs.includes(route)) {
+      //     navigationRef.dispatch(StackActions.replace(route, options));
+      //   } else navigationRef.navigate(route, options);
+      // });
+    } else navigationRef.navigate(route, options);
   };
 
   const tabGUI = () => {
@@ -35,7 +46,9 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         <SquareButton
           label={"Pulpit"}
           uberActive={currentRoute === "Trasy" || !currentRoute}
-          onPress={() => {tryToNavigate("Trasy"); console.log("siema");
+          onPress={() => {
+            tryToNavigate("Trasy");
+            console.log("siema");
           }}
           icon={"home"}
         />

@@ -18,7 +18,6 @@ interface MapStore {
   getCurrentMediaURI: (media: MediaFile) => string;
   navAction: () => void | null;
   setNavAction: (action: () => void | null) => void;
-  executeNavAction: () => void;
   setNotSaved: (saved: boolean) => void;
   currentCamera: Camera;
   notSaved: boolean;
@@ -112,24 +111,11 @@ const storemap = (set, get) => ({
     })),
   setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
 
-  setNavAction: (action: () => void | null) => set(() => ({ navAction: action })),
-  executeNavAction: () => {
-    const state = get();
-    const action = state.navAction;
-    set(() => ({
-      navAction: null,
-      currentMap: {
-        name: "",
-        map_id: "",
-        description: "",
-        location: "",
-        waypoints: [],
-        stops: [],
-      },
-      notSaved: false,
-    }));
-    if (action) action();
-  },
+  setNavAction: (action: () => void | null) =>
+    set(() => {
+      console.log("setNavAction", action);
+      return { navAction: action };
+    }),
 });
 
 export const useMapStore = create<MapStore>()(
@@ -168,10 +154,8 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             }
             line.headingDelta += hdt.heading - line.headingLast;
             if (
-              Math.abs(line.headingDelta) > 5 ||
-              Math.abs(line.headingLast - hdt.heading) > 2.5 ||
-              // line.distance > 100
-              false
+              Math.abs(line.headingDelta) > 10 ||
+              Math.abs(line.headingLast - hdt.heading) > 5
             ) {
               //end line and start new one
               recDistance += line.distance;
@@ -183,7 +167,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             }
             line.headingLast = hdt.heading;
 
-            console.log("hdt    ", hdt, line.distance);
+            console.log("LINE: ", line);
             line.distance += hdt.distance;
             recDistance += hdt.distance;
             line.end = location[i];

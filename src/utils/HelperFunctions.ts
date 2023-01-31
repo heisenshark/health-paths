@@ -77,7 +77,7 @@ function decode(t) {
   return points;
 }
 
-export function getRoute(
+export async function getRoute(
   origin: LatLng,
   destination: LatLng,
   apikey = "***REMOVED***",
@@ -94,33 +94,31 @@ export function getRoute(
   }
   console.log(url);
 
-  return fetch(url)
-    .then((response) => response.json())
-    .then((json) => {
-      if (json.status !== "OK") {
-        const errorMessage = json.error_message || json.status || "Unknown error";
-        return Promise.reject(errorMessage);
-      }
+  const response = await fetch(url);
+  const json = await response.json();
+  if (json.status !== "OK") {
+    const errorMessage = json.error_message || json.status || "Unknown error";
+    return Promise.reject(errorMessage);
+  }
+  if (json.routes.length) {
+    const route = json.routes[0];
 
-      if (json.routes.length) {
-        const route = json.routes[0];
-
-        return Promise.resolve(
-          route.legs.reduce((carry, curr) => {
-            return [...carry, ...decode(curr.steps)];
-          }, [])
-        );
-      } else {
-        return Promise.reject();
-      }
-    })
-    .catch((err) => {
-      return Promise.reject(`Error: ${err}`);
-    });
+    return Promise.resolve(
+      route.legs.reduce((carry, curr) => {
+        return [...carry, ...decode(curr.steps)];
+      }, [])
+    );
+  } else {
+    return Promise.reject();
+  }
 }
 
 export async function getLocationPermissions(): Promise<boolean> {
+  console.log("permcheck");
+
   let { status } = await Location.requestForegroundPermissionsAsync();
+  console.log("ssssssss");
+
   console.log(status);
   let ss = await Location.requestBackgroundPermissionsAsync();
   console.log(ss.status);

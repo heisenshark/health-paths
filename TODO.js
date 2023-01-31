@@ -27,10 +27,11 @@
 
 
 //TODO naprawić buga który jest w mapedit screen, można wywołać infinite rerender pętlę dodając kilka waypointów przed renderem trasy
-//TODO przetestować ekran nagrywnania 
-//TODO Zamienić alert na modal
-//[x] Zamienić download tracker na persistant store 
+//[x] przetestować ekran nagrywnania // jest progress, ale może jeszcze coś tam jest złego
 
+//[x] Zamienić alert na modal
+//[x] Zamienić download tracker na persistant store 
+//TODO zapewnić konsystencję interfejsu aplikacji 
 
 
 <MOTYWACJA>
