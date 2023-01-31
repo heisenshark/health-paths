@@ -78,12 +78,8 @@ const MapViewScreen = ({ navigation, route }) => {
               params: { editedWaypoint: stopPoint, isEdit: false },
             });
           }}></StopPoints>
-        <Polyline
-          coordinates={currentMap.path}
-          strokeWidth={6}
-          strokeColor="#ffc800"
-          lineDashPattern={[0]}
-        />
+        <Polyline coordinates={currentMap.path} strokeWidth={8} strokeColor="#ffc800" zIndex={3}/>
+        <Polyline coordinates={currentMap.path} strokeColor={"black"} strokeWidth={12} zIndex={1} />
       </MapView>
 
       <View style={tw`absolute top-2 left-2`}>

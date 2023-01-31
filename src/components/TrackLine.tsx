@@ -27,7 +27,7 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
       />
       <Polyline
         coordinates={isEdit ? coords : outLocations ? outLocations : []}
-        strokeColor={isRecordingFinished ? "black" : "rgba(0,0,0,0)"}
+        strokeColor={"black"}
         strokeWidth={12}
         // lineDashPattern={isRecordingFinished ? [10,3,10,3,10] : null}
         zIndex={4}
@@ -36,7 +36,7 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
         coordinates={isEdit ? coords : outLocations ? outLocations : []}
         strokeColor={isRecordingFinished ? "rgba(0,0,0,0)" : "red"}
         strokeWidth={8}
-        zIndex={3}
+        zIndex={5}
       />
       {(outLocations.length > 0 || isEdit) && (
         <Marker coordinate={isEdit ? coords[0] : outLocations[0]} style={tw`flex`}>

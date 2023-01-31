@@ -31,6 +31,7 @@
 
 //[x] Zamienić alert na modal
 //[x] Zamienić download tracker na persistant store 
+//[x] Nagrywanie Screen initial button
 //TODO zapewnić konsystencję interfejsu aplikacji 
 
 

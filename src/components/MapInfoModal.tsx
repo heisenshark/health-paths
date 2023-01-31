@@ -111,7 +111,8 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
         onSwipeComplete={onRequestClose}
         onBackButtonPress={onRequestClose}>
         <View style={tw`bg-slate-100 border-t-4 border-slate-300 w-full`}>
-          <Text style={tw`text-2xl font-bold p-5 border-slate-300 border-b-2 mx-4`}>
+          <Text
+            style={tw`text-3xl text-center font-bold p-5 px-1 border-slate-300 border-b-2 mx-4`}>
             Dodaj informacje o ścieżce
           </Text>
 

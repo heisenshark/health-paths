@@ -66,29 +66,34 @@ export type curmodalOpenType =
 
 const [maxWaypoints, maxStops] = [10, 20];
 
-const MapEditScreen = ({ navigation, route }) => {
-  let isPathEditable = false;
-  const isInRecordingState = route.params.isRecording as boolean;
-  const API_KEY = "***REMOVED***";
-  // const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
-  // const [mapEditState, setMapEditState] = useState<MapEditState>("Idle");
-  const [selectedStop, setSelectedStop] = useState(null as Waypoint);
-  const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
+const API_KEY = "***REMOVED***";
 
+const MapEditScreen = ({ navigation, route }) => {
+  const isInRecordingState = route.params.isRecording as boolean;
+  const force = useForceUpdate();
+  const mapRef = useRef<MapView>();
   const [isWatchingposition, setIsWatchingposition] = useState(false);
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [pointPivot, setPointPivot] = useState(null as LatLng);
-
+  const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
   const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
   const [mapEditState, setMapEditState] = useAtom(mapEditorStateAtom);
-  const [currentModalOpen, setCurrentModalOpen] = useState<curmodalOpenType>("None"); //
-  const [initialRegion, setInitialRegion] = useAtom(initialRegionAtom);
+  const [initialRegion] = useAtom(initialRegionAtom);
   const [zoom, setZoom] = useAtom(zoomAtom);
   const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
   const [blockInteractability, setBlockInteractability] = useState(false);
   const [tipVisible, showTip] = useShowable(2000);
   const [tipMessage, setTipMessage] = useState("Dotknij aby dodać lub edytować punkt");
+  const [selectedStop, setSelectedStop] = useState(null as Waypoint);
+  const [selectedWaypoint, setSelectedWaypoint] = useState(null as LatLng);
+  const [waypoints, setWaypoints] = useState<LatLng[]>([]);
+  const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
+  const [fullPath, setFullPath] = useState([] as LatLng[]);
+  const [alertModalState, alertShow] = useAlertModal();
+  const [initialRecorddingPrompt, setInitialRecorddingPrompt] = useState(false);
 
+  const [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] =
+    useLocationBackground(alertShow);
   const [currentMap, setCurrentMap, resetCurrentMap, notSaved, setNotSaved] = useMapStore(
     (state) => [
       state.currentMap,
@@ -98,14 +103,7 @@ const MapEditScreen = ({ navigation, route }) => {
       state.setNotSaved,
     ]
   );
-  const mapRef = useRef<MapView>();
-  const [waypoints, setWaypoints] = useState<LatLng[]>([]);
-  const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
-  const [fullPath, setFullPath] = useState([] as LatLng[]);
-  const force = useForceUpdate();
-  const [alertModalState, alertShow] = useAlertModal();
-  const [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] =
-    useLocationBackground(alertShow);
+
   //[x] uprościć funkcje zooma na początku mapy
   //[x] zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
   //[x] dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
@@ -113,181 +111,7 @@ const MapEditScreen = ({ navigation, route }) => {
   //[x] dodać automatyczne robienie cover photo dla mapy
   //[x] Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
 
-  function snapEnds(cords: LatLng[]) {
-    if (waypoints.length < 2) return;
-    waypoints[0] = cords[0];
-    waypoints[waypoints.length - 1] = cords[cords.length - 1];
-  }
-
-  function addNewWaypoint(
-    cords: LatLng,
-    type: "waypoint" | "stop",
-    position: number = waypoints.length
-  ): null | Waypoint {
-    //HACK may not work propertly
-    switch (type) {
-    case "waypoint":
-      if (waypoints.length >= maxWaypoints) {
-        ToastAndroid.show(
-          "Nie dodano, maksymalna ilość punktów trasy została osiągnięta",
-          ToastAndroid.SHORT
-        );
-        return null;
-      }
-      waypoints.splice(position, 0, cords);
-      setNotSaved(true);
-      force();
-      break;
-    case "stop":
-      if (stopPoints.length >= maxStops) {
-        ToastAndroid.show(
-          "Nie dodano, maksymalna ilość punktów stopu została osiągnięta",
-          ToastAndroid.SHORT
-        );
-        return null;
-      }
-      const newStop = {
-        waypoint_id: uuid.v4(),
-        displayed_name: "",
-        coordinates: cords,
-        description: "",
-      } as Waypoint;
-      stopPoints.push(newStop);
-      setNotSaved(true);
-      return newStop;
-    }
-    return null;
-  }
-
-  async function saveMapEvent(
-    name: string,
-    description: string,
-    mapIcon: MediaFile
-  ): Promise<string | void> {
-    if (!isInRecordingState && waypoints.length < 2)
-      return "Dodaj przynajmniej dwa punkty do trasy";
-    console.log(mapIcon); //HACK tutaj może coś się wywrócić
-
-    let p = [];
-    if (isInRecordingState) p = [...useLocationTrackingStore.getState().getOutputLocations()];
-    else p = [...fullPath];
-    console.log("plen", p.length, p);
-    if (p.length <= 0) return "Brak ścieżki...";
-
-    let xd = {
-      ...currentMap,
-      name: name,
-      description: description,
-      imageIcon: mapIcon,
-      waypoints: [...waypoints],
-      stops: [...stopPoints],
-      path: [...p],
-    } as HealthPath;
-    console.log(p[0]);
-
-    const geoCode = await Location.reverseGeocodeAsync(p[0]);
-    console.log(geoCode);
-    if (geoCode.length > 0 && geoCode[0].city) xd.location = geoCode[0].city;
-
-    setShowUserLocation(false);
-    mapRef.current.fitToCoordinates([...waypoints, ...p], {
-      edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
-      animated: false,
-    });
-    const cam = await mapRef.current.getCamera();
-    setZoom(156543.03392 / Math.pow(2, cam.zoom));
-    await new Promise((r) => setTimeout(r, 100));
-    const uri = await mapRef.current.takeSnapshot({
-      width: 350, // optional, when omitted the view-width is used
-      height: 700, // optional, when omitted the view-height is used
-      format: "jpg", // image formats: 'png', 'jpg' (default: 'png')
-      quality: 0.8, // image quality: 0..1 (only relevant for jpg, default: 1)
-      result: "file", // result types: 'file', 'base64' (default: 'file')
-    });
-    setShowHandles(true);
-    setShowUserLocation(true);
-    console.log("snapshot taken");
-    xd.imagePreview = {
-      media_id: uuid.v4(),
-      storage_type: "cache",
-      type: "image",
-      path: uri,
-    } as MediaFile;
-
-    console.log("reverse geocoding done  for: ", p[0]);
-    console.log("reverse geocoding done  : ", xd.location);
-
-    console.log("printing preview and icon onSaveEvent");
-
-    console.log(xd.imagePreview);
-    console.log(xd.imageIcon);
-
-    setCurrentMap(xd);
-    console.log("current map set");
-    await saveMap(xd);
-    return;
-  }
-
-  const onSave = async (
-    name: string,
-    description: string,
-    asNew: boolean,
-    mapIcon: MediaFile
-  ): Promise<boolean> => {
-    setBlockInteractability(true);
-    try {
-      if (asNew) currentMap.map_id = uuid.v4().toString();
-      const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
-      console.log(good);
-
-      if (typeof good === "string") {
-        ToastAndroid.show(good, ToastAndroid.SHORT);
-        setNotSaved(true);
-        setBlockInteractability(false);
-        return true;
-      } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
-    } catch (e) {
-      console.log(e, "AAAAAA");
-    }
-    setNotSaved(false);
-    setBlockInteractability(false);
-    return false;
-  };
-
-  const onClear = () => {
-    alertShow(
-      "Czy na pewno chcesz wyczyścić trasę?",
-      [
-        {
-          text: "Usuń",
-          icon: "trash",
-          onPress: () => {
-            console.log("is in recording: ", isInRecordingState);
-            if (isInRecordingState) {
-              useLocationTrackingStore.getState().clearLocations();
-              stopBackgroundTracking();
-              if (route.name === "Planuj") {
-                // route.params.isRecording = false;
-              }
-            } else {
-              setFullPath([]);
-              setWaypoints([]);
-              setIsRecordedHealthPath(false);
-            }
-          },
-        },
-        {
-          text: "Anuluj",
-          icon: "arrow-left",
-        },
-      ],
-      true
-    );
-  };
-
-  useEffect(() => {
-    console.log("rerender ", mapEditState, showHandles, isRecording);
-  });
+  usePreventBack(alertShow);
 
   useEffect(() => {
     if (!route.params?.navigateTo) return;
@@ -303,7 +127,6 @@ const MapEditScreen = ({ navigation, route }) => {
           text: "Tak",
           icon: "sign-out-alt",
           onPress: () => {
-            if (isRecording) stopBackgroundTracking();
             useMapStore.getState().resetCurrentMap();
             useMapStore.getState().setNotSaved(false);
             navigation.navigate(
@@ -366,19 +189,19 @@ const MapEditScreen = ({ navigation, route }) => {
         mapRef.current.getCamera().then((c) => {
           setZoom(156543.03392 / Math.pow(2, c.zoom));
         });
-      }, 0);
+      }, 20);
     }
 
     if (isInRecordingState) {
-      console.log("clearing locations");
-      setStopPoints([]);
-      setWaypoints([]);
-      setFullPath([]);
-      setNotSaved(false);
+      console.log("elo5");
+
+      setInitialRecorddingPrompt(true);
+      stopBackgroundTracking();
     }
 
     return () => {
       console.log("unmounting");
+      if (isRecording) stopBackgroundTracking();
       resetCurrentMap();
       setWaypoints([]);
       setStopPoints([]);
@@ -387,47 +210,142 @@ const MapEditScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  usePreventBack(() =>
-    alertShow(
-      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
-      [
-        {
-          text: "Tak",
-          icon: "sign-out-alt",
-          onPress: () => {
-            if (isRecording) stopBackgroundTracking();
-            useMapStore.getState().resetCurrentMap();
-            useMapStore.getState().setNotSaved(false);
-            navigation.goBack();
-          },
-        },
-        {
-          text: "Nie",
-          icon: "arrow-left",
-          onPress: () => {
-            return;
-          },
-        },
-      ],
-      true
-    )
-  );
-
   useFocusEffect(
     useCallback(() => {
       checkRecording();
       return () => {
         console.log(route.name, "aaaaaaa");
-        if (!notSaved && route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio")
+        if (route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio") {
+          console.log(
+            " ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR"
+          );
+          if (isRecording) {
+            useLocationTrackingStore.getState().clearLocations();
+            stopBackgroundTracking().then();
+          }
           resetCurrentMap(); //HACK, mogą być problemy jak przenosisz się do innrgo ekranu
+        }
       };
     }, [navigation, route])
   );
 
-  const animateToPoint = async (point: LatLng, zoom: number = undefined, time: number = 300) => {
+  function snapEnds(cords: LatLng[]) {
+    if (waypoints.length < 2) return;
+    waypoints[0] = cords[0];
+    waypoints[waypoints.length - 1] = cords[cords.length - 1];
+  }
+
+  function addNewWaypoint(
+    cords: LatLng,
+    type: "waypoint" | "stop",
+    position: number = waypoints.length
+  ): null | Waypoint {
+    //HACK may not work propertly
+    switch (type) {
+    case "waypoint":
+      if (waypoints.length >= maxWaypoints) {
+        ToastAndroid.show(
+          "Nie dodano, maksymalna ilość punktów trasy została osiągnięta",
+          ToastAndroid.SHORT
+        );
+        return null;
+      }
+      waypoints.splice(position, 0, cords);
+      setNotSaved(true);
+      force();
+      break;
+    case "stop":
+      if (stopPoints.length >= maxStops) {
+        ToastAndroid.show(
+          "Nie dodano, maksymalna ilość punktów stopu została osiągnięta",
+          ToastAndroid.SHORT
+        );
+        return null;
+      }
+      const newStop = {
+        waypoint_id: uuid.v4(),
+        displayed_name: "",
+        coordinates: cords,
+        description: "",
+      } as Waypoint;
+      stopPoints.push(newStop);
+      setNotSaved(true);
+      return newStop;
+    }
+    return null;
+  }
+
+  async function animateToPoint(point: LatLng, zoom: number = undefined, time: number = 300) {
     mapRef.current.animateCamera({ center: point, zoom: zoom ?? undefined }, { duration: time });
     await new Promise((resolve) => setTimeout(resolve, time));
-  };
+  }
+
+  async function saveMapEvent(
+    name: string,
+    description: string,
+    mapIcon: MediaFile
+  ): Promise<string | void> {
+    if (!isInRecordingState && waypoints.length < 2)
+      return "NIE ZAPISANO MAPY, Dodaj przynajmniej dwa punkty do trasy";
+    let p = [];
+    if (isInRecordingState) p = [...useLocationTrackingStore.getState().getOutputLocations()];
+    else p = [...fullPath];
+    console.log("plen", p.length, p);
+    if (p.length <= 0) return "NIE ZAPISANO MAPY, Brak ścieżki...";
+
+    let xd = {
+      ...currentMap,
+      name: name,
+      description: description,
+      imageIcon: mapIcon,
+      waypoints: [...waypoints],
+      stops: [...stopPoints],
+      path: [...p],
+    } as HealthPath;
+    console.log(p[0]);
+
+    const geoCode = await Location.reverseGeocodeAsync(p[0]);
+    console.log(geoCode);
+    if (geoCode.length > 0 && geoCode[0].city) xd.location = geoCode[0].city;
+
+    setShowUserLocation(false);
+    mapRef.current.fitToCoordinates([...waypoints, ...p], {
+      edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
+      animated: false,
+    });
+    const cam = await mapRef.current.getCamera();
+    setZoom(156543.03392 / Math.pow(2, cam.zoom));
+    await new Promise((r) => setTimeout(r, 100));
+    const uri = await mapRef.current.takeSnapshot({
+      width: 350, // optional, when omitted the view-width is used
+      height: 700, // optional, when omitted the view-height is used
+      format: "jpg", // image formats: 'png', 'jpg' (default: 'png')
+      quality: 0.8, // image quality: 0..1 (only relevant for jpg, default: 1)
+      result: "file", // result types: 'file', 'base64' (default: 'file')
+    });
+    setShowHandles(true);
+    setShowUserLocation(true);
+    console.log("snapshot taken");
+    xd.imagePreview = {
+      media_id: uuid.v4(),
+      storage_type: "cache",
+      type: "image",
+      path: uri,
+    } as MediaFile;
+
+    console.log("reverse geocoding done  for: ", p[0]);
+    console.log("reverse geocoding done  : ", xd.location);
+
+    console.log("printing preview and icon onSaveEvent");
+
+    console.log(xd.imagePreview);
+    console.log(xd.imageIcon);
+
+    setCurrentMap(xd);
+    console.log("current map set");
+    await saveMap(xd);
+    return;
+  }
 
   async function onPressMap(e: MapPressEvent) {
     e.persist();
@@ -454,6 +372,83 @@ const MapEditScreen = ({ navigation, route }) => {
     await animateToPoint(e.nativeEvent.coordinate);
     setMapEditState("Idle");
     force();
+  }
+
+  async function onSave(
+    name: string,
+    description: string,
+    asNew: boolean,
+    mapIcon: MediaFile
+  ): Promise<boolean> {
+    setBlockInteractability(true);
+    try {
+      if (asNew) currentMap.map_id = uuid.v4().toString();
+      const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
+      console.log(good);
+
+      if (typeof good === "string") {
+        ToastAndroid.show(good, ToastAndroid.SHORT);
+        setNotSaved(true);
+        setBlockInteractability(false);
+        return true;
+      } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
+    } catch (e) {
+      console.log(e, "AAAAAA");
+    }
+    setNotSaved(false);
+    setBlockInteractability(false);
+    return false;
+  }
+
+  function onClear() {
+    alertShow(
+      "Czy na pewno chcesz wyczyścić trasę?",
+      [
+        {
+          text: "Usuń",
+          icon: "trash",
+          onPress: () => {
+            console.log("is in recording: ", isInRecordingState);
+            if (isInRecordingState) {
+              useLocationTrackingStore.getState().clearLocations();
+              stopBackgroundTracking();
+            } else {
+              setFullPath([]);
+              setWaypoints([]);
+              setIsRecordedHealthPath(false);
+              if (stopPoints.length === 0) setNotSaved(false);
+            }
+          },
+        },
+        {
+          text: "Anuluj",
+          icon: "arrow-left",
+        },
+      ],
+      true
+    );
+  }
+
+  function onPausePress() {
+    isRecording
+      ? alertShow(
+        "Zatrzymać nagrywanie?",
+        [
+          {
+            text: "Zatrzymaj",
+            icon: "pause",
+            onPress: () => {
+              stopBackgroundTracking();
+            },
+          },
+          {
+            text: "Anuluj",
+            icon: "arrow-left",
+          },
+        ],
+        true
+      )
+      : startBackgroundTracking();
   }
 
   return (
@@ -536,6 +531,8 @@ const MapEditScreen = ({ navigation, route }) => {
           maxZoomLevel={20}
           showsUserLocation={showUserLocation}
           initialRegion={initialRegion}
+          customMapStyle={mapstyleSilver}
+          onPress={onPressMap}
           onTouchStart={() => {
             setTipMessage(
               mapEditState === "Idle"
@@ -544,8 +541,6 @@ const MapEditScreen = ({ navigation, route }) => {
             );
             showTip();
           }}
-          onPress={onPressMap}
-          customMapStyle={mapstyleSilver}
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
             mapRef.current.getCamera().then((c) => {
@@ -554,10 +549,7 @@ const MapEditScreen = ({ navigation, route }) => {
             });
           }}
           onUserLocationChange={(coordinate) => {
-            isWatchingposition &&
-              mapRef.current.animateCamera({
-                center: coordinate.nativeEvent.coordinate,
-              });
+            isWatchingposition && animateToPoint(coordinate.nativeEvent.coordinate);
           }}>
           {pointPivot !== null && <Marker coordinate={pointPivot} title="Nowy punkt" />}
           <Markers
@@ -587,9 +579,8 @@ const MapEditScreen = ({ navigation, route }) => {
                 waypoints={waypoints.slice(1, -1)}
                 mode={"WALKING"}
                 apikey={API_KEY}
-                strokeWidth={6}
+                strokeWidth={8}
                 strokeColor="#ffc800"
-                // lineDashPattern={[0]}
                 precision={"low"}
                 optimizeWaypoints
                 zIndex={2}
@@ -598,7 +589,6 @@ const MapEditScreen = ({ navigation, route }) => {
                   snapEnds(n.coordinates);
                   setFullPath(n.coordinates);
                   currentMap.distance = n.distance * 1000;
-                  // currentMap.location = adress;
                 }}
               />
               <Polyline coordinates={fullPath} strokeColor="black" strokeWidth={12} zIndex={1} />
@@ -618,11 +608,11 @@ const MapEditScreen = ({ navigation, route }) => {
       {tipVisible && (
         <TipDisplay
           tipMessage={tipMessage}
+          hideWaypoints={isInRecordingState || isRecordedHealthPath}
           currentPoints={waypoints.length}
-          maxPoints={maxWaypoints}
           currentStops={stopPoints.length}
+          maxPoints={maxWaypoints}
           maxStops={maxStops}
-          hideWaypoints={isInRecordingState}
         />
       )}
 
@@ -632,37 +622,13 @@ const MapEditScreen = ({ navigation, route }) => {
         entering={FadeInRight}
         exiting={FadeOutRight}>
         {isInRecordingState && (
-          <>
-            <MapGUIButton
-              colorOverride={isRecording && "bg-red-600"}
-              style={tw`self-end border-b-2 mt-auto`}
-              label={isRecording ? "pauza" : "wznów"}
-              icon={isRecording ? "pause" : "record-vinyl"}
-              onPress={() => {
-                console.log("pause button pressed");
-
-                isRecording
-                  ? alertShow(
-                    "Zatrzymać nagrywanie?",
-                    [
-                      {
-                        text: "Zatrzymaj",
-                        icon: "pause",
-                        onPress: () => {
-                          stopBackgroundTracking();
-                        },
-                      },
-                      {
-                        text: "Anuluj",
-                        icon: "arrow-left",
-                      },
-                    ],
-                    true
-                  )
-                  : startBackgroundTracking();
-              }}
-            />
-          </>
+          <MapGUIButton
+            colorOverride={isRecording && "bg-red-600"}
+            style={tw`self-end border-b-2 mt-auto`}
+            label={isRecording ? "pauza" : "wznów"}
+            icon={isRecording ? "pause" : "record-vinyl"}
+            onPress={onPausePress}
+          />
         )}
         <MapGUIButton
           style={tw`self-end border-b-2 mt-auto`}
@@ -705,40 +671,27 @@ const MapEditScreen = ({ navigation, route }) => {
             force();
           }}
         />
-        <Text>{currentModalOpen}</Text>
+        {/* <Text>{currentModalOpen}</Text>
         <Text>{notSaved ? "not Saved" : "saved"}</Text>
         <Text>{isInRecordingState ? "recstate" : "not recstate"}</Text>
-        <Text>{isRecording ? "rec" : "not rec"}</Text>
+        <Text>{isRecording ? "rec" : "not rec"}</Text> */}
       </Animated.View>
 
-      <Animated.View
-        style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
-        entering={FadeInLeft}
-        exiting={FadeOutLeft}>
-        <MapGUIButton
-          disabled={zoom <= 0.1493}
-          style={tw`self-end border-r-2 mt-auto`}
-          size={20}
-          label={"przybliż"}
-          icon="search-plus"
-          onPress={async () => {
-            const cam = await mapRef.current.getCamera();
-            mapRef.current.animateCamera({ zoom: cam.zoom + 1 });
-          }}
-        />
-        <MapGUIButton
-          disabled={zoom >= 1222}
-          size={20}
-          style={tw`self-end mt-auto`}
-          label={"oddal"}
-          icon="search-minus"
-          onPress={async () => {
-            const cam = await mapRef.current.getCamera();
-            mapRef.current.animateCamera({ zoom: cam.zoom - 1 });
-          }}
-        />
-      </Animated.View>
+      <ZoomGUI mapRef={mapRef} />
 
+      {initialRecorddingPrompt && (
+        <View style={tw`absolute w-full h-full flex bg-slate-100 items-center justify-center`}>
+          <SquareButton
+            size={60}
+            labelStyle={tw`text-3xl`}
+            label="Rozpocznij nagrywanie"
+            icon="play"
+            onPress={() => {
+              startBackgroundTracking().then(() => setInitialRecorddingPrompt(false));
+            }}
+          />
+        </View>
+      )}
       {blockInteractability && (
         <View
           style={tw`absolute w-full flex items-center justify-center h-full bg-opacity-70 bg-black`}>
@@ -750,6 +703,39 @@ const MapEditScreen = ({ navigation, route }) => {
 };
 
 export default MapEditScreen;
+
+function ZoomGUI({ mapRef }) {
+  const [zoom] = useAtom(zoomAtom);
+  return (
+    <Animated.View
+      style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
+      entering={FadeInLeft}
+      exiting={FadeOutLeft}>
+      <MapGUIButton
+        disabled={zoom <= 0.1493}
+        style={tw`self-end border-r-2 mt-auto`}
+        size={20}
+        label={"przybliż"}
+        icon="search-plus"
+        onPress={async () => {
+          const cam = await mapRef.current.getCamera();
+          mapRef.current.animateCamera({ zoom: cam.zoom + 1 });
+        }}
+      />
+      <MapGUIButton
+        disabled={zoom >= 1222}
+        size={20}
+        style={tw`self-end mt-auto`}
+        label={"oddal"}
+        icon="search-minus"
+        onPress={async () => {
+          const cam = await mapRef.current.getCamera();
+          mapRef.current.animateCamera({ zoom: cam.zoom - 1 });
+        }}
+      />
+    </Animated.View>
+  );
+}
 
 function useLocationBackground(
   alertShow: (
@@ -847,14 +833,46 @@ function useLocationBackground(
   return [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] as const;
 }
 
-function usePreventBack(action: () => void) {
+function usePreventBack(
+  alertShow: (
+    label: string,
+    args: {
+      text: string;
+      icon?: string;
+      onPress?: () => any;
+    }[],
+    hideCancel?: boolean
+  ) => void
+) {
   const navigation = useNavigation();
 
   useEffect(() => {
     const backAction = () => {
       if (!useMapStore.getState().notSaved) return false;
       if (!navigation.isFocused()) return false;
-      action();
+      alertShow(
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+        [
+          {
+            text: "Tak",
+            icon: "sign-out-alt",
+            onPress: () => {
+              useMapStore.getState().resetCurrentMap();
+              useMapStore.getState().setNotSaved(false);
+              navigation.goBack();
+            },
+          },
+          {
+            text: "Nie",
+            icon: "arrow-left",
+            onPress: () => {
+              return;
+            },
+          },
+        ],
+        true
+      );
+
       return true;
     };
 
