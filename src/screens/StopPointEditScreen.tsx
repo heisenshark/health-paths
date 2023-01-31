@@ -161,7 +161,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
     setImage(result.assets[0].uri);
 
-    waypointDiff.image = {
+    editedWaypoint.image = {
       media_id: uuid.v4(),
       path: result.assets[0].uri,
       type: "image",
@@ -189,12 +189,12 @@ const StopPointEditScreen = ({ navigation, route }) => {
           storage_type: "cache",
         } as MediaFile;
         if (soundType === "intro") {
-          waypointDiff.introduction_audio = soundObj;
+          editedWaypoint.introduction_audio = soundObj;
           setIntroSoundUri(res.uri);
         }
         if (soundType === "navigation") {
           setNavigationSoundUri(res.uri);
-          waypointDiff.navigation_audio = soundObj;
+          editedWaypoint.navigation_audio = soundObj;
         }
       })
       .catch(handleError);
@@ -276,10 +276,12 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 placeholder="Nazwa"
                 value={name}
                 onChangeText={(text) => {
-                  setName(text);
+                  setName(text.substring(0, 50));
+                  editedWaypoint.displayed_name = text.substring(0, 50);
                 }}
                 label="Nazwa Punktu"
                 activeUnderlineColor={tw.color("slate-700")}
+                error={name.length >= 50}
               />
               <TextInput
                 mode="flat"
@@ -287,11 +289,13 @@ const StopPointEditScreen = ({ navigation, route }) => {
                 placeholder="Opis"
                 value={description}
                 onChangeText={(text) => {
-                  setDescription(text);
+                  setDescription(text.substring(0, 500));
+                  editedWaypoint.description = text.substring(0, 500);
                 }}
                 label="Opis Punktu"
                 multiline={true}
                 activeUnderlineColor={tw.color("slate-700")}
+                error={description.length > 500}
               />
             </>
           )}
@@ -302,23 +306,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
               <Text style={tw`text-2xl font-bold`}>Opis:</Text>
               <Text style={tw`text-2xl`}>{description}</Text>
             </>
-          )}
-          {isEdit && (
-            <View style={tw`h-40`}>
-              <TileButton
-                style={tw`mx-10`}
-                label="Zapisz"
-                onPress={() => {
-                  console.log("clicked save", name, description, introsoundUri, image);
-                  editedWaypoint.displayed_name = name;
-                  editedWaypoint.description = description;
-                  Object.assign(editedWaypoint, waypointDiff);
-                  console.log(editedWaypoint);
-                  setNotSaved(true);
-                  navigation.goBack();
-                }}
-              />
-            </View>
           )}
         </View>
       </ScrollView>
