@@ -173,6 +173,7 @@ const MapEditScreen = ({ navigation, route }) => {
     else p = [...fullPath];
     console.log("plen", p.length, p);
     if (p.length <= 0) return "Brak ścieżki...";
+
     let xd = {
       ...currentMap,
       name: name,
@@ -181,7 +182,13 @@ const MapEditScreen = ({ navigation, route }) => {
       waypoints: [...waypoints],
       stops: [...stopPoints],
       path: [...p],
-    };
+    } as HealthPath;
+    console.log(p[0]);
+
+    const geoCode = await Location.reverseGeocodeAsync(p[0]);
+    console.log(geoCode);
+    if (geoCode.length > 0 && geoCode[0].city) xd.location = geoCode[0].city;
+
     setShowUserLocation(false);
     mapRef.current.fitToCoordinates([...waypoints, ...p], {
       edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
@@ -206,6 +213,10 @@ const MapEditScreen = ({ navigation, route }) => {
       type: "image",
       path: uri,
     } as MediaFile;
+
+    console.log("reverse geocoding done  for: ", p[0]);
+    console.log("reverse geocoding done  : ", xd.location);
+
     console.log("printing preview and icon onSaveEvent");
 
     console.log(xd.imagePreview);
@@ -569,25 +580,29 @@ const MapEditScreen = ({ navigation, route }) => {
           />
 
           {waypoints.length > 1 && (
-            <MapViewDirections
-              origin={waypoints[0]}
-              destination={waypoints[waypoints.length - 1]}
-              waypoints={waypoints.slice(1, -1)}
-              mode={"WALKING"}
-              apikey={API_KEY}
-              strokeWidth={6}
-              strokeColor="#ffc800"
-              lineDashPattern={[0]}
-              precision={"low"}
-              optimizeWaypoints
-              onReady={(n) => {
-                const adress = n.legs[0].start_address;
-                snapEnds(n.coordinates);
-                setFullPath(n.coordinates);
-                currentMap.distance = n.distance * 1000;
-                currentMap.location = adress;
-              }}
-            />
+            <>
+              <MapViewDirections
+                origin={waypoints[0]}
+                destination={waypoints[waypoints.length - 1]}
+                waypoints={waypoints.slice(1, -1)}
+                mode={"WALKING"}
+                apikey={API_KEY}
+                strokeWidth={6}
+                strokeColor="#ffc800"
+                // lineDashPattern={[0]}
+                precision={"low"}
+                optimizeWaypoints
+                zIndex={2}
+                onReady={(n) => {
+                  const adress = n.legs[0].start_address;
+                  snapEnds(n.coordinates);
+                  setFullPath(n.coordinates);
+                  currentMap.distance = n.distance * 1000;
+                  // currentMap.location = adress;
+                }}
+              />
+              <Polyline coordinates={fullPath} strokeColor="black" strokeWidth={12} zIndex={1} />
+            </>
           )}
 
           {(isInRecordingState || isRecordedHealthPath) && (
@@ -624,6 +639,8 @@ const MapEditScreen = ({ navigation, route }) => {
               label={isRecording ? "pauza" : "wznów"}
               icon={isRecording ? "pause" : "record-vinyl"}
               onPress={() => {
+                console.log("pause button pressed");
+
                 isRecording
                   ? alertShow(
                     "Zatrzymać nagrywanie?",

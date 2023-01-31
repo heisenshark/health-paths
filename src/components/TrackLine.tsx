@@ -16,26 +16,27 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
     return [state.currentLine, state.outputLocations];
   });
 
-  useEffect(() => {
-    console.log("outchange:   ", outLocations, isEdit, coords);
-
-    return () => {};
-  }, [outLocations]);
-
   return (
     <>
       <Polyline
         coordinates={isEdit ? coords : outLocations ? outLocations : []}
         strokeColor={isRecordingFinished ? "yellow" : "rgba(0,0,0,0)"}
         strokeWidth={8}
-        lineDashPattern={isRecordingFinished ? [0] : null}
+        // lineDashPattern={isRecordingFinished ? [10,3,10,3,10] : null}
         zIndex={5}
+      />
+      <Polyline
+        coordinates={isEdit ? coords : outLocations ? outLocations : []}
+        strokeColor={isRecordingFinished ? "black" : "rgba(0,0,0,0)"}
+        strokeWidth={12}
+        // lineDashPattern={isRecordingFinished ? [10,3,10,3,10] : null}
+        zIndex={4}
       />
       <Polyline
         coordinates={isEdit ? coords : outLocations ? outLocations : []}
         strokeColor={isRecordingFinished ? "rgba(0,0,0,0)" : "red"}
         strokeWidth={8}
-        zIndex={4}
+        zIndex={3}
       />
       {(outLocations.length > 0 || isEdit) && (
         <Marker coordinate={isEdit ? coords[0] : outLocations[0]} style={tw`flex`}>

@@ -79,7 +79,7 @@ export function Markers<Props>(
           </Marker>
         )}
 
-        <Circle center={n} radius={Math.min(zoom * 7, 100)} fillColor={"gray"} zIndex={1} />
+        <Circle center={n} radius={Math.min(zoom * 7, 100)} fillColor={"gray"} zIndex={4} />
       </View>
     );
   });

@@ -34,7 +34,7 @@ const MapCard = ({ id, icon, visibility, name, location, onPress }: Props) => {
             {name}
           </Text>
           <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
-            {getCityAdress(location)}
+            {(location)}
           </Text>
 
           {visibility !== undefined && (

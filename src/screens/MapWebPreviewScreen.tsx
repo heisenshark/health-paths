@@ -249,7 +249,7 @@ const MapWebPreview = ({ navigation, route }) => {
               <Text
                 style={tw`text-left text-lg font-bold underline flex-initial`}
                 numberOfLines={2}>
-                Lokacja: {getCityAdress(mapa.location) || "Brak"}
+                Lokacja: {mapa.location || "Brak"}
               </Text>
               <Text style={tw`text-lg text-right`}>
                 Dodano: {formatTime(mapa?.createdAt?.seconds)}
