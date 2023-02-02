@@ -1,12 +1,11 @@
-import { ActivityIndicator, Alert, BackHandler, Text, ToastAndroid, View } from "react-native";
+import { ActivityIndicator, BackHandler, Text, ToastAndroid, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { LatLng, MapPressEvent, Marker, Polyline, Region } from "react-native-maps";
-import { mapStylenoLandmarks, mapstyleSilver, mapStylesJSON } from "../providedfiles/Export";
+import MapView, { LatLng, MapPressEvent, Marker, Polyline } from "react-native-maps";
+import { mapstyleSilver } from "../providedfiles/Export";
 import { Markers } from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
 import Waypoint, { HealthPath, MediaFile } from "../utils/interfaces";
 import SquareButton from "../components/SquareButton";
-import { WaypointsList } from "../components/Waypoints";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
 import { useLocationTrackingStore, useMapStore } from "./../stores/store";
@@ -24,19 +23,14 @@ import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
 
 import Animated, {
-  FadeInDown,
   FadeInLeft,
   FadeInRight,
-  FadeInUp,
-  FadeOutDown,
   FadeOutLeft,
   FadeOutRight,
-  FadeOutUp,
 } from "react-native-reanimated";
 import TipDisplay from "../components/TipDisplay";
-import { atom, Provider, useAtom } from "jotai";
+import { useAtom } from "jotai";
 import {
-  currentModalOpenAtom,
   initialRegionAtom,
   mapEditorStateAtom,
   showHandlesAtom,
@@ -756,6 +750,7 @@ function useLocationBackground(
     const startBckg = () =>
       Location.startLocationUpdatesAsync("location_tracking", {
         accuracy: Location.Accuracy.BestForNavigation,
+        distanceInterval: 10,
         timeInterval: 1000,
         showsBackgroundLocationIndicator: true,
         foregroundService: {

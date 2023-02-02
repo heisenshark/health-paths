@@ -34,16 +34,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsImpl": "maplibre",
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoidG9tYXN0ZTUzNyIsImEiOiJjbGFkNXJjcXUwOW5wM3FwY28xbjViazZyIn0.vUZLGkJ8fQcjFM_NDhaIQQ"
-        }
-      ],
       "expo-build-properties",
-      "@react-native-google-signin/google-signin",
-      "expo-community-flipper"
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {

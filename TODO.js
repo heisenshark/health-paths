@@ -33,61 +33,81 @@
 //[x] Zamienić download tracker na persistant store 
 //[x] Nagrywanie Screen initial button
 //TODO zapewnić konsystencję interfejsu aplikacji 
+//TODO naprawić dziwny flickering na stoppointach przy parmieszczaniu regionu mapy 
+//TODO poprawić angielskie słowa w interfejsie aplikacji 
+//TODO zmienić te głupie ikony które są missplaced
+//TODO naprawić problem z nie usuwaniem map z dokumentu użytkownika
+//TODO dodać ikony do przycisków które ich nie używają
 
 
-<MOTYWACJA>
-    
+// label: "Ekrany aplikacji",
+// label: "Edycja ścieżek",
+// label: "Funkcje Sieciowe",
 
-</MOTYWACJA>
+//1 
 
-<CO-TO-SCIEZKI-ZDROWIA>
-     ścieżka zdrowia to zwykła trasa na mapie, obok której są punkty ćwiczeń oraz gra miejska, jest ona formatem wykorzystywanym przez aplikację
+// Pulpit
+Ekran w którym użytkownik może przejść do wyboru własnych ścieżek, przeglądać publiczne ścieżki, wyjść z aplikacji oraz skorzystać z pomocy]
 
-</CO-TO-SCIEZKI-ZDROWIA>
+// Moje ścieżki
+Ekran wktóry wyświetla własne ścieżki i pozwala na zarządzanie nimi(usuwanie, edycja, podgląd, przesłanie do internetu), nie tylko lokalnie ale też w chmurze
 
-<PRZEDMIOT-ALIKACJI>
-    Planowanym użytkownikiem aplikacji są osoby starsze które szukają nowej formy rozrywki na świeżym powietrzu, lub chcą zobaczyć kilka ciekawych punktów na mieście, aplikacja do korzystania ze ścieżek 
-    
-    Aplikacja do korzystania ze ścieżek jest już stworzona, a ja będę tylko robić aplikację do ich tworzenia, te ścieżki można wyeksportować i korzystać z nich później w aplikacji bazowej
+//Przeglądaj trasy 
+Ekran który wyświetla udostępnione publicznie ścieżki i pozwala na ich podgląd
 
-    Poza tym chciałbym aby w aplikacji była możliwość udostępniania ścieżek w jej ramach 
-    <summary>
-        ścieżka zdrowia
-            -zwykła trasa na mapie
-            -posiada punkty stopu
-            -punkt stopu
-                -opis
-                -zdjęcie
-                -audiodeskrypcja    
-    </summary> 
-</PRZEDMIOT-ALIKACJI>
+// Pomoc
+Ekran w którym wyświetlana jest pomoc dla użytkownika
 
-<PODOBNE>
-    -strava 
-    -runkeeper
-    -kombot
+//Profil
+Ekran w którym wyświetlany jest profil użytkownika
+oraz inne opcje
 
-    Są to aplikacje do projektowania zwykłych tras, jednak nie są one profilowane pod zwykłych ludzi a raczej pod uprawianie sportu 
-</PODOBNE>
+//Nagraj 
+Ekran pozwalający na tworzenie ścieżki poprzez nagryuwanie lokacji użytkownika
 
+//Planuj
+Ekran pozwalający na tworzenie ścieżki poprzez dodawanie punktów na mapie
 
-<ZALOZENIA>
+//Podgląd ścieżki Web
+Ekran pozwalający na podgląd ścieżki z bazy, zalogowany użytkownik może ją oceniać
 
+//Podgląd ścieżki
 
-</ZALOZENIA>
+Ekran pozwalający na podgląd ścieżki z pamięci lokalnej bez edytowania
+
+//Inne ustawienia
+
+Ekran do poproszenia o uprawnienia
 
 
-<TECHNOLOGIE>
 
-    <p1>
-    Do bazy danych zamierzam użyć firebase ponieważ jest to prosta w użytku baza i fakt ten pomoże mi z osiągnięciem nagłych deadlineów poza tym nie muszę tej bazy nigdzie hostować jeśli jest w intenrecie na free tierze
-Do tworzenia aplikacji będę korzystać z react native ponieważ ma bardzo liczne community, wiele bibliotek oraz javascript to język który można zastosować wszędzie więc jest bardziej przydatny niż dart używany tylko przy flutterze który jest drugą opcją, poza tym myślałem też nad native scriptem, ale jest zbyt mało popularny oraz słyszałem o nim wiele złych opinii
-    </p1>
-    <p1>
-    Do stylowania aplikacji będę używać biblioteki tailwind dla react native czyli nativewind - ponieważ jest  to bardzo przyjemny sposób na pisanie inline css-a(w react native to bardziej yoga) zawsze chcialem się niego nauczyć i wydaje się być przyjemny, jednak nie będzie to jedyny sposób na stylowanie aplkacji ponieważ ta biblioteka nie jest do końca kompatybilna z innymi oraz api map.
-Do wyświetlania map w aplikacji będę używać api od google react-native-maps
-mogłem też wybrać api od MapBox, ale jednak do react native instnieje tylko biblioteka nieoficjalna i miałęm problemy z jej użytkowaniem, więc wolę wybrać tą która ma najwięcej wsparcia, oprócz tego będę używać wielu bibliotek reactowych które jeszcze nie są do końca ustalone.
+//2 
+//Edycja za pomocą nagrywania 
 
-    </p1>
+Przejdź na ekran nagraj, kliknij rozpocznij nagrywanie 
+Aplikacja automatycznie będzie nagrywać twoją lokalizację przez co utworzy ścieżkę,
+    Możesz w trakcie nagrywania dotknąć mapy aby dodać punkt stopu, poza tym możesz też zatrzymać nagrywanie klikajća na przycisk pauza 
+albo usunąć ścieżkę klikając na przycisk usuń, poza tym możesz wycentrować kamerę na twoją aktualną lokalizację albo ukryć markery z mapy klikając na przycisk ukryj
 
-</TECHNOLOGIE>
+Jeśli zapauzujesz nagrywanie i oddalisz się zbyt bardzo od swojej ostatniej lokalizacji możesz wypełnić swoją trasę korzystając z directions api po naciśnięciu wypełnij trasę
+
+//Edycja za pomocą planowania
+Możesz dotknąć mapę aby postawić punkt stopu lub punkt trasy
+
+punkt trasy wyznacza trasę na mapie, możesz dodać go na początek, koniec lub jako punkt pośredni
+
+punkt stopu wyznacza ciekawy punkt na mapie przy którym można się zatrzymać możesz przypisać mu pliki multimedialne, dwa nagrania dźwiękowe ikonę, nazwę oraz krótki opis
+
+Przy zapisie mapy możesz również dodaćdo niej krótki opis oraz ją nazwać, oprócz tego możesz zapisać ją przy okazji tworząc noiwą mapę jeśli poprzednio ją edytowałeś
+
+//3
+W ekranie Przeglądaj ścieżki możesz przeglądać i pobierać publiczne ścieżki z internetu oraz je udostepniać innym osobom
+
+Jeśli chciałbyś jakieś dodać to musisz najpierw się zalogować w ekranie Profil poprzez konto google.
+
+Po zalogowaniu wejdź w ekran Moje ścieżki i po wybraniu ścieżki możesz ją udostępnić do internetu jako prywatną lub publiczną
+prywatną widzisz tylko ty w ekranie moje ścieżki w zakładce "w Chmurze", a publiczna jest widoczna dla wszystkich i jest dostępna w ekranie Przeglądaj ścieżki
+
+
+ścieżki internetowe można oceniać za pomocą oceny w podglądzie na dole wybierając ocenę oraz klikając na przycisk "Oceń!" oprócz tego można je udostępnić
+

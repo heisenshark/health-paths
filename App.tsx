@@ -1,15 +1,4 @@
 import { StatusBar, Text } from "react-native";
-import { useFonts, Inter_900Black } from "@expo-google-fonts/inter";
-import {
-  OpenSans_700Bold,
-  OpenSans_800ExtraBold,
-  OpenSans_600SemiBold,
-  OpenSans_500Medium,
-  OpenSans_400Regular,
-  OpenSans_300Light,
-} from "@expo-google-fonts/open-sans";
-
-import * as SplashScreen from "expo-splash-screen";
 import * as TaskManager from "expo-task-manager";
 import * as Location from "expo-location";
 import { LatLng } from "react-native-maps";
@@ -19,11 +8,10 @@ import {
   StackActions,
   useNavigationContainerRef,
 } from "@react-navigation/native";
-import * as Speech from "expo-speech";
 
 import MapEditScreen from "./src/screens/MapEditScreen";
 import HomeScreen from "./src/screens/HomeScreen";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomBar } from "./src/components/BottomBar";
 import StopPointEditScreen from "./src/screens/StopPointEditScreen";
@@ -39,12 +27,10 @@ import { initialRegionAtom } from "./src/config/AtomsState";
 import AppText from "./src/components/AppText";
 import tw from "./src/lib/tailwind";
 import { useDeviceContext } from "twrnc/dist/esm/hooks";
-import * as Linking from "expo-linking";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { parse, Url } from "url";
 import HelpScreen from "./src/screens/HelpScreen";
 import OtherSettingsScreen from "./src/screens/OtherSettingsScreen";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { getLocationPermissions } from "./src/utils/HelperFunctions";
 import { useDownloadTrackingStore } from "./src/stores/DownloadTrackingStore";
 
@@ -135,7 +121,7 @@ export default function App() {
     //[x] dodać możliwość udostępnienia mapy przez watsapp
     <>
       {/* <Provider> */}
-      {isTunnel && <StatusBar style="auto" />}
+      {/* {isTunnel && <StatusBar style="auto" />} */}
       {/* <Text style={{ fontFamily: "OpenSans_700Bold", fontSize: 20 }}>Inter Black</Text> */}
 
       <NavigationContainer
@@ -200,7 +186,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
       "stamps",
       locations.map((n) => n.timestamp)
     );
-    // console.log(Math.max(locations.map((n) => n.timestamp)));
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)

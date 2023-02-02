@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import create from "zustand";
+import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { loadMapInfo } from "../utils/MapInfoLoader";
 

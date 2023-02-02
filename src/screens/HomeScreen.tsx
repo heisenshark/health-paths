@@ -1,19 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { uuidv4 } from "@firebase/util";
-import { firebase } from "@react-native-firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Text, View, Button, FlatList, BackHandler } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import AppText from "../components/AppText";
-import PaletteTest from "../components/PaletteTest";
-import SquareButton from "../components/SquareButton";
+import HeaderBar from "../components/HeaderBar";
 import TileButton from "../components/TileButton";
-import { DbUser } from "../config/firebase";
 import tw from "../lib/tailwind";
-import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
-import { HealthPath } from "../utils/interfaces";
-import { useMapStore } from "./../stores/store";
-import LogInScreen from "./LogInScreen";
 
 const HomeScreen = ({ navigation }) =>
 //[x] przycisk podłóżny
@@ -58,16 +48,7 @@ const HomeScreen = ({ navigation }) =>
 
   return (
     <View style={tw`flex bg-slate-100 h-full`}>
-      <View
-        style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-8 border-b-2 border-slate-500 justify-center elevation-5`,
-          { alignItems: "center" },
-        ]}>
-        <Text
-          style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-            EKRAN GŁÓWNY
-        </Text>
-      </View>
+      <HeaderBar label={"EKRAN GŁÓWNY"} navigation={navigation} />
       {data.map((item) => (
         <TileButton {...item} style={tw`mx-10 mb-4`} key={item.id} />
       ))}

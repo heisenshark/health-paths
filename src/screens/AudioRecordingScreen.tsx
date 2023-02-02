@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Text, View, StyleSheet, ToastAndroid, Alert, BackHandler } from "react-native";
+import { Text, View, ToastAndroid } from "react-native";
 import tw from "../lib/tailwind";
 import SquareButton from "./../components/SquareButton";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { Recording, Sound } from "expo-av/build/Audio";
 import { useNavigation } from "@react-navigation/native";

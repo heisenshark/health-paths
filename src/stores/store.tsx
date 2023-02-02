@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { HealthPath, MediaFile } from "../utils/interfaces";
 import uuid from "react-native-uuid";
 import { Camera, LatLng } from "react-native-maps";
@@ -17,7 +17,6 @@ interface MapStore {
   setCurrentCamera: (camera: Camera) => void;
   getCurrentMediaURI: (media: MediaFile) => string;
   navAction: () => void | null;
-  setNavAction: (action: () => void | null) => void;
   setNotSaved: (saved: boolean) => void;
   currentCamera: Camera;
   notSaved: boolean;
@@ -110,12 +109,6 @@ const storemap = (set, get) => ({
       currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
     })),
   setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
-
-  setNavAction: (action: () => void | null) =>
-    set(() => {
-      console.log("setNavAction", action);
-      return { navAction: action };
-    }),
 });
 
 export const useMapStore = create<MapStore>()(

@@ -37,9 +37,10 @@ export function ModalChoice({
       animationOut={"zoomOut"}
       style={tw`flex flex-1 justify-center items-center m-0 `}
       backdropOpacity={0.7}
-      onSwipeComplete={onRequestClose}
-      onBackdropPress={onRequestClose}
-      onBackButtonPress={onRequestClose}>
+      // onSwipeComplete={onRequestClose}
+      // onBackdropPress={onRequestClose}
+      // onBackButtonPress={onRequestClose}
+    >
       <View style={tw` bg-slate-100 elevation-5 mx-10 p-4`}>
         <Text style={tw`text-center text-3xl font-bold py-3`}>{label}</Text>
         <View style={tw`flex flex-row w-full justify-evenly mb-4`}>
