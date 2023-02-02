@@ -69,11 +69,11 @@ const OptionsScreen = ({ navigation, route }) => {
   }
   return (
     <View style={tw`flex`} pointerEvents={inactive ? "none" : "auto"}>
-      <HeaderBar label={"OPCJE UŻYTKOWNIKA"} navigation={navigation} removeMargin />
+      <HeaderBar label={"OPCJE UŻYTKOWNIKA"} navigation={navigation} />
       {isLogged ? (
         <>
           <Text
-            style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-200 rounded-xl mb-4 elevation-5`}>
+            style={tw`text-3xl text-center mx-16 mt-2 p-2 bg-slate-400 rounded-xl mb-4 elevation-5`}>
             Zalogowano jako
           </Text>
           <View style={tw`w-full flex justify-center items-center rounded-xl`}>

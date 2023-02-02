@@ -29,6 +29,16 @@ const OtherSettingsScreen = ({ route, navigation }) => {
           }}
         />
       </View>
+
+      <View>
+        <Text style={tw`text-3xl text-center mx-10 font-bold  my-4`}>
+          Aplikacja Ścieżki Zdrowia 1.0
+        </Text>
+        <Text style={tw`text-3xl text-center mx-10 font-bold  my-4`}>
+          Aplikacjia stworzona w ramach projektu inżynierskiego
+        </Text>
+        <Text style={tw`text-3xl text-center mx-10 font-bold  my-4`}>Autor: Tomasz Stefaniak</Text>
+      </View>
     </View>
   );
 };

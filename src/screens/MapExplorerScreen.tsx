@@ -37,7 +37,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [maps, setMaps] = useState<HealthPath[]>([]);
   const [userMaps, setUserMaps] = useState<MapDocument[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [modalVisible, setModalVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const [additionalOptions, setAdditionalOptions] = useState([]);
   const [mapsState, setMapsState] = useState("local");
   const [webDisabled, setWebDisabled] = useState(false);

@@ -27,7 +27,7 @@ import { deleteMap, downloadMap, loadMap } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
 import { DownloadTrackerRecord, useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
-import HeaderBar from "../components/HeaderBar"
+import HeaderBar from "../components/HeaderBar";
 //[x] make this screen work
 //[x] maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
@@ -205,19 +205,51 @@ const MapWebPreview = ({ navigation, route }) => {
   function renderOptions() {
     switch (optionsState) {
     case "download":
-      return <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pobierz"} onPress={onDownload} />;
+      return (
+        <SquareButton
+          style={tw`flex-1`}
+          size={30}
+          icon="cloud-download-alt"
+          label={"pobierz"}
+          onPress={onDownload}
+        />
+      );
     case "update":
       return (
         <>
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"zaktualizuj"} onPress={onDownload} />
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"} onPress={onDelete} />
+          <SquareButton
+            style={tw`flex-1`}
+            size={30}
+            icon="cloud-download-alt"
+            label={"zaktualizuj"}
+            onPress={onDownload}
+          />
+          <SquareButton
+            style={tw`flex-1 ml-4`}
+            size={30}
+            icon="trash"
+            label={"usuń"}
+            onPress={onDelete}
+          />
         </>
       );
     case "delete":
       return (
         <>
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"pokaż"} onPress={onShow} />
-          <SquareButton style={tw`flex-1 ml-4 h-10`} label={"usuń"} onPress={onDelete} />
+          <SquareButton
+            style={tw`flex-1`}
+            size={30}
+            icon={"eye"}
+            label={"pokaż"}
+            onPress={onShow}
+          />
+          <SquareButton
+            style={tw`flex-1 ml-4`}
+            size={30}
+            icon={"trash"}
+            label={"usuń"}
+            onPress={onDelete}
+          />
         </>
       );
     }
@@ -226,7 +258,7 @@ const MapWebPreview = ({ navigation, route }) => {
   if (!mapa) return <Text style={tw`text-3xl`}>Ładowanie...</Text>;
   return (
     <>
-      <HeaderBar label={"ŚCIEŻKA"} navigation={navigation} useBack removeMargin/>
+      <HeaderBar label={"ŚCIEŻKA"} navigation={navigation} useBack removeMargin />
 
       <ScrollView style={tw`pt-3 flex-col bg-slate-200 h-full`}>
         <View>
@@ -253,7 +285,7 @@ const MapWebPreview = ({ navigation, route }) => {
           </View>
         </View>
         <View
-          style={tw`flex flex-row px-4 mt-2 pb-1 justify-center items-center border-b-2 border-slate-300`}
+          style={tw`flex flex-row  mx-4 mt-2 pb-1 justify-around items-center border-b-2 border-slate-300`}
           pointerEvents={disabled ? "none" : "auto"}>
           {renderOptions()}
         </View>
