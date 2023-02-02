@@ -219,12 +219,9 @@ const MapEditScreen = ({ navigation, route }) => {
       checkRecording();
       return () => {
         console.log(route.name, "aaaaaaa");
-        if (
-          route.name !== "EdycjaMap" &&
-          route.name !== "NagrywanieAudio"
-          // route.name !== "Nagraj" &&
-          // route.name !== "Planuj"
-        ) {
+        if (route.name === "Nagraj" && isInRecordingState) return;
+        if (route.name === "Planuj" && !isInRecordingState) return;
+        if (route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio") {
           console.log(
             " ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR"
           );
@@ -490,10 +487,17 @@ const MapEditScreen = ({ navigation, route }) => {
         onStopPointAdd={() => {
           setCurrentModalOpen("None");
           const stoppint = addNewWaypoint(pointPivot, "stop");
+          if (stoppint === null) return;
+          setTimeout(() => {
+            navigation.navigate({
+              name: "EdycjaMap",
+              params: { editedWaypoint: stoppint, isEdit: true },
+            });
+          }, 1);
         }}
         onWaypointAdd={(position: number) => {
           addNewWaypoint(pointPivot, "waypoint", position);
-          console.log(waypoints);
+          addNewWaypoint(pointPivot, "stop");
         }}
         waypointsLength={waypoints.length}
       />
@@ -669,7 +673,7 @@ const MapEditScreen = ({ navigation, route }) => {
           label={showHandles ? "ukryj" : "pokaż"}
           icon="map-pin"
           onPress={() => {
-            console.log(showHandles, fullPath, initialRegion);
+            // console.log(showHandles, fullPath, initialRegion);
             setShowHandles((p) => !p);
             force();
           }}
