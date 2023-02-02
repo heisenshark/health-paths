@@ -31,7 +31,6 @@ export function Markers<Props>(
     if (isEnd)
       return (
         <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
-          <Text>Start</Text>
           <Image
             source={imageStart}
             resizeMode="center"
@@ -43,7 +42,6 @@ export function Markers<Props>(
     if (isBegin)
       return (
         <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
-          <Text>Koniec</Text>
           <Image
             source={imageEnd}
             resizeMode="center"

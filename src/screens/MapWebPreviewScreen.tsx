@@ -227,7 +227,7 @@ const MapWebPreview = ({ navigation, route }) => {
             style={tw`flex-1 ml-4`}
             size={30}
             icon="trash"
-            label={"usuń"}
+            label={"usuń z pamięci"}
             labelStyle={tw`text-xl`}
             onPress={onDelete}
           />
@@ -248,7 +248,7 @@ const MapWebPreview = ({ navigation, route }) => {
             style={tw`flex-1 ml-4`}
             size={30}
             icon={"trash"}
-            label={"usuń"}
+            label={"usuń z pamięci"}
             labelStyle={tw`text-xl`}
             onPress={onDelete}
           />

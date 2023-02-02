@@ -136,9 +136,7 @@ export default function App() {
 
       <NavigationContainer
         ref={navigationRef}
-        onStateChange={(key) => {
-          setCurrentScreen(key.routes[key.index].name);
-        }}
+        onStateChange={(key) => setCurrentScreen(key.routes[key.index].name)}
         fallback={<AppText>Ładowanie...</AppText>}>
         <Navigator.Navigator
           screenOptions={{
