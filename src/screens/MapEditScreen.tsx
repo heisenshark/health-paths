@@ -14,7 +14,12 @@ import uuid from "react-native-uuid";
 
 import * as Location from "expo-location";
 import TrackLine from "../components/TrackLine";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import {
+  CommonActions,
+  StackActions,
+  useFocusEffect,
+  useNavigation,
+} from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getLocationPermissions, getRoute } from "../utils/HelperFunctions";
@@ -83,7 +88,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [waypoints, setWaypoints] = useState<LatLng[]>([]);
   const [stopPoints, setStopPoints] = useState<Waypoint[]>([]);
   const [fullPath, setFullPath] = useState([] as LatLng[]);
-  const [alertModalState, alertShow] = useAlertModal();
+  const [alertModalState, alertShow, setAlertState] = useAlertModal();
   const [initialRecorddingPrompt, setInitialRecorddingPrompt] = useState(false);
 
   const [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] =
@@ -123,9 +128,11 @@ const MapEditScreen = ({ navigation, route }) => {
           onPress: () => {
             useMapStore.getState().resetCurrentMap();
             useMapStore.getState().setNotSaved(false);
-            navigation.navigate(
-              route.params.navigateTo.route,
-              route.params.navigateTo?.params ?? {}
+            navigation.dispatch(
+              StackActions.replace(
+                route.params.navigateTo.route,
+                route.params.navigateTo?.params ?? {}
+              )
             );
           },
         },
@@ -204,15 +211,25 @@ const MapEditScreen = ({ navigation, route }) => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log("render");
+  });
   useFocusEffect(
     useCallback(() => {
       checkRecording();
       return () => {
         console.log(route.name, "aaaaaaa");
-        if (route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio") {
+        if (
+          route.name !== "EdycjaMap" &&
+          route.name !== "NagrywanieAudio"
+          // route.name !== "Nagraj" &&
+          // route.name !== "Planuj"
+        ) {
           console.log(
             " ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR"
           );
+          setAlertState({ ...alertModalState, visible: false });
+          setCurrentModalOpen("None");
           if (isRecording) {
             useLocationTrackingStore.getState().clearLocations();
             stopBackgroundTracking().then();
@@ -473,13 +490,6 @@ const MapEditScreen = ({ navigation, route }) => {
         onStopPointAdd={() => {
           setCurrentModalOpen("None");
           const stoppint = addNewWaypoint(pointPivot, "stop");
-          if (stoppint === null) return;
-          setTimeout(() => {
-            navigation.navigate({
-              name: "EdycjaMap",
-              params: { editedWaypoint: stoppint, isEdit: true },
-            });
-          }, 1);
         }}
         onWaypointAdd={(position: number) => {
           addNewWaypoint(pointPivot, "waypoint", position);
@@ -538,7 +548,6 @@ const MapEditScreen = ({ navigation, route }) => {
           onRegionChangeComplete={(e, { isGesture }) => {
             if (isGesture) setIsWatchingposition(false);
             mapRef.current.getCamera().then((c) => {
-              console.log("zoom", zoom);
               setZoom(156543.03392 / Math.pow(2, c.zoom));
             });
           }}
@@ -854,7 +863,7 @@ function usePreventBack(
             onPress: () => {
               useMapStore.getState().resetCurrentMap();
               useMapStore.getState().setNotSaved(false);
-              navigation.goBack();
+              navigation.dispatch(StackActions.pop());
             },
           },
           {

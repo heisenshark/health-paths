@@ -58,8 +58,6 @@ type RootStackParamList = {
 };
 
 export default function App() {
-  const isTunnel = false;
-
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
   useDeviceContext(tw);
 

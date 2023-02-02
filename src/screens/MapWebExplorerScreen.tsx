@@ -21,19 +21,14 @@ import LogInScreen from "./LogInScreen";
 const limit = 10;
 
 const MapWebExplorerScreen = ({ navigation, route }) => {
-  const [currentMap, setCurrentMap] = useMapStore((state) => [
-    state.currentMap,
-    state.setCurrentMap,
-  ]);
   const [maps, setMaps] = useState<MapDocument[]>([]);
   const [showLoadMore, setShowLoadMore] = useState(true);
   const track = useRef(null);
-  const force = useForceUpdate();
   const listMaps = () => {
     let query = db
       .collection("Pathes")
       .where("visibility", "==", "public")
-      .orderBy("createdAt", "desc")
+      // .orderBy("createdAt", "desc")
       .limit(limit);
     if (track.current !== null) query = query.startAfter(track.current);
     query
@@ -60,13 +55,6 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
     console.log("elo");
     listMaps();
   }, [navigation]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log("On Focus, fetching the maps");
-      // listMaps();
-    }, [])
-  );
 
   return (
     <View style={tw`h-full`}>

@@ -69,7 +69,7 @@ const OptionsScreen = ({ navigation, route }) => {
   }
   return (
     <View style={tw`flex`} pointerEvents={inactive ? "none" : "auto"}>
-      <HeaderBar label={"OPCJE UŻYTKOWNIKA"} navigation={navigation} />
+      <HeaderBar label={"OPCJE UŻYTKOWNIKA"} navigation={navigation} removeMargin/>
       {isLogged ? (
         <>
           <Text

@@ -32,12 +32,12 @@
 //[x] Zamienić alert na modal
 //[x] Zamienić download tracker na persistant store 
 //[x] Nagrywanie Screen initial button
-//TODO zapewnić konsystencję interfejsu aplikacji 
+//[x] zapewnić konsystencję interfejsu aplikacji 
 //TODO naprawić dziwny flickering na stoppointach przy parmieszczaniu regionu mapy 
-//TODO poprawić angielskie słowa w interfejsie aplikacji 
-//TODO zmienić te głupie ikony które są missplaced
+//[x] poprawić angielskie słowa w interfejsie aplikacji 
+//[x] zmienić te głupie ikony które są missplaced
 //TODO naprawić problem z nie usuwaniem map z dokumentu użytkownika
-//TODO dodać ikony do przycisków które ich nie używają
+//[x] dodać ikony do przycisków które ich nie używają
 
 
 // label: "Ekrany aplikacji",

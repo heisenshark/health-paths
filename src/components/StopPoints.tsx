@@ -24,13 +24,13 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
   const [zoom] = useAtom(zoomAtom);
 
   useEffect(() => {
-    console.log("stoppoints rerendered", mapEditState, showHandles);
-    console.log(waypoints);
+    // console.log("stoppoints rerendered", mapEditState, showHandles);
+    // console.log(waypoints);
   });
 
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     return (
-      <>
+      <View>
         {((showHandles && mapEditState === "Idle") ||
           (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
           <Marker
@@ -48,14 +48,38 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
           center={waypoint.coordinates}
           radius={Math.min(zoom * 7, 100)}
           fillColor={"yellow"}
-          zIndex={2}
+          zIndex={4}
         />
-      </>
+      </View>
     );
   };
 
-  const stops = waypoints.map((n, index) => {
-    return <StopPoint key={index} waypoint={n}></StopPoint>;
+  const stops = waypoints.map((waypoint, index) => {
+    return (
+      <View key={index}>
+        {((showHandles && mapEditState === "Idle") ||
+          (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
+          <Marker
+            coordinate={waypoint.coordinates}
+            title={waypoint.displayed_name}
+            description={waypoint.type}
+            pinColor={"green"}
+            opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
+            onPress={() => {
+              showHandles && stopPointPressed(waypoint);
+            }}
+          />
+        )}
+        <Circle
+          center={waypoint.coordinates}
+          radius={Math.min(zoom * 7, 100)}
+          fillColor={"yellow"}
+          zIndex={4}
+        />
+      </View>
+    );
+
+    // <StopPoint key={index} waypoint={n}></StopPoint>;
   });
 
   return <>{stops}</>;

@@ -81,7 +81,8 @@ export function useAlertModal(): [
       onPress?: () => any;
     }[],
     hideCancel?: boolean
-  ) => void
+  ) => void,
+  (ModalChoiceProps) => void
   ] {
   const [state, setState] = useState<ModalChoiceProps>({
     visible: false,
@@ -126,5 +127,5 @@ export function useAlertModal(): [
     setState(newState);
   }
 
-  return [state, alert];
+  return [state, alert, setState];
 }
