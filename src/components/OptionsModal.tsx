@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Text, View, StyleSheet, Modal } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
+import Modal from "react-native-modal/dist/modal";
 import { TouchableRipple } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
@@ -16,15 +17,21 @@ interface OptionsModalProps {
 const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalProps) => {
   return (
     <Modal
-      animationType={"none"}
-      transparent={true}
-      visible={visible}
-      onRequestClose={onRequestClose}>
-      <View style={tw`bg-transparent w-full h-full flex flex-col-reverse`}>
+      style={tw`w-full m-0 flex-1 justify-end flex-col`}
+      animationIn={"slideInUp"}
+      animationOut={"slideOutDown"}
+      isVisible={visible}
+      swipeDirection={["down"]}
+      swipeThreshold={100}
+      onBackdropPress={onRequestClose}
+      onSwipeComplete={onRequestClose}
+      onBackButtonPress={onRequestClose}
+      >
+      <View style={tw`bg-slate-100 border-slate-300 w-full`}>
         <View style={tw`bg-white w-full`}>
-          <View style={tw`h-[1]  bg-gray-300 rounded-full`}></View>
+          <View style={tw`h-1  bg-gray-300 rounded-full`}></View>
           <View style={tw`flex flex-row items-center w-full h-12`}>
-            <Text style={tw`text-gray-700 text-xl mx-4`}>{label}</Text>
+            <Text style={tw`text-gray-700 text-2xl mx-4 font-bold`}>{label}</Text>
           </View>
 
           <View style={tw`h-[0.5] bg-gray-300 rounded-full`}></View>
@@ -53,14 +60,6 @@ const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalP
             );
           })}
         </View>
-
-        <View
-          style={tw`flex-1 bg-black bg-opacity-50`}
-          onStartShouldSetResponder={() => {
-            onRequestClose();
-            return true;
-          }}
-        />
       </View>
     </Modal>
   );

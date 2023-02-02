@@ -30,6 +30,7 @@ import uuid from "react-native-uuid";
 import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
 import { imagePlaceholder } from "../utils/HelperFunctions";
+import HeaderBar from "../components/HeaderBar";
 
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
@@ -202,9 +203,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   return (
     <KeyboardAvoidingView style={tw`h-full`} behavior="padding">
-      <Text style={tw`text-3xl font-bold bg-slate-200 pt-4 pl-6 pb-2 border-b-4 border-slate-400`}>
-        {isEdit && "Edytuj"} Punkt Zdrowia:
-      </Text>
+      <HeaderBar label={"Punkt Stopu:"} navigation={navigation} removeMargin useBack />
       <ModalChoice
         visible={audioModalVisible}
         label="Jak dodać audio?"
@@ -327,7 +326,7 @@ const AudioPickPlay = ({ label, isEdit, isPresent, onPlay, onPick }) => {
           <SquareButton
             style={tw`ml-auto mr-2 elevation-5`}
             label={isPresent ? "Edytuj" : "Dodaj"}
-            icon="edit"
+            icon={isPresent ? "edit" : "plus"}
             onPress={onPick}
           />
         )}

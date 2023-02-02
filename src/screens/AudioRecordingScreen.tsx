@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { Recording, Sound } from "expo-av/build/Audio";
 import { useNavigation } from "@react-navigation/native";
+import HeaderBar from "../components/HeaderBar";
 interface AudioRecordingScreenProps {}
 //Ok, ten screen dostaje route z stoppoints, nagrywa audio i zwraca route
 //właśnie do stoppoints tylko ze ścieżką do audio
@@ -55,7 +56,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
 
         if (status.isRecording) setSoundmilis(status.durationMillis);
       });
-      recordingObject.current.setProgressUpdateInterval(100);
+      recordingObject.current.setProgressUpdateInterval(16);
       await recordingObject.current.startAsync();
       setStatus(RecordingStatus.RECORDING);
       startResetTimer();
@@ -196,14 +197,14 @@ const AudioRecordingScreen = ({ navigation, route }) => {
             onPress={startRecording}
             size={size}
             icon="microphone"
-            label="Nagraj nowy"
+            label="Nagraj ponownie"
           />
           <SquareButton
             style={tw`elevation-5 mx-2`}
             onPress={playSound}
             size={size}
             icon="play"
-            label="Play recording"
+            label="Odtwórz"
           />
           <SquareButton
             style={tw`elevation-5 mx-2`}
@@ -215,7 +216,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
             }}
             size={size}
             icon="save"
-            label="Save recording"
+            label="Zapisz"
           />
         </>
       );
@@ -238,13 +239,10 @@ const AudioRecordingScreen = ({ navigation, route }) => {
 
   return (
     <View style={tw`bg-slate-100 h-1/1`}>
-      <Text
-        style={tw`text-5xl text-center pb-4 pt-6 bg-main-100 font-bold rounded-3xl mx-4 mt-2 elevation-5`}>
-        NAGRAJ AUDIO
-      </Text>
+      <HeaderBar label={"NAGRAJ AUDIO"} navigation={navigation} removeMargin useBack />
 
       <Text
-        style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 bg-slate-100 pt-20 pb-0 rounded-3xl elevation-5`}>
+        style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 border-2 border-slate-800 bg-slate-100 pt-20 pb-0 rounded-3xl elevation-5`}>
         {milisToMinutesAndSeconds(soundmilis)}
         <Text style={tw`text-3xl`}>
           {(Math.floor((soundmilis / 10) % 100) + "").padStart(2, "0")}

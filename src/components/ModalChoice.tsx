@@ -36,7 +36,7 @@ export function ModalChoice({
       animationIn={"zoomIn"}
       animationOut={"zoomOut"}
       style={tw`flex flex-1 justify-center items-center m-0 `}
-      backdropOpacity={0.7}
+      backdropOpacity={0.5}
       // onSwipeComplete={onRequestClose}
       // onBackdropPress={onRequestClose}
       // onBackButtonPress={onRequestClose}

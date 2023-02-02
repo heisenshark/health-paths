@@ -13,7 +13,7 @@ export interface BottomBarProps {
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   // console.log();
   const [setNavAction] = useMapStore((state) => [state.setNavAction]);
-  const tabs = ["EdycjaMap", "NagrywanieAudio", "Settings"];
+  const tabs = ["Trasy", "Nagraj", "Planuj", "Opcje"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
 
   const tryToNavigate = (route: string, options?: any) => {
@@ -80,23 +80,25 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   return (
     <>
       {/* <Text>{currentRoute}</Text> */}
-      <View
-        style={tw`h-[26] bg-slate-600 flex-row items-center justify-evenly border-t-4 border-t-slate-400`}>
-        {!tabs.includes(currentRoute) ? (
-          tabGUI()
-        ) : (
-          <>
-            <SquareButton
-              size={22}
-              style={tw``}
-              label="wróć"
-              icon={"arrow-left"}
-              onPress={() => {
-                navigationRef.goBack();
-              }}></SquareButton>
-          </>
-        )}
-      </View>
+      {tabs.includes(currentRoute) && (
+        <View
+          style={tw`h-[26] bg-slate-600 flex-row items-center justify-evenly border-t-4 border-t-slate-400`}>
+          {tabs.includes(currentRoute) ? (
+            tabGUI()
+          ) : (
+            <>
+              <SquareButton
+                size={22}
+                style={tw``}
+                label="wróć"
+                icon={"arrow-left"}
+                onPress={() => {
+                  navigationRef.goBack();
+                }}></SquareButton>
+            </>
+          )}
+        </View>
+      )}
     </>
   );
 }

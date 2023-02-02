@@ -63,7 +63,7 @@ export default function App() {
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
   useDeviceContext(tw);
 
-  const [currentScreen, setCurrentScreen] = useState("");
+  const [currentScreen, setCurrentScreen] = useState("Trasy");
   const [, setInitialRegion] = useAtom(initialRegionAtom);
 
   const handleNav = (to: string, options: object) => {

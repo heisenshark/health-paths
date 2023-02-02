@@ -27,6 +27,7 @@ import { deleteMap, downloadMap, loadMap } from "../utils/FileSystemManager";
 import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
 import { DownloadTrackerRecord, useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
+import HeaderBar from "../components/HeaderBar"
 //[x] make this screen work
 //[x] maybe add some button disable stuff so user cant make two requests at once
 const MapWebPreview = ({ navigation, route }) => {
@@ -225,16 +226,7 @@ const MapWebPreview = ({ navigation, route }) => {
   if (!mapa) return <Text style={tw`text-3xl`}>Ładowanie...</Text>;
   return (
     <>
-      <View style={tw`bg-slate-300 border-b-2 border-slate-500 flex flex-row items-center`}>
-        <SquareButton
-          style={tw`m-2`}
-          size={18}
-          label="wróć"
-          icon={"arrow-left"}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={tw`text-3xl font-bold`}>TRASA</Text>
-      </View>
+      <HeaderBar label={"ŚCIEŻKA"} navigation={navigation} useBack removeMargin/>
 
       <ScrollView style={tw`pt-3 flex-col bg-slate-200 h-full`}>
         <View>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import HeaderBar from "../components/HeaderBar";
 import MapCard from "../components/MapCard";
 import { ModalChoice, useAlertModal } from "../components/ModalChoice";
 import OptionsModal from "../components/OptionsModal";
@@ -98,7 +99,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
     return [
       {
         label: "Pokaż Mapę",
-        icon: "cloud-download",
+        icon: "eye",
         onPress: () => {
           setModalVisible(false);
           loadMap(selectedMap.current.name, selectedMap.current.map_id).then((m) => {
@@ -108,7 +109,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       },
       {
         label: "Edytuj mapę",
-        icon: "cloud-upload",
+        icon: "edit",
         onPress: async () => {
           setModalVisible(false);
           setCurrentMap(selectedMap.current);
@@ -120,7 +121,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       },
       {
         label: "Prześlij do internetu",
-        icon: "minus-circle",
+        icon: "cloud-upload",
         onPress: async () => {
           if (DbUser() === undefined) {
             setModalVisible(false);
@@ -155,7 +156,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       },
       {
         label: "Usuń mapę",
-        icon: "cloud-upload",
+        icon: "trash",
         onPress: () => {
           showAlert(
             "Czy na pewno chcesz usunąć mapę z pamięci?",
@@ -183,14 +184,14 @@ const MapExplorerScreen = ({ navigation, route }) => {
     return [
       {
         label: "pokaż",
-        icon: "minus-circle",
+        icon: "eye",
         onPress: async () => {
           navigation.navigate("MapWebPreviewScreen", { webMap: map });
         },
       },
       {
         label: "ustaw na prywatną",
-        icon: "minus-circle",
+        icon: "eye-slash",
         onPress: async () => {
           try {
             await togglePrivate(map.id, true);
@@ -204,7 +205,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       },
       {
         label: "ustaw na publiczną",
-        icon: "minus-circle",
+        icon: "eye",
         onPress: async () => {
           try {
             await togglePrivate(map.id, false);
@@ -218,7 +219,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       },
       {
         label: "usuń",
-        icon: "minus-circle",
+        icon: "trash",
         onPress: () => {
           showAlert(
             "Czy na pewno chcesz usunąć mapę z internetu?",
@@ -314,23 +315,8 @@ const MapExplorerScreen = ({ navigation, route }) => {
           setModalVisible(false);
         }}
         actions={[...options, ...additionalOptions]}></OptionsModal>
-      <View
-        style={[
-          tw`flex-0 flex flex-row bg-slate-200 border-b-2 border-slate-700  justify-start elevation-5`,
-          { alignItems: "center" },
-        ]}>
-        <SquareButton
-          style={tw`m-2 self-start`}
-          size={18}
-          label="wróć"
-          icon={"arrow-left"}
-          onPress={() => navigation.goBack()}
-        />
 
-        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          MOJE TRASY
-        </Text>
-      </View>
+      <HeaderBar label={"MOJE TRASY"} navigation={navigation} useBack removeMargin />
 
       {mapsState === "local" && (
         <Searchbar

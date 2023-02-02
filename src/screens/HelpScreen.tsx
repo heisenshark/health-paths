@@ -25,6 +25,7 @@ const HelpScreen = ({ route, navigation }) => {
           key={key}
           style={tw`m-2 mx-8`}
           label={value.label}
+          icon={value.icon}
           onPress={() => {
             setCurrentState(key);
             setMaxPages(contentObject[key].arr.length);
@@ -72,13 +73,8 @@ const HelpScreen = ({ route, navigation }) => {
       </View>
       {currentState === "Select" ? (
         <>
-          <Text style={tw`py-6 text-3xl text-center font-bold underline`}>Wybierz poradnik</Text>
-          <View style={tw`flex flex-col flex-initial justify-center pb-6`}>
-            {/* <TileButton style={tw`m-2 mx-8`} label="Ekrany aplikacji" />
-            <TileButton style={tw`m-2 mx-8`} label="Edycja map" />
-            <TileButton style={tw`m-2 mx-8`} label="Funkcje sieciowe" /> */}
-            {renderButtons()}
-          </View>
+          <Text style={tw`py-6 text-4xl text-center font-bold underline`}>Wybierz poradnik</Text>
+          <View style={tw`flex flex-col flex-initial justify-center pb-6`}>{renderButtons()}</View>
         </>
       ) : (
         <>
@@ -105,7 +101,6 @@ const HelpScreen = ({ route, navigation }) => {
               disabled={pageNumber === maxPages}
             />
           </View>
-
           <View style={tw`flex-1 flex flex-col justify-center items-center`}>
             {renderPage(contentObject[currentState].arr[pageNumber - 1])}
           </View>
@@ -139,7 +134,7 @@ function usePagination(max: number): [() => void, () => void, (c: number) => voi
 
 const contentObject: { [index: string]: { icon: string; label: string; arr: pages } } = {
   Screens: {
-    icon: "map",
+    icon: "book",
     label: "Ekrany aplikacji",
     arr: [
       "Wybierz mapę, którą chcesz edytować. Jeśli nie masz żadnej mapy, wybierz opcję 'Nowa mapa'.",
@@ -159,7 +154,7 @@ const contentObject: { [index: string]: { icon: string; label: string; arr: page
     ],
   },
   Web: {
-    icon: "map",
+    icon: "cloud",
     label: "Funkcje Sieciowe",
     arr: [
       "Wybierz mapę, którą chcesz edytować. Jeśli nie masz żadnej mapy, wybierz opcję 'Nowa mapa'.",

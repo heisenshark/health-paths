@@ -162,8 +162,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
 
             <View style={tw`flex-initial flex flex-row justify-center items-center`}>
               <Checkbox
-                // size={10}
-                // title={"Zapisz jako nowa mapa"}
                 status={saveAsNew ? "checked" : "unchecked"}
                 color={tw.color("slate-700")}
                 onPress={saveAsNewToggle}

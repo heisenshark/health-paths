@@ -10,6 +10,7 @@ import { firebase } from "@react-native-firebase/auth";
 import auth from "@react-native-firebase/auth";
 import { imagePlaceholder } from "../utils/HelperFunctions";
 import TileButton from "../components/TileButton";
+import HeaderBar from "../components/HeaderBar";
 
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
@@ -68,15 +69,7 @@ const OptionsScreen = ({ navigation, route }) => {
   }
   return (
     <View style={tw`flex`} pointerEvents={inactive ? "none" : "auto"}>
-      <View
-        style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-center elevation-5`,
-          { alignItems: "center" },
-        ]}>
-        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          OPCJE UŻYTKOWNIKA
-        </Text>
-      </View>
+      <HeaderBar label={"OPCJE UŻYTKOWNIKA"} navigation={navigation} removeMargin />
       {isLogged ? (
         <>
           <Text
