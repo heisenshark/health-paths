@@ -1,3 +1,4 @@
+import { firebase } from "@react-native-firebase/firestore";
 import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +20,7 @@ import {
 } from "../config/firebase";
 import { useForceUpdate } from "../hooks/useForceUpdate";
 import tw from "../lib/tailwind";
+import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 import { useMapStore } from "../stores/store";
 import {
   deleteMap,
@@ -33,7 +35,9 @@ import { HealthPath } from "../utils/interfaces";
 //[x] uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
 //[x] dodać lepsze prompty do usuwania mapy i innych
 const MapExplorerScreen = ({ navigation, route }) => {
+  const [downloadTracker] = useDownloadTrackingStore((state) => [state.downloadTracker]);
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
+
   const [maps, setMaps] = useState<HealthPath[]>([]);
   const [userMaps, setUserMaps] = useState<MapDocument[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -229,6 +233,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
                 icon: "trash",
                 onPress: async () => {
                   await deleteMapWeb(map.id);
+
+                  Users.doc(DbUser()).set(
+                    {
+                      maps: firebase.firestore.FieldValue.arrayRemove(map.id),
+                    },
+                    { merge: true }
+                  );
                   console.log("usunieto");
                   setUserMaps(userMaps.filter((m) => m.id !== map.id));
                   refreshMaps();
@@ -281,9 +292,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
     if (userMaps.length === 0)
       return (
         <View style={tw`h-100 flex items-center justify-center`}>
-          <Text style={tw`text-3xl text-center`}>Brak map...</Text>
-          <Text style={tw`text-xl w-2/3 text-center`} numberOfLines={2}>
-            Możesz jakieś dodać w zakładce Lokalne
+          <Text style={tw`text-3xl text-center font-bold`}>Brak map...</Text>
+          <Text style={tw`text-xl w-2/3 text-center font-bold`} numberOfLines={2}>
+            Możesz je udostępniać w zakładce Lokalne
           </Text>
         </View>
       );
@@ -295,6 +306,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         name={map.name}
         location={map.location}
         visibility={map.visibility}
+        isDownloaded={downloadTracker[map.id] !== undefined}
         onPress={() => {
           selectedMap.current = map;
           console.log({ map, modalVisible });
@@ -316,7 +328,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         }}
         actions={[...options, ...additionalOptions]}></OptionsModal>
 
-      <HeaderBar label={"MOJE TRASY"} navigation={navigation} useBack removeMargin />
+      <HeaderBar label={"MOJE TRASY"} useBack removeMargin />
 
       {mapsState === "local" && (
         <Searchbar

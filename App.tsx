@@ -109,6 +109,18 @@ export default function App() {
     });
   }, []);
 
+  useEffect(() => {
+    if (!["NagrywanieAudio", "EdycjaMap", "Nagraj"].includes(currentScreen)) {
+      Location.hasStartedLocationUpdatesAsync("location_tracking")
+        .then((res) => {
+          if (!res) return;
+          console.log("stopping tracking");
+          Location.stopLocationUpdatesAsync("location_tracking");
+        })
+        .catch((e) => console.log(e));
+    }
+  }, [currentScreen]);
+
   return (
     //TODO finish settings screen
     //[x] finish mapselect screen

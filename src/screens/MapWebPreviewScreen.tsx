@@ -12,7 +12,7 @@ import {
   Alert,
 } from "react-native";
 import tw from "../lib/tailwind";
-import { db, DbUser, MapDocument } from "./../config/firebase";
+import { db, DbUser, MapDocument, Ratings } from "./../config/firebase";
 import SquareButton from "./../components/SquareButton";
 import { FirebaseStorageTypes } from "@react-native-firebase/storage";
 import { format } from "date-fns";
@@ -60,6 +60,9 @@ const MapWebPreview = ({ navigation, route }) => {
       record.downloadDate,
       record.downloadDate.seconds + 10 < map.createdAt.seconds
     );
+
+    console.log(map.createdAt.seconds);
+    console.log(record.downloadDate.seconds);
 
     if (record === undefined) return "download";
     if (record.downloadDate.seconds + 10 < map.createdAt.seconds) return "update";
@@ -116,21 +119,15 @@ const MapWebPreview = ({ navigation, route }) => {
     // console.log("rate", rate.current);
     const r = rate.current as number;
 
-    const prevValue = await db
-      .collection("Ratings")
-      .doc(mapa.id + DbUser())
-      .get();
+    const prevValue = await Ratings.doc(mapa.id + DbUser()).get();
 
     const dta = prevValue.data();
 
-    const elo = await db
-      .collection("Ratings")
-      .doc(mapa.id + DbUser())
-      .set({
-        mapId: mapa.id,
-        userId: DbUser(),
-        rating: r,
-      });
+    const elo = await Ratings.doc(mapa.id + DbUser()).set({
+      mapId: mapa.id,
+      userId: DbUser(),
+      rating: r,
+    });
     console.log("ssss");
 
     let ratingSum = rate.current;
@@ -211,6 +208,7 @@ const MapWebPreview = ({ navigation, route }) => {
           size={30}
           icon="cloud-download-alt"
           label={"pobierz"}
+          labelStyle={tw`text-xl`}
           onPress={onDownload}
         />
       );
@@ -222,6 +220,7 @@ const MapWebPreview = ({ navigation, route }) => {
             size={30}
             icon="cloud-download-alt"
             label={"zaktualizuj"}
+            labelStyle={tw`text-xl`}
             onPress={onDownload}
           />
           <SquareButton
@@ -229,6 +228,7 @@ const MapWebPreview = ({ navigation, route }) => {
             size={30}
             icon="trash"
             label={"usuń"}
+            labelStyle={tw`text-xl`}
             onPress={onDelete}
           />
         </>
@@ -241,6 +241,7 @@ const MapWebPreview = ({ navigation, route }) => {
             size={30}
             icon={"eye"}
             label={"pokaż"}
+            labelStyle={tw`text-xl`}
             onPress={onShow}
           />
           <SquareButton
@@ -248,6 +249,7 @@ const MapWebPreview = ({ navigation, route }) => {
             size={30}
             icon={"trash"}
             label={"usuń"}
+            labelStyle={tw`text-xl`}
             onPress={onDelete}
           />
         </>
@@ -258,7 +260,7 @@ const MapWebPreview = ({ navigation, route }) => {
   if (!mapa) return <Text style={tw`text-3xl`}>Ładowanie...</Text>;
   return (
     <>
-      <HeaderBar label={"ŚCIEŻKA"} navigation={navigation} useBack removeMargin />
+      <HeaderBar label={"ŚCIEŻKA"} useBack removeMargin />
 
       <ScrollView style={tw`pt-3 flex-col bg-slate-200 h-full`}>
         <View>

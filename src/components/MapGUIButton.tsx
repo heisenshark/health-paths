@@ -28,8 +28,8 @@ const MapGUIButton = ({
   disabled,
   colorOverride,
 }: Props) => {
-  const size2 = size * 2.5;
-
+  const size2 = size * (tw.prefixMatch("md") ? 2.5 : 3);
+  
   const color = colorOverride ? colorOverride : "bg-main-" + (disabled ? 900 : 200);
   return (
     <TouchableOpacity
@@ -44,16 +44,13 @@ const MapGUIButton = ({
       onLongPress={() => {
         console.log("long press");
       }}>
-      <View
-        style={tw`p-1 flex justify-center items-center w-[${size / 1.5}] h-[${
-          size / 1.5
-        }]`}>
+      <View style={tw`p-1 flex justify-center items-center w-[${size / 1.5}] h-[${size / 1.5}]`}>
         {icon !== "" && <Icon name={icon} size={size2 / 1.5} color={"black"} />}
         {children}
       </View>
       <Text
         style={[
-          tw`text-base text-center leading-4 underline font-black p-1 w-[${size}]`,
+          tw`text-sm md:text-base text-center leading-4 underline font-black p-1 w-[${size}]`,
           labelStyle,
         ]}>
         {label}

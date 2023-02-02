@@ -22,12 +22,10 @@ const limit = 10;
 
 const MapWebExplorerScreen = ({ navigation, route }) => {
   const [maps, setMaps] = useState<MapDocument[]>([]);
-  const [showLoadMore, setShowLoadMore] = useState(true);
+  const [showLoadMore, setShowLoadMore] = useState(false);
   const track = useRef(null);
   const listMaps = () => {
-    let query = db
-      .collection("Pathes")
-      .where("visibility", "==", "public")
+    let query = Pathes.where("visibility", "==", "public")
       // .orderBy("createdAt", "desc")
       .limit(limit);
     if (track.current !== null) query = query.startAfter(track.current);

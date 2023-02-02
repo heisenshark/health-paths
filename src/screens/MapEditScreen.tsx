@@ -45,6 +45,7 @@ import MapGUIButton from "../components/MapGUIButton";
 import { useShowable } from "../hooks/useShowable";
 import { useForceUpdate } from "../hooks/useForceUpdate";
 import { ModalChoice, useAlertModal } from "../components/ModalChoice";
+import { te } from "date-fns/locale";
 //[x] make the alert for saving the map normal and functional
 //[x] make option to fill the path with google directions if the path was stopped and resumed
 //[x] make is moving stoppoint and is movingwaypoint into state machine
@@ -125,7 +126,7 @@ const MapEditScreen = ({ navigation, route }) => {
         {
           text: "Tak",
           icon: "sign-out-alt",
-          onPress: () => {
+          onPress: async () => {
             useMapStore.getState().resetCurrentMap();
             useMapStore.getState().setNotSaved(false);
             navigation.dispatch(
@@ -195,14 +196,10 @@ const MapEditScreen = ({ navigation, route }) => {
 
     if (isInRecordingState) {
       console.log("elo5");
-
       setInitialRecorddingPrompt(true);
-      stopBackgroundTracking();
     }
-
     return () => {
       console.log("unmounting");
-      if (isRecording) stopBackgroundTracking();
       resetCurrentMap();
       setWaypoints([]);
       setStopPoints([]);
@@ -229,7 +226,6 @@ const MapEditScreen = ({ navigation, route }) => {
           setCurrentModalOpen("None");
           if (isRecording) {
             useLocationTrackingStore.getState().clearLocations();
-            stopBackgroundTracking().then();
           }
           resetCurrentMap(); //HACK, mogą być problemy jak przenosisz się do innrgo ekranu
         }
@@ -413,7 +409,7 @@ const MapEditScreen = ({ navigation, route }) => {
       "Czy na pewno chcesz wyczyścić trasę?",
       [
         {
-          text: "Usuń",
+          text: "Czyść",
           icon: "trash",
           onPress: () => {
             console.log("is in recording: ", isInRecordingState);
@@ -497,7 +493,6 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onWaypointAdd={(position: number) => {
           addNewWaypoint(pointPivot, "waypoint", position);
-          addNewWaypoint(pointPivot, "stop");
         }}
         waypointsLength={waypoints.length}
       />
@@ -528,7 +523,10 @@ const MapEditScreen = ({ navigation, route }) => {
         }}
         onSave={onSave}
       />
-      <View style={tw`w-full h-full bg-red-600 ${isRecording ? "border-4 border-red-600" : ""}`}>
+      <View
+        style={tw`w-full h-full bg-red-600 ${
+          isRecording && isInRecordingState ? "border-4 border-red-600" : ""
+        }`}>
         <MapView
           ref={(r) => (mapRef.current = r)}
           style={tw`flex-1`}
@@ -624,13 +622,13 @@ const MapEditScreen = ({ navigation, route }) => {
       )}
 
       <Animated.View
-        style={tw`absolute w-auto mt-30 right-2 bg-main-200 self-end overflow-hidden rounded-2xl border-2`}
+        style={tw`absolute w-auto mt-16 md:mt-30 right-2 bg-main-200 self-end overflow-hidden rounded-2xl border-2`}
         pointerEvents="auto"
         entering={FadeInRight}
         exiting={FadeOutRight}>
         {isInRecordingState && (
           <MapGUIButton
-            colorOverride={isRecording && "bg-red-600"}
+            colorOverride={isRecording && isInRecordingState && "bg-red-600"}
             style={tw`self-end border-b-2 mt-auto`}
             label={isRecording ? "pauza" : "wznów"}
             icon={isRecording ? "pause" : "record-vinyl"}
@@ -646,7 +644,7 @@ const MapEditScreen = ({ navigation, route }) => {
             setShowHandles(false);
             setShowUserLocation(false);
           }}
-          disabled={isRecording}
+          disabled={isRecording && isInRecordingState}
         />
         <MapGUIButton
           colorOverride={isWatchingposition && "bg-blue-600"}
@@ -713,6 +711,7 @@ export default MapEditScreen;
 
 function ZoomGUI({ mapRef }) {
   const [zoom] = useAtom(zoomAtom);
+
   return (
     <Animated.View
       style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
@@ -721,7 +720,7 @@ function ZoomGUI({ mapRef }) {
       <MapGUIButton
         disabled={zoom <= 0.1493}
         style={tw`self-end border-r-2 mt-auto`}
-        size={20}
+        size={tw.prefixMatch("md") ? 20 : 15}
         label={"przybliż"}
         icon="search-plus"
         onPress={async () => {
@@ -731,8 +730,8 @@ function ZoomGUI({ mapRef }) {
       />
       <MapGUIButton
         disabled={zoom >= 1222}
-        size={20}
         style={tw`self-end mt-auto`}
+        size={tw.prefixMatch("md") ? 20 : 15}
         label={"oddal"}
         icon="search-minus"
         onPress={async () => {

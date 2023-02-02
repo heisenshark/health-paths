@@ -38,8 +38,8 @@ const Rating = ({ onRatingChange, onSubmit, size = 50, style, disabled = false }
           );
         })}
       </View>
-      <View style={tw`h-20 flex mx-10`}>
-        <TileButton style={tw``} size={40} label="oceń!" icon="star" onPress={() => onSubmit()} />
+      <View style={tw`h-24 md:h-30 flex mx-4`}>
+        <TileButton style={tw``} label="oceń!" icon="star" onPress={() => onSubmit()} />
       </View>
     </View>
   );

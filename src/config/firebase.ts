@@ -73,6 +73,8 @@ export const db = firestore();
 
 export const Pathes = db.collection("Pathes");
 export const Users = db.collection("Users");
+export const Ratings = db.collection("Ratings");
+
 export const DbUser = () => firebase.auth().currentUser?.uid;
 db.settings({ persistence: false });
 

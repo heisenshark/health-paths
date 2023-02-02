@@ -10,13 +10,12 @@ type Props = {};
 const OtherSettingsScreen = ({ route, navigation }) => {
   return (
     <View style={tw`flex bg-slate-100 h-full`}>
-      <HeaderBar label={"USTAWIENIA"} navigation={navigation} useBack />
+      <HeaderBar label={"USTAWIENIA"} useBack />
       <View style={tw`h-40`}>
         <TileButton
           label="poproś o uprawnienia"
           icon="map"
           style={tw`mx-10 mb-4`}
-          size={90}
           onPress={async () => {
             const res = await getLocationPermissions();
             if (res) {

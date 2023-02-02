@@ -143,9 +143,9 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       return (
         <>
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5`}
             onPress={startRecording}
-            size={size}
             icon="record-vinyl"
             label="Nagrywaj"
           />
@@ -155,16 +155,16 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       return (
         <>
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={pauseRecording}
-            size={size}
             icon="pause"
             label="Zatrzymaj"
           />
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={stopRecording}
-            size={size}
             icon="stop"
             label="Zakończ"
           />
@@ -174,16 +174,16 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       return (
         <>
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={resumeRecording}
-            size={size}
             icon="microphone"
             label="Wznów"
           />
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={stopRecording}
-            size={size}
             icon="stop"
             label="Zakończ"
           />
@@ -193,20 +193,21 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       return (
         <>
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={startRecording}
-            size={size}
             icon="microphone"
             label="Nagraj ponownie"
           />
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={playSound}
-            size={size}
             icon="play"
             label="Odtwórz"
           />
           <SquareButton
+            size={tw.prefixMatch("md") ? size : size * 0.9}
             style={tw`elevation-5 mx-2`}
             onPress={() => {
               navigation.navigate("EdycjaMap", {
@@ -214,7 +215,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
                 soundUri: soundUri,
               });
             }}
-            size={size}
             icon="save"
             label="Zapisz"
           />
@@ -239,7 +239,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
 
   return (
     <View style={tw`bg-slate-100 h-1/1`}>
-      <HeaderBar label={"NAGRAJ AUDIO"} navigation={navigation} removeMargin useBack />
+      <HeaderBar label={"NAGRAJ AUDIO"} removeMargin useBack />
 
       <Text
         style={tw`text-8xl text-center text-slate-900 mt-8 mb-4 mx-4 border-2 border-slate-800 bg-slate-100 pt-20 pb-0 rounded-3xl elevation-5`}>

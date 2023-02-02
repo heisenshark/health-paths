@@ -13,10 +13,11 @@ type Props = {
   visibility?: "public" | "private";
   name: string;
   location: string;
+  isDownloaded?: boolean;
   onPress: () => void;
 };
 
-const MapCard = ({ id, icon, visibility, name, location, onPress }: Props) => {
+const MapCard = ({ id, icon, visibility, name, location, isDownloaded, onPress }: Props) => {
   return (
     <TouchableOpacity
       key={id}
@@ -34,13 +35,20 @@ const MapCard = ({ id, icon, visibility, name, location, onPress }: Props) => {
             {name}
           </Text>
           <Text style={tw`flex-auto text-xl`} ellipsizeMode="tail" numberOfLines={1}>
-            {(location)}
+            {location}
           </Text>
 
           {visibility !== undefined && (
             <Text style={tw`text-xl text-right`}>
               <Icon name={visibility === "public" ? "eye" : "eye-slash"}></Icon>{" "}
               {visibility === "private" ? "prywatna" : "publiczna"}
+              {isDownloaded && (
+                <>
+                  {"  "}
+                  <Icon name={"download"}></Icon>
+                  <Text> pobrana</Text>
+                </>
+              )}
             </Text>
           )}
 

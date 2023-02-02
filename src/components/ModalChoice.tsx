@@ -42,7 +42,7 @@ export function ModalChoice({
       // onBackButtonPress={onRequestClose}
     >
       <View style={tw` bg-slate-100 elevation-5 mx-10 p-4`}>
-        <Text style={tw`text-center text-3xl font-bold py-3`}>{label}</Text>
+        <Text style={tw`text-center text-2xl md:text-3xl font-bold py-3`}>{label}</Text>
         <View style={tw`flex flex-row w-full justify-evenly mb-4`}>
           <SquareButton
             style={tw`mx-4`}

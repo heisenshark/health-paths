@@ -5,6 +5,7 @@ import SquareButton from "../components/SquareButton";
 import HomeScreen from "./HomeScreen";
 import { Tile } from "react-native-elements";
 import TileButton from "../components/TileButton";
+import HeaderBar from "../components/HeaderBar";
 
 type Props = {};
 type pages = (string | JSX.Element)[];
@@ -51,26 +52,7 @@ const HelpScreen = ({ route, navigation }) => {
   // setMaxPages(contentObject[currentState].length);
   return (
     <View style={tw`flex bg-slate-100 h-full`}>
-      <View
-        style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-start elevation-5`,
-          { alignItems: "center" },
-        ]}>
-        <SquareButton
-          style={tw`m-2 self-start`}
-          size={18}
-          label="wróć"
-          icon={"arrow-left"}
-          onPress={() => {
-            if (currentState !== "Select") setCurrentState("Select");
-            else navigation.goBack();
-          }}
-        />
-
-        <Text style={tw`text-center text-slate-800 text-4xl mt-2 mb-2 ml-2 font-medium underline`}>
-          POMOC
-        </Text>
-      </View>
+      <HeaderBar label="POMOC" useBack />
       {currentState === "Select" ? (
         <>
           <Text style={tw`py-6 text-4xl text-center font-bold underline`}>Wybierz poradnik</Text>

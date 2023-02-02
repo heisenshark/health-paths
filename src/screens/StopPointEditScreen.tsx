@@ -203,7 +203,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   return (
     <KeyboardAvoidingView style={tw`h-full`} behavior="padding">
-      <HeaderBar label={"Punkt Stopu:"} navigation={navigation} removeMargin useBack />
+      <HeaderBar label={"Punkt Stopu:"} removeMargin useBack />
       <ModalChoice
         visible={audioModalVisible}
         label="Jak dodać audio?"
@@ -237,6 +237,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
             />
             {isEdit && (
               <SquareButton
+                size={tw.prefixMatch("md") ? 20 : 17}
                 style={tw`absolute bottom-8 right-4 elevation-5`}
                 label={"Edytuj"}
                 icon="edit"
@@ -318,12 +319,13 @@ const AudioPickPlay = ({ label, isEdit, isPresent, onPlay, onPick }) => {
   return (
     <View
       style={tw`flex-row justify-between items-center mb-4 bg-main-100 p-4 rounded-xl elevation-5`}>
-      <Text style={tw`flex-1 text-xl font-bold`} numberOfLines={2}>
+      <Text style={tw`flex-1 text-lg md:text-xl font-bold`} numberOfLines={2}>
         {label}
       </Text>
       <View style={tw`flex-initial flex-row`}>
         {isEdit && (
           <SquareButton
+            size={tw.prefixMatch("md") ? 20 : 17}
             style={tw`ml-auto mr-2 elevation-5`}
             label={isPresent ? "Edytuj" : "Dodaj"}
             icon={isPresent ? "edit" : "plus"}
@@ -331,6 +333,7 @@ const AudioPickPlay = ({ label, isEdit, isPresent, onPlay, onPick }) => {
           />
         )}
         <SquareButton
+          size={tw.prefixMatch("md") ? 20 : 17}
           disabled={!isPresent}
           style={tw`ml-auto elevation-5`}
           label={"Odtwórz"}

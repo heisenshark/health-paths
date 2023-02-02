@@ -26,6 +26,12 @@ function wrapUtilities(utilities) {
 module.exports = {
   content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
+    screens: {
+      sm: '320px',
+      md: '380px',
+      lg: '420px',
+    },
+
     extend: {
       colors: {
         main: {
