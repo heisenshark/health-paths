@@ -81,13 +81,13 @@ const OptionsScreen = ({ navigation, route }) => {
           <View style={tw`w-full flex justify-center items-center rounded-xl`}>
             <View style={tw`flex items-center bg-main-100 p-4 rounded-3xl elevation-5 `}>
               <Image
-                style={tw`h-30 md:h-40 aspect-square rounded-full border-4 border-black border-opacity-50`}
+                style={tw`h-30 md:h-34 aspect-square rounded-full border-4 border-black border-opacity-50`}
                 source={{ uri: user?.user?.photo ?? imagePlaceholder }}
               />
               <Text style={tw`text-xl md:text-3xl text-center`}>{user?.user?.name}</Text>
             </View>
           </View>
-          <View style={tw`h-28 md:h-40 my-2`}>
+          <View style={tw`h-28 md:h-34 my-2`}>
             <TileButton
               style={tw`mx-10`}
               label="Wyloguj"
@@ -105,7 +105,7 @@ const OptionsScreen = ({ navigation, route }) => {
       )}
 
       {!isLogged && (
-        <View style={tw`h-28 md:h-44 mb-2`}>
+        <View style={tw`h-28 md:h-34 mb-2`}>
           <TileButton
             style={tw`mx-10 mt-2`}
             label="Logowanie Google"
@@ -114,7 +114,7 @@ const OptionsScreen = ({ navigation, route }) => {
           />
         </View>
       )}
-      <View style={tw`h-28 md:h-40`}>
+      <View style={tw`h-28 md:h-34`}>
         <TileButton
           style={tw`md:h-44 mx-10`}
           label="Inne Ustawienia"

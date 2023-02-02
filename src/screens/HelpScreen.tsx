@@ -62,6 +62,7 @@ const HelpScreen = ({ route, navigation }) => {
         <>
           <View style={tw`flex flex-row flex-initial justify-center`}>
             <SquareButton
+              size={tw.prefixMatch("md") ? 20 : 15}
               label="wstecz"
               icon="arrow-left"
               onPress={back}
@@ -77,6 +78,7 @@ const HelpScreen = ({ route, navigation }) => {
               {pageNumber} / {maxPages}
             </Text>
             <SquareButton
+              size={tw.prefixMatch("md") ? 20 : 15}
               label="dalej"
               icon="arrow-right"
               onPress={forward}

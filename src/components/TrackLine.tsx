@@ -47,7 +47,6 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
       {(outLocations.length > 0 || isEdit) && (
         <Marker coordinate={isEdit ? coords[0] : outLocations[0]} style={tw`flex`}>
           <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
-            <Text>Start</Text>
             <Image
               source={imageStart}
               resizeMode="center"
@@ -63,7 +62,6 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
           coordinate={isEdit ? coords[coords.length - 1] : outLocations[outLocations.length - 1]}
           style={tw`flex`}>
           <View style={tw`flex-1 items-center justify-end h-auto w-auto`}>
-            <Text>Koniec</Text>
             <Image
               source={imageEnd}
               resizeMode="center"

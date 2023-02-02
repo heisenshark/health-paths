@@ -3,6 +3,7 @@ import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image, TextInput } from "react-native";
 import { Card } from "react-native-paper";
+import HeaderBar from "../components/HeaderBar"
 import MapCard from "../components/MapCard";
 import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
@@ -56,23 +57,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
 
   return (
     <View style={tw`h-full`}>
-      <View
-        style={[
-          tw`flex-0 flex flex-row bg-slate-200 mb-2 border-b-2 border-slate-500 justify-start elevation-5`,
-          { alignItems: "center" },
-        ]}>
-        <SquareButton
-          style={tw`m-2 self-start`}
-          size={18}
-          label="wróć"
-          icon={"arrow-left"}
-          onPress={() => navigation.goBack()}
-        />
-
-        <Text style={tw`text-left text-slate-800 text-4xl mt-2 mb-2 ml-4 font-medium underline`}>
-          PUBLICZNE
-        </Text>
-      </View>
+      <HeaderBar label={"PUBLICZNE TRASY"} useBack removeMargin />
 
       <ScrollView>
         {maps.length === 0 && (

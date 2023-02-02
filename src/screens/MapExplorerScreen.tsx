@@ -259,9 +259,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
     if (maps.length === 0)
       return (
         <View style={tw`h-100 flex items-center justify-center`}>
-          <Text style={tw`text-3xl text-center`}>Brak map...</Text>
-          <Text style={tw`text-xl w-2/3 text-center`} numberOfLines={2}>
-            Możesz jakieś dodać w Sekcji Planuj oraz Nagraj
+          <Text style={tw`text-3xl text-center font-bold`}>Brak map...</Text>
+          <Text style={tw`text-xl w-2/3 text-center font-semibold`} numberOfLines={2}>
+            Możesz je dodać w Sekcji Planuj oraz Nagraj
           </Text>
         </View>
       );
@@ -293,7 +293,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       return (
         <View style={tw`h-100 flex items-center justify-center`}>
           <Text style={tw`text-3xl text-center font-bold`}>Brak map...</Text>
-          <Text style={tw`text-xl w-2/3 text-center font-bold`} numberOfLines={2}>
+          <Text style={tw`text-xl w-2/3 text-center font-semibold`} numberOfLines={2}>
             Możesz je udostępniać w zakładce Lokalne
           </Text>
         </View>

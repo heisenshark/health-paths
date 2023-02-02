@@ -29,7 +29,7 @@ const HeaderBar = ({ label, useBack, removeMargin }: Props) => {
           onPress={() => navigation.goBack()}
         />
       )}
-      <Text style={tw`text-center text-slate-800 md:text-4xl sm:text-3xl mt-2 mb-2 ml-2 font-medium underline`}>
+      <Text style={tw`text-center text-slate-800 text-3xl mt-2 mb-2 ml-2 font-medium underline`}>
         {label}
       </Text>
     </View>
