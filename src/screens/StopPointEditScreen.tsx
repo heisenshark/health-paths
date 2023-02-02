@@ -31,11 +31,13 @@ import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
 import { imagePlaceholder } from "../utils/HelperFunctions";
 import HeaderBar from "../components/HeaderBar";
+import { getURI } from "../utils/FileSystemManager";
 
 //TODO make this component use less hooks and improve functions
 //TODO use expo document picker instead of react-native-document-picker
 const StopPointEditScreen = ({ navigation, route }) => {
   const isEdit = route.params.isEdit;
+  const map = route.params.map;
   const [currentMap, getCurrentMediaURI, setNotSaved] = useMapStore((state) => [
     state.currentMap,
     state.getCurrentMediaURI,
@@ -53,7 +55,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [soundType, setSoundType] = useState("");
-  const [waypointDiff, setWaypointDiff] = useState({} as Waypoint);
   const sound = useRef(new Audio.Sound());
 
   async function playSound(uri: string) {
@@ -67,6 +68,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
       console.log(error);
     }
     console.log(sound);
+  }
+
+  function getU(mf: MediaFile) {
+    if (map === undefined) return getURI(currentMap, mf);
+    return getURI(map, mf);
   }
 
   useFocusEffect(
@@ -85,11 +91,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
       if (route.params.soundType === "intro") {
         setIntroSoundUri(route.params.soundUri);
-        waypointDiff.introduction_audio = soundObject;
+        editedWaypoint.introduction_audio = soundObject;
       }
       if (route.params.soundType === "navigation") {
         setNavigationSoundUri(route.params.soundUri);
-        waypointDiff.navigation_audio = soundObject;
+        editedWaypoint.navigation_audio = soundObject;
       }
     }, [route.params])
   );
@@ -97,12 +103,13 @@ const StopPointEditScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (!editedWaypoint) navigation.goBack();
     console.log("waypoint: ", editedWaypoint);
+    console.log(getU(editedWaypoint.image));
 
-    if (editedWaypoint.image) setImage(getCurrentMediaURI(editedWaypoint.image));
+    if (editedWaypoint.image) setImage(getU(editedWaypoint.image));
     if (editedWaypoint.introduction_audio)
-      setIntroSoundUri(getCurrentMediaURI(editedWaypoint?.introduction_audio));
+      setIntroSoundUri(getU(editedWaypoint?.introduction_audio));
     if (editedWaypoint.navigation_audio)
-      setNavigationSoundUri(getCurrentMediaURI(editedWaypoint?.navigation_audio));
+      setNavigationSoundUri(getU(editedWaypoint?.navigation_audio));
   }, []);
 
   useEffect(() => {

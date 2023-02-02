@@ -75,10 +75,10 @@ const MapViewScreen = ({ navigation, route }) => {
           stopPointPressed={(stopPoint) => {
             navigation.navigate({
               name: "EdycjaMap",
-              params: { editedWaypoint: stopPoint, isEdit: false },
+              params: { editedWaypoint: stopPoint, isEdit: false, map: currentMap },
             });
           }}></StopPoints>
-        <Polyline coordinates={currentMap.path} strokeWidth={8} strokeColor="#ffc800" zIndex={3}/>
+        <Polyline coordinates={currentMap.path} strokeWidth={8} strokeColor="#ffc800" zIndex={3} />
         <Polyline coordinates={currentMap.path} strokeColor={"black"} strokeWidth={12} zIndex={1} />
       </MapView>
 

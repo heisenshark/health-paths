@@ -19,7 +19,7 @@
 //[x] upewnić się że aplikacja prosi o uprawnienia do lokalizacji
 //[x] upewnić się że prompt z niezapisaniem działa poprawnie działa całkiem poprawnie xDDDD
 //[x] ustawić toasta na logowaniu aby wyświetlał prawidłowy błąd na cancel
-//TODO zrobić Pomoc screen
+//[x] zrobić Pomoc screen
 //TODO dodać nienatywną klawiaturę do aplikacji // może jednak nie 
 
 //[x] prompt w przypadku usuwania mapy, czy aby na pewno 

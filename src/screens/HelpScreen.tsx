@@ -1,4 +1,4 @@
-import { View, Text, BackHandler } from "react-native";
+import { View, Text, BackHandler, ScrollView, Image } from "react-native";
 import React, { ReactNode, useEffect, useState } from "react";
 import tw from "../lib/tailwind";
 import SquareButton from "../components/SquareButton";
@@ -49,10 +49,15 @@ const HelpScreen = ({ route, navigation }) => {
     return () => backHandler.remove();
   }, [navigation, currentState]);
 
-  // setMaxPages(contentObject[currentState].length);
   return (
     <View style={tw`flex bg-slate-100 h-full`}>
-      <HeaderBar label="POMOC" useBack />
+      <HeaderBar
+        label="POMOC"
+        useBack
+        onPress={
+          currentState === "Select" ? () => navigation.goBack() : () => setCurrentState("Select")
+        }
+      />
       {currentState === "Select" ? (
         <>
           <Text style={tw`py-6 text-4xl text-center font-bold underline`}>Wybierz poradnik</Text>
@@ -60,7 +65,7 @@ const HelpScreen = ({ route, navigation }) => {
         </>
       ) : (
         <>
-          <View style={tw`flex flex-row flex-initial justify-center`}>
+          <View style={tw`flex flex-row flex-initial justify-center mb-2`}>
             <SquareButton
               size={tw.prefixMatch("md") ? 20 : 15}
               label="wstecz"
@@ -85,9 +90,10 @@ const HelpScreen = ({ route, navigation }) => {
               disabled={pageNumber === maxPages}
             />
           </View>
-          <View style={tw`flex-1 flex flex-col justify-center items-center`}>
+          <ScrollView style={tw`flex-1 flex flex-col p-2`}>
             {renderPage(contentObject[currentState].arr[pageNumber - 1])}
-          </View>
+            <View style={tw`h-10`} />
+          </ScrollView>
         </>
       )}
     </View>
@@ -121,30 +127,273 @@ const contentObject: { [index: string]: { icon: string; label: string; arr: page
     icon: "book",
     label: "Ekrany aplikacji",
     arr: [
-      "Wybierz mapę, którą chcesz edytować. Jeśli nie masz żadnej mapy, wybierz opcję 'Nowa mapa'.",
-      "aaaaaaaaaaaaa",
-      "asssdfsdfsdf",
-      "sdfsdfsdddddddd",
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Ekran główny</Text>
+        <Text style={tw`text-base`}>
+          Ekran w którym użytkownik może przejść do wyboru własnych ścieżek, przeglądać publiczne
+          ścieżki, wyjść z aplikacji oraz skorzystać z pomocy.
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Moje ścieżki</Text>
+        <Text style={tw`text-base`}>
+          Ekran który wyświetla własne ścieżki i pozwala na zarządzanie nimi(usuwanie, edycja,
+          podgląd, przesłanie do internetu, zmiana prywatności)
+        </Text>
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Przeglądaj trasy</Text>
+        <Text style={tw`text-base  mb-4`}>
+          Ekran który wyświetla publicznie ścieżki i pozwala na ich podgląd
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Pomoc</Text>
+        <Text style={tw`text-base mb-4`}>
+          Ekran w którym wyświetlana jest pomoc dla użytkownika
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Profil</Text>
+        <Text style={tw`text-base mb-4`}>
+          Ekran w którym użytkownik może się zalogować oraz inne opcje
+        </Text>
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Nagraj</Text>
+        <Text style={tw`text-base  mb-4`}>
+          Ekran pozwalający na tworzenie ścieżki poprzez nagrywanie lokacji użytkownika
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Planuj</Text>
+        <Text style={tw`text-base mb-4`}>
+          Ekran pozwalający na tworzenie ścieżki poprzez dodawanie punktów na mapie
+        </Text>
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Podgląd ścieżki</Text>
+        <Text style={tw`text-base mb-4`}>
+          Ekran pozwalający na podgląd ścieżki z pamięci lokalnej bez edytowania{" "}
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Podgląd ścieżki Web</Text>
+        <Text style={tw`text-base  mb-4`}>
+          Ekran pozwalający na podgląd ścieżki z bazy, pobranie jej, usunięcie z pamięci oraz
+          aktualizację oraz udostępnianie, zalogowany użytkownik może ją oceniać
+        </Text>
+      </>,
     ],
   },
   Edit: {
     icon: "map",
     label: "Edycja ścieżek",
     arr: [
-      "Wybierz mapę, którą chcesz edytować. Jeśli nie masz żadnej mapy, wybierz opcję 'Nowa mapa'.",
-      "aaaaaaaaaaaaa",
-      "asssdfsdfsdf",
-      "sdfsdfsdddddddd",
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Edycja przez nagrywanie</Text>
+        <Text style={tw`text-base`}>
+          Przejdź na ekran nagraj{"\n"}Kliknij rozpocznij nagrywanie{"\n"}Aplikacja automatycznie
+          będzie nagrywać twoją lokalizację i tworzyć trasę
+        </Text>
+        <Image
+          style={tw`h-40 w-auto aspect-square self-center border-2 border-black`}
+          source={{
+            uri: "https://cdn.discordapp.com/attachments/1070704516854464522/1070704613814181908/tutorial1.png",
+          }}
+        />
+        <Text style={tw`text-base`}>Przyciski po prawej stronie ekranu:{"\n"}</Text>
+        <View style={tw`flex flex-row`}>
+          <Image
+            style={[
+              tw`h-60 w-14 self-center border-2 border-black`,
+              {
+                resizeMode: "contain",
+              },
+            ]}
+            source={{
+              uri: "https://media.discordapp.net/attachments/1070704516854464522/1070711956580868126/image.png",
+            }}
+          />
+
+          <Text style={tw`ml-2 flex-initial text-base`}>
+            <Text style={tw`font-bold`}>pauza/wznów</Text>: zatrzymuje/wznawia nagrywanie{"\n"}
+            <Text style={tw`font-bold`}>zapisz</Text>: Otwiera opkienko zapisu mapy{"\n"}
+            <Text style={tw`font-bold`}>centruj</Text>: Wyśrodkowywuje mapę na aktualnej lokacji
+            telefonu{"\n"}
+            <Text style={tw`font-bold`}>czyść</Text>: Czyści trasę(nie usuwa punktów stopu){"\n"}
+            <Text style={tw`font-bold`}>ukryj/pokaż</Text>: ukrywa/pokazuje markery{"\n"}
+          </Text>
+        </View>
+        <Text style={tw`text-base`}>
+          Podczas nagrywania możesz dotknąć mapy co pokaże okienko które umożliwi dodanie punktu
+          stopu w wybranym przez ciebie miejscu
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-40 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://cdn.discordapp.com/attachments/1070704516854464522/1070714496148058243/image.png",
+          }}
+        />
+        <Text style={tw`text-base`}>
+          Podczas nagrywania możesz dotknąć mapy co pokaże okienko które umożliwi dodanie punktu
+          stopu w wybranym przez ciebie miejscu
+        </Text>
+        <Text style={tw`text-base`}>
+          {"\n\n"}Jeśli zapauzujesz nagrywanie i oddalisz się zbyt bardzo od swojej ostatniej
+          lokalizacji możesz wypełnić swoją trasę korzystając z directions api po naciśnięciu
+          wypełnij trasę
+        </Text>
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Edycja przez planowanie</Text>
+        <Text style={tw`text-base`}>
+          Przejdź do zakładki planuj{"\n"}
+          dotknij mapę aby dodać punkt, ukaże ci się okienko dodawania punktu, możesz dodać w nim
+          punkt stopu lub trasy.{"\n"}Punkty trasy definiują trasę ścieżki przez co możesz lepiej
+          zaplanować swoją wyprawę.
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-40 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://media.discordapp.net/attachments/1070704516854464522/1070721141024505916/image.png",
+          }}
+        />
+
+        <Text style={tw`text-base`}>
+          Punkt trasy możemy dodać na początek koniec lub w środku trasy
+        </Text>
+        <Text style={tw`text-base`}>
+          Punkty możemy przemieszczać poprzez dotknięcie w ich miejsce co wywołuje kolejne okienko w
+          którym możemy usunąć dany punkt, przenieść lub edytować informacje jeśli jest to punkt
+          stopu
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-80 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://media.discordapp.net/attachments/1070704516854464522/1070723986540986368/image.png",
+          }}
+        />
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Edycja punktów stopu</Text>
+        <Text style={tw`text-base`}>
+          Każdy punkt stopu składa się z dwóch nagrań dźwiękowych, ikony, nazwy i opisu.{"\n"}
+          można je edytować wywołując ekran edycji punktu, wywołuje się on też automatycznie po
+          dodaniu
+        </Text>
+
+        <Text style={tw`text-base`}>
+          Każdy punkt stopu składa się z dwóch nagrań dźwiękowych, ikony, nazwy i opisu.{"\n"}
+          można je edytować wywołując ekran edycji punktu, wywołuje się on też automatycznie po
+          dodaniu
+        </Text>
+
+        <Image
+          style={[
+            tw`w-60 h-120 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://cdn.discordapp.com/attachments/1070704516854464522/1070731715175252058/image.png",
+          }}
+        />
+
+        <Text style={tw`text-base`}>
+          Oprócz tego można też nagrywać audio przechodząc do ekranu nagrywania klikajcąc
+          dodaj(edytuj) przy pliku audio i wybierając opcję nagraj
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-80 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://media.discordapp.net/attachments/1070704516854464522/1070732354412359781/image.png",
+          }}
+        />
+      </>,
     ],
   },
   Web: {
     icon: "cloud",
     label: "Funkcje Sieciowe",
     arr: [
-      "Wybierz mapę, którą chcesz edytować. Jeśli nie masz żadnej mapy, wybierz opcję 'Nowa mapa'.",
-      "aaaaaaaaaaaaa",
-      "asssdfsdfsdf",
-      "sdfsdfsdddddddd",
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Funkcje Sieciowe</Text>
+        <Text style={tw`text-base`}>
+          W ekranie Przeglądaj ścieżki możesz przeglądać i pobierać publiczne ścieżki z internetu
+          {"\n"}
+          Przesyłanie ścieżek do internetu odbywa się za pomocą Ekranu Moje ścieżki, jednak przedtem
+          należy się zalogować korzystając z konta google w Pzechodząc do ekranu Opcje i klikając
+          Logowanie Google a następnie wybierając swoje konto
+        </Text>
+
+        <Image
+          style={[
+            tw`w-60 h-40 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://media.discordapp.net/attachments/1070704516854464522/1070734122072416336/image.png",
+          }}
+        />
+        <Text style={tw`text-base`}>
+          Aby udostępnić ścieżkę należy przejsc do ekranu Moje trasy(w zakładce "lokalne"), wybrać
+          ścieżkę klikając na nią i a następnie kliknąć w opcję prześlij do internetu
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-100 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://cdn.discordapp.com/attachments/1070704516854464522/1070735742755684483/image.png",
+          }}
+        />
+      </>,
+      <>
+        <Text style={tw`text-2xl font-bold mb-2`}>Przeglądanie ścieżek</Text>
+        <Text style={tw`text-base`}>
+          W ekranie Przeglądaj ścieżki możesz przeglądać i pobierać publiczne ścieżki z internetu
+          klikając na jedną z nich możesz obejrzeć jej szczegóły i stan.
+        </Text>
+        <Text style={tw`text-2xl font-bold mb-2`}>Ocenianie ścieżek</Text>
+        <Text style={tw`text-base`}>
+          W ekranie szczegółów ścieżki możesz ocenić ją klikając na gwiazdkę, ocena jest zapisywana
+          po kliknięciu w przycisk "Oceń!"
+        </Text>
+        <Image
+          style={[
+            tw`w-60 h-80 self-center border-2 border-black`,
+            {
+              resizeMode: "contain",
+            },
+          ]}
+          source={{
+            uri: "https://media.discordapp.net/attachments/1070704516854464522/1070736715611918356/image.png",
+          }}
+        />
+        <Text style={tw`text-2xl font-bold mb-2`}>Udostępnianie ścieżek</Text>
+        <Text style={tw`text-base`}>
+          Oprócz tego mozę sz też udostępniać ścieżki, klikając w przycisk "Udostępnij" na ekranie,
+          możesz udostępniać tylko publiczne ścieżki klikając w przycisk możesz podzielić się
+          linkiem do ścieżki przez dowolny komunikator tekstowy
+        </Text>
+      </>,
     ],
   },
 };

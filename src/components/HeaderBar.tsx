@@ -2,17 +2,18 @@ import { View, Text } from "react-native";
 import React from "react";
 import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native";
 
 type Props = {
   label: string;
   useBack?: boolean;
   removeMargin?: boolean;
+  onPress?: () => void;
 };
 
-const HeaderBar = ({ label, useBack, removeMargin }: Props) => {
+const HeaderBar = ({ label, useBack, removeMargin, onPress }: Props) => {
   const navigation = useNavigation();
- return (
+  return (
     <View
       style={[
         tw`flex-0 flex flex-row bg-slate-200 ${
@@ -20,13 +21,13 @@ const HeaderBar = ({ label, useBack, removeMargin }: Props) => {
         } border-b-2 border-slate-500 ${!useBack ? "justify-center" : ""} elevation-5`,
         { alignItems: "center" },
       ]}>
-      {useBack && navigation&& (
+      {useBack && navigation && (
         <SquareButton
           style={tw`m-2`}
           size={tw.prefixMatch("md") ? 18 : 15}
           label="wróć"
           icon={"arrow-left"}
-          onPress={() => navigation.goBack()}
+          onPress={onPress ?? (() => navigation.goBack())}
         />
       )}
       <Text style={tw`text-center text-slate-800 text-3xl mt-2 mb-2 ml-2 font-medium underline`}>

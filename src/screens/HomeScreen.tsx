@@ -50,7 +50,7 @@ const HomeScreen = ({ navigation }) =>
     <View style={tw`flex h-full`}>
       <HeaderBar label={"EKRAN GŁÓWNY"} />
       {data.map((item) => (
-        <TileButton {...item} style={tw`mx-4 mb-2`} key={item.id} />
+        <TileButton {...item} style={tw`mx-10 mb-2`} key={item.id} />
       ))}
     </View>
   );

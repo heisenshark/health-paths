@@ -208,9 +208,6 @@ const MapEditScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log("render");
-  });
   useFocusEffect(
     useCallback(() => {
       checkRecording();
@@ -365,13 +362,11 @@ const MapEditScreen = ({ navigation, route }) => {
     }
     if (mapEditState === "MovingWaypoint")
       waypoints.splice(waypoints.indexOf(selectedWaypoint), 1, {
-        latitude: e.nativeEvent.coordinate.latitude,
-        longitude: e.nativeEvent.coordinate.longitude,
+        ...e.nativeEvent.coordinate,
       });
     else if (mapEditState === "MovingStopPoint")
       selectedStop.coordinates = {
-        latitude: e.nativeEvent.coordinate.latitude,
-        longitude: e.nativeEvent.coordinate.longitude,
+        ...e.nativeEvent.coordinate,
       };
     await animateToPoint(e.nativeEvent.coordinate);
     setMapEditState("Idle");
