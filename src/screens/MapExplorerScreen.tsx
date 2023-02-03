@@ -102,7 +102,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
     const isOwner = DbUser() != undefined;
     return [
       {
-        label: "Pokaż Mapę",
+        label: "Pokaż ścieżkę",
         icon: "eye",
         onPress: () => {
           setModalVisible(false);
@@ -112,7 +112,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         },
       },
       {
-        label: "Edytuj mapę",
+        label: "Edytuj ścieżkę",
         icon: "edit",
         onPress: async () => {
           setModalVisible(false);
@@ -124,7 +124,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         },
       },
       {
-        label: "Prześlij do internetu",
+        label: "Prześlij ścieżkę",
         icon: "cloud-upload",
         onPress: async () => {
           if (DbUser() === undefined) {
@@ -132,7 +132,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             return;
           }
 
-          showAlert("Przesyłanie mapy, wybierz prywatność", [
+          showAlert("Przesyłanie ścieżki, wybierz prywatność", [
             {
               text: "Publiczna",
               icon: "eye",
@@ -159,11 +159,11 @@ const MapExplorerScreen = ({ navigation, route }) => {
         disabled: DbUser() === undefined,
       },
       {
-        label: "Usuń mapę",
+        label: "Usuń ścieżkę",
         icon: "trash",
         onPress: () => {
           showAlert(
-            "Czy na pewno chcesz usunąć mapę z pamięci?",
+            "Czy na pewno chcesz usunąć ścieżkę z pamięci?",
             [
               {
                 text: "Tak",
@@ -322,13 +322,13 @@ const MapExplorerScreen = ({ navigation, route }) => {
       <ModalChoice {...alertState} />
       <OptionsModal
         visible={modalVisible}
-        label={"Co chcesz zrobić z mapą?"}
+        label={"Co chcesz zrobić ze ścieżką?"}
         onRequestClose={() => {
           setModalVisible(false);
         }}
         actions={[...options, ...additionalOptions]}></OptionsModal>
 
-      <HeaderBar label={"MOJE TRASY"} useBack removeMargin />
+      <HeaderBar label={"MOJE ŚCIEŻKI"} useBack removeMargin />
 
       {mapsState === "local" && (
         <Searchbar

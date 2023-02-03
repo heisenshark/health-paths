@@ -61,8 +61,6 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
           (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
           <Marker
             coordinate={waypoint.coordinates}
-            title={waypoint.displayed_name}
-            description={waypoint.type}
             pinColor={"green"}
             opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
             onPress={() => {

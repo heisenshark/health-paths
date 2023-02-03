@@ -63,10 +63,10 @@ const MapWebPreview = ({ navigation, route }) => {
 
     console.log(map.createdAt.seconds);
     console.log(record.downloadDate.seconds);
-
     if (record === undefined) return "download";
+    if (firebase.firestore.Timestamp.now().seconds < map.createdAt.seconds) return "delete";//if the device time is somehow behind the sddition time we default to not doing anything
     if (record.downloadDate.seconds + 10 < map.createdAt.seconds) return "update";
-    else return "delete";
+    return "delete";
   };
 
   useEffect(() => {

@@ -68,7 +68,7 @@ const MapViewScreen = ({ navigation, route }) => {
             animated: false,
           });
         }}>
-        <Markers waypoints={wpoints} onWaypointPressed={() => {}} />
+        <Markers waypoints={wpoints} isView onWaypointPressed={() => {}} />
 
         <StopPoints
           waypoints={currentMap.stops}

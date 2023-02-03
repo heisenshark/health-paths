@@ -76,7 +76,6 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
     );
   };
 
-  if (navigationRef.isReady() && navigationRef?.getCurrentRoute()?.name === "LogIn") return <></>;
   return (
     <>
       {/* <Text>{currentRoute}</Text> */}

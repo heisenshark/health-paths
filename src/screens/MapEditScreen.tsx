@@ -311,7 +311,7 @@ const MapEditScreen = ({ navigation, route }) => {
 
     setShowUserLocation(false);
     mapRef.current.fitToCoordinates([...waypoints, ...p], {
-      edgePadding: { top: 200, right: 10, bottom: 200, left: 10 },
+      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
       animated: false,
     });
     const cam = await mapRef.current.getCamera();

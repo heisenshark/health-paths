@@ -3,7 +3,7 @@ import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image, TextInput } from "react-native";
 import { Card } from "react-native-paper";
-import HeaderBar from "../components/HeaderBar"
+import HeaderBar from "../components/HeaderBar";
 import MapCard from "../components/MapCard";
 import SquareButton from "../components/SquareButton";
 import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
@@ -12,7 +12,6 @@ import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import { downloadMap } from "../utils/FileSystemManager";
 import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
-import LogInScreen from "./LogInScreen";
 
 //[x] przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
 //[x] jak dodawać lokację do bazy w suuumie XD

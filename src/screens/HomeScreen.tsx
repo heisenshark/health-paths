@@ -18,13 +18,13 @@ const HomeScreen = ({ navigation }) =>
   const data = [
     {
       id: 1,
-      label: "Moje Trasy",
+      label: "Moje Ścieżki",
       icon: "home",
       onPress: () => navigation.navigate("PrzegladanieMap"),
     },
     {
       id: 2,
-      label: "Przeglądaj Trasy",
+      label: "Przeglądaj Ścieżki",
       icon: "map",
       onPress: () => navigation.navigate("PrzegladanieWebMap"),
     },

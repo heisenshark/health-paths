@@ -105,16 +105,29 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
         animationIn={"slideInUp"}
         animationOut={"slideOutDown"}
         isVisible={visible}
-        swipeDirection={["down"]}
         swipeThreshold={100}
         onBackdropPress={onRequestClose}
         onSwipeComplete={onRequestClose}
         onBackButtonPress={onRequestClose}>
         <View style={tw`bg-slate-100 border-t-4 border-slate-300 w-full`}>
           <Text
-            style={tw`text-3xl text-center font-bold p-5 px-1 border-slate-300 border-b-2 mx-4`}>
+            style={tw`text-xl md:text-2xl text-center font-bold p-2 md:p-5 px-1 border-slate-300 border-b-2 mx-4`}>
             Dodaj informacje o ścieżce
           </Text>
+          <View style={tw`flex flex-row mx-6 mt-2 bg-slate-300 rounded-lg self-center`}>
+            <View style={tw`flex flex-row self-center justify-between`}>
+              <Image
+                style={tw`aspect-square w-20 h-auto self-center my-2 ml-4 border-4 border-black rounded-2xl`}
+                source={{ uri: image }}
+              />
+              <SquareButton
+                style={tw`my-2 mx-4`}
+                label={"ikona"}
+                size={20}
+                icon={"edit"}
+                onPress={() => pickImage({ isCamera: false })}></SquareButton>
+            </View>
+          </View>
 
           <TextInput
             style={tw`text-lg mx-5 my-2`}
@@ -131,7 +144,7 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
             activeUnderlineColor={tw.color("slate-700")}
           />
           <TextInput
-            style={tw`text-lg mx-5 mb-2 h-32`}
+            style={tw`text-lg mx-5 mb-2 h-16 md:h-32`}
             label={"Opis"}
             value={desc}
             multiline={true}
@@ -142,42 +155,20 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
             error={desc.length > 300}
             activeUnderlineColor={tw.color("slate-700")}
           />
-          {error !== "" && (
-            <Text style={tw`text-xl text-red-500 ml-7 text-left font-bold`}>{error}</Text>
-          )}
-
-          <View style={tw`flex flex-row mx-6 bg-slate-300 rounded-lg`}>
-            <View style={tw`flex flex-row self-center justify-between`}>
-              <Image
-                style={tw`aspect-square w-20 h-auto self-center my-2 ml-4 border-4 border-black rounded-2xl`}
-                source={{ uri: image }}
-              />
-              <SquareButton
-                style={tw`my-2 mx-4`}
-                label={"ikona"}
-                size={20}
-                icon={"edit"}
-                onPress={() => pickImage({ isCamera: false })}></SquareButton>
-            </View>
-
-            <View style={tw`flex-initial flex flex-row justify-center items-center`}>
+          <View style={tw`mx-5 my-2 flex flex-row justify-center`}>
+            <View style={tw`w-30 flex flex-row justify-center items-center`}>
               <Checkbox
                 status={saveAsNew ? "checked" : "unchecked"}
                 color={tw.color("slate-700")}
                 onPress={saveAsNewToggle}
               />
-              <Text style={tw`text-lg font-bold flex-initial`} onPress={saveAsNewToggle}>
+              <Text
+                style={tw`text-sm md:text-base font-bold flex-initial`}
+                onPress={saveAsNewToggle}>
                 Zapisz jako nowa?
               </Text>
             </View>
-          </View>
 
-          <View style={tw`mx-5 my-2 flex flex-row justify-center`}>
-            <SquareButton
-              style={tw`flex-initial mx-2`}
-              label="Anuluj"
-              icon="arrow-left"
-              onPress={onRequestClose}></SquareButton>
             <SquareButton
               style={tw`flex-initial mx-2`}
               label="Zapisz"
@@ -191,7 +182,16 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
                 onRequestClose();
                 await onSave(name, desc, saveAsNew, mapIcon.current);
               }}></SquareButton>
+            <SquareButton
+              style={tw`flex-initial mx-2`}
+              label="Anuluj"
+              icon="arrow-left"
+              onPress={onRequestClose}></SquareButton>
           </View>
+
+          {error !== "" && (
+            <Text style={tw`text-xl text-red-500 ml-7 text-left font-bold`}>{error}</Text>
+          )}
         </View>
       </Modal>
     </View>

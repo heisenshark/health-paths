@@ -350,7 +350,7 @@ const contentObject: { [index: string]: { icon: string; label: string; arr: page
           }}
         />
         <Text style={tw`text-base`}>
-          Aby udostępnić ścieżkę należy przejsc do ekranu Moje trasy(w zakładce "lokalne"), wybrać
+          Aby udostępnić ścieżkę należy przejsc do ekranu Moje ścieżki(w zakładce "lokalne"), wybrać
           ścieżkę klikając na nią i a następnie kliknąć w opcję prześlij do internetu
         </Text>
         <Image

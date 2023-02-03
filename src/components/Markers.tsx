@@ -10,6 +10,7 @@ import Waypoint from "../utils/interfaces";
 export interface MarkersProps {
   waypoints: LatLng[];
   selectedWaypoint?: LatLng;
+  isView?: boolean;
   onWaypointPressed?: (w: LatLng) => void;
 }
 const SNAPPING_ENABLED = false;
@@ -17,7 +18,7 @@ const SNAPPING_ENABLED = false;
 //TODO zmienić wygląd na kółka z numerami
 
 export function Markers<Props>(
-  { waypoints, selectedWaypoint, onWaypointPressed: onWaypointSelect }: MarkersProps = {
+  { waypoints, selectedWaypoint, isView, onWaypointPressed }: MarkersProps = {
     waypoints: [],
     onWaypointPressed: () => {},
   } as MarkersProps
@@ -57,6 +58,9 @@ export function Markers<Props>(
   const markers = waypoints.map((n: LatLng, index) => {
     const isEnd = index === waypoints.length - 1;
     const isBegin = index === 0;
+
+    if (isView && !isEnd && !isBegin)
+      return <Circle center={n} radius={Math.min(zoom * 7, 100)} fillColor={"gray"} zIndex={4} />;
     return (
       <View key={index}>
         {(isBegin ||
@@ -67,7 +71,7 @@ export function Markers<Props>(
             coordinate={n}
             onPress={() => {
               console.log("marker pressed, initiating edit");
-              mapEditState === "Idle" && onWaypointSelect(n);
+              mapEditState === "Idle" && onWaypointPressed(n);
             }}
             tappable={false}
             pinColor={index == 0 ? "blue" : "yellow"}

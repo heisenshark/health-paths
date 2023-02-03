@@ -38,6 +38,8 @@
 //[x] zmienić te głupie ikony które są missplaced
 //TODO naprawić problem z nie usuwaniem map z dokumentu użytkownika
 //[x] dodać ikony do przycisków które ich nie używają
+//TODO wstawić ikonę do aplikacji oraz załatwić jakąś lepszą nazwę
+
 
 
 // label: "Ekrany aplikacji",
