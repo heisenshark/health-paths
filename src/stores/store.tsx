@@ -101,7 +101,7 @@ const storemap = (set, get) => ({
   setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
   getCurrentMediaURI: (media: MediaFile) => {
     const state = get();
-    console.log("mediauri:::" + getURI(state.currentMap, media));
+
     return getURI(state.currentMap, media);
   },
   clearMap: () =>
@@ -123,8 +123,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
         //function is optimizing the path generation by removing points that are in a straight line
         //or are close to each other
         set((state) => {
-          console.log("addLocations", location, timestamp, state.highestTimestamp);
-
           const line = state.currentLine;
           let recDistance = 0;
           if (location.length === 0) return {};
@@ -132,7 +130,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             line.start = line.end = location[0];
             line.distance = line.headingDelta = 0;
             line.headingLast = undefined;
-            console.log(line);
           }
 
           for (let i = 0; i < location.length; i++) {
@@ -151,7 +148,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             if (Math.abs(line.headingDelta) > 5 || Math.abs(line.headingLast - hdt.heading) > 2.5) {
               //end line and start new one
               recDistance += line.distance;
-              console.log(line, "new line");
+
               state.locations.coords.push(line.start);
               line.start = line.end;
               line.end = location[i];
@@ -159,7 +156,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             }
             line.headingLast = hdt.heading;
 
-            console.log("LINE: ", line);
             line.distance += hdt.distance;
             recDistance += hdt.distance;
             line.end = location[i];
@@ -242,7 +238,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const usr = await GoogleSignin.getCurrentUser();
       set(() => ({ user: usr }));
     } catch (e) {
-      console.log(e);
       return;
     }
   },

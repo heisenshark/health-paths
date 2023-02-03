@@ -79,13 +79,10 @@ async function createIfNotExists(
 
 async function writeToFile(path: string, data: string = "") {
   const aaaa = await fs.writeAsStringAsync(path, data);
-  // console.log(aaaa);
 }
 
 async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path: string) {
   if (!file || file.media_id === undefined || file.path === undefined) return undefined;
-  console.log("copyExistingFileToMedia 1 ", file);
-  console.log(file, mapNameDir, path);
 
   if (file.storage_type === "local") return file;
 
@@ -136,14 +133,12 @@ async function saveMap(map: HealthPath) {
   const dirInfo = await createIfNotExists(mapNameDir, { isFile: false });
   const currentUser = await GoogleSignin.getCurrentUser();
   const isUserLogged = DbUser() !== undefined;
-  console.log(dirInfo);
+
   let existingInfo = await loadMapInfo(map.map_id);
-  console.log("map::: ", map);
 
   //Obliczanie dystansu ścieżki
   if (map.distance === undefined) {
     map.distance = calculateDistance(map.path);
-    console.log(map.distance);
   }
 
   const webFields = {};
@@ -221,14 +216,12 @@ async function saveMap(map: HealthPath) {
 
   try {
     for (const stop of map.stops) {
-      console.log(stop);
       await checkExistanceOfMedia(stop, mapNameDir);
     }
 
     for (const stop of map.stops) {
       medias = [...medias, ...(await copycachedMedia(stop, mapNameDir))];
     }
-    console.log("icon preview ", map.imageIcon, map.imagePreview);
 
     const preview = await copyExistingFileToMedia(map.imagePreview, mapNameDir, "images/previews/");
     if (preview) medias.push(preview);
@@ -238,9 +231,8 @@ async function saveMap(map: HealthPath) {
     console.error("error", error);
   }
 
-  // console.log(medias);
+  //
 
-  console.log("mapid::" + map.map_id);
   await writeToFile(mapNameDir + "mapInfo.json", JSON.stringify(mapInfo));
   await writeToFile(mapNameDir + "features_" + map.name + "_lines.geojson", JSON.stringify(lines));
   await writeToFile(
@@ -258,34 +250,32 @@ async function saveMap(map: HealthPath) {
 async function loadMap(name: string, id: string): Promise<HealthPath> {
   const mapNameDir = `${mapDir}_${id}/`;
   const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
-  console.log(mapInfo);
+
   const map = JSON.parse(mapInfo) as HealthPath;
   const lines = await fs.readAsStringAsync(mapNameDir + "features_" + map.name + "_lines.geojson");
-  console.log(lines);
+
   map.path = JSON.parse(lines).features[0].geometry.coordinates;
   map.path = map.path.map((x) => ({ latitude: x[1], longitude: x[0] }));
   const waypoints = await fs.readAsStringAsync(mapNameDir + "waypoints.json");
-  console.log(waypoints);
+
   map.stops = JSON.parse(waypoints);
   map.stops.forEach((x) => {
     x.coordinates = { latitude: x.coordinates[1], longitude: x.coordinates[0] };
   });
   const mediaFiles = await fs.readAsStringAsync(mapNameDir + "media_files.json");
   let mf = JSON.parse(mediaFiles);
-  console.log("media dilsdf:  " + mf);
-  console.log(mediaFiles);
+
   let mediaMap = new Map();
   mf.map((n) => {
     mediaMap.set(n.media_id, n);
   });
 
-  console.log(mediaMap);
   map.stops.forEach((x) => {
     x.image = mediaMap.get(x.image);
     x.introduction_audio = mediaMap.get(x.introduction_audio);
     x.navigation_audio = mediaMap.get(x.navigation_audio);
   });
-  console.log(map);
+
   return map;
 }
 
@@ -310,7 +300,6 @@ async function saveMapInfo(data: HealthPath, id: string): Promise<boolean> {
     await writeToFile(mapNameDir + "mapInfo.json", JSON.stringify(data));
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -360,7 +349,7 @@ async function UploadMapFolder(
       await moveMap(id, newId);
       id = newId;
       mapinfo = await loadMapInfo(id);
-      console.log("new mapinfo", id, mapinfo);
+
       mapNameDir = `${mapDir}_${id}/`;
       target = `${cacheDir}_${id}.zip`;
       if (mapinfo.webId !== undefined) mapinfo.webId = undefined;
@@ -369,7 +358,7 @@ async function UploadMapFolder(
     const user = await GoogleSignin.getCurrentUser();
     mapinfo.authorId = DbUser();
     mapinfo.authorName = user.user.name;
-    console.log(mapinfo);
+
     const preview = getURI(mapinfo, mapinfo.imagePreview);
     const icon = getURI(mapinfo, mapinfo.imageIcon);
 
@@ -378,8 +367,7 @@ async function UploadMapFolder(
     const dirInfo = await createIfNotExists(cacheDir, { isFile: false });
 
     const zipPath = await zip(mapNameDir, target);
-    console.log("zipUploadMapPath", zipPath);
-    console.log(DbUser(), mapinfo);
+
     const u = Users.doc(DbUser()).get();
 
     const stor = firebase.storage();
@@ -390,7 +378,6 @@ async function UploadMapFolder(
       customMetadata: { visibility: privacy },
     });
     await task;
-    console.log("HealthPath uploaded to the bucket!");
 
     let iconURL = undefined;
     let previewURL = undefined;
@@ -411,7 +398,6 @@ async function UploadMapFolder(
 
     if (mapinfo.distance === undefined) {
       mapinfo.distance = 0;
-      console.log("somehow map distance is 0");
     }
 
     const data = {
@@ -433,14 +419,12 @@ async function UploadMapFolder(
     if (!createNewInstance && mapinfo.webId) {
       delete data["rating"];
       delete data["ratingCount"];
-      console.log(data);
     }
 
     let docid = undefined;
     if (mapinfo.webId) {
       docid = await addMap(data, mapinfo.webId);
     } else docid = await addMap(data);
-    console.log(docid, id);
 
     await saveMapInfo({ ...mapinfo, webId: docid }, id);
 
@@ -454,7 +438,7 @@ async function UploadMapFolder(
     return true;
   } catch (err) {
     ToastAndroid.show("Coś Poszło nie tak", ToastAndroid.LONG);
-    console.log(err);
+
     return false;
   }
 }
@@ -463,16 +447,16 @@ async function listAllMaps(): Promise<HealthPath[]> {
   const dirInfo = await fs.getInfoAsync(mapDir);
   if (!dirInfo.exists) return [];
   const files = await fs.readDirectoryAsync(mapDir);
-  // console.log(`Files inside ${mapDir}:\n\n${JSON.stringify(files)}`);
+  //
   let maps = [];
   for (const file of files) {
     const fileInfo = await fs.getInfoAsync(mapDir + file);
     if (!fileInfo.isDirectory) continue;
     const mapInfo = await fs.readAsStringAsync(mapDir + file + "/mapInfo.json");
-    // console.log(mapInfo);
+    //
     maps.push(JSON.parse(mapInfo) as HealthPath);
   }
-  // console.log(maps);
+  //
 
   return maps;
 }
@@ -482,20 +466,16 @@ async function downloadMap(map: MapDocument) {
   const cacheInfo = await createIfNotExists(cacheDir);
   const reference = stor.ref(map.storeRef);
   let refName = reference.name;
-  console.log(map, refName);
+
   let mapNameDir = `${mapDir}${refName}/`;
   const dirInfo = await fs.getInfoAsync(mapNameDir);
   const altId = uuid.v4().toString();
   let isUpdate = false;
   if (dirInfo.exists) {
-    console.log("Map already exists");
     const existingInfo = await loadMapInfoDir(refName);
-    console.log(existingInfo);
 
     if (map.id === existingInfo.webId) {
-      console.log("updating...");
       isUpdate = true;
-      console.log("aaaaaaaa", altId);
     } else [refName, mapNameDir] = [`_${altId}`, `${mapDir}_${altId}/`];
   }
   const path = `${cacheDir}${refName}.zip`;
@@ -505,7 +485,6 @@ async function downloadMap(map: MapDocument) {
   await fs.deleteAsync(path);
 
   const mapInfo = await loadMapInfoDir(refName);
-  console.log("dupa");
 
   if (!isUpdate && dirInfo.exists) mapInfo.map_id = altId;
   mapInfo.webId = map.id;

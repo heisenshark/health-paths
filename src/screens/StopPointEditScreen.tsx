@@ -10,6 +10,7 @@ import {
   Pressable,
   Alert,
   KeyboardAvoidingView,
+  ToastAndroid,
 } from "react-native";
 import SquareButton from "./../components/SquareButton";
 import tw from "../lib/tailwind";
@@ -65,9 +66,8 @@ const StopPointEditScreen = ({ navigation, route }) => {
       result = await sound.current.loadAsync({ uri: uri });
       await sound.current.playAsync();
     } catch (error) {
-      console.log(error);
+      ToastAndroid.show("Nastąpił problem z odtwarzaniem dźwięku", ToastAndroid.SHORT);
     }
-    console.log(sound);
   }
 
   function getU(mf: MediaFile) {
@@ -77,11 +77,9 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log("StopPointEditScreen focused");
-      console.log(route.params);
       //tutaj ustawqiamy sound uri, trzeba wybrać czy intro czy navigation
       if (route.params.soundUri === undefined) return;
-      console.log("siema", route.params.soundUri);
+
       let soundObject = {
         media_id: uuid.v4(),
         path: route.params.soundUri,
@@ -102,8 +100,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (!editedWaypoint) navigation.goBack();
-    console.log("waypoint: ", editedWaypoint);
-    console.log(getU(editedWaypoint.image));
 
     if (editedWaypoint.image) setImage(getU(editedWaypoint.image));
     if (editedWaypoint.introduction_audio)
@@ -114,14 +110,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     const unsub = navigation.addListener("blur", () => {
-      console.log("beforeRemove");
       stopSound();
     });
   }, [navigation]);
 
-  useEffect(() => {
-    console.log(JSON.stringify(result, null, 2));
-  }, [result]);
+  useEffect(() => {}, [result]);
 
   const handleError = (err: unknown) => {
     setAudioModalVisible(false);
@@ -140,9 +133,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
     if (sound.current === undefined) return;
     const status = await sound.current?.getStatusAsync();
     if (status === undefined || !status.isLoaded) return;
-    await sound.current.getStatusAsync().then((status) => {
-      console.log(status);
-    });
     await sound.current.pauseAsync();
     return;
   }
@@ -164,7 +154,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
         aspect: [1, 1],
         quality: 0.3,
       });
-    console.log(result);
+
     if (result.canceled) return;
 
     setImage(result.assets[0].uri);
@@ -257,8 +247,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
             isPresent={navigationSoundUri !== undefined}
             isEdit={isEdit}
             onPlay={() => {
-              console.log(navigationSoundUri);
-              console.log(soundType);
               playSound(navigationSoundUri);
             }}
             onPick={() => openAudioModal("navigation")}
@@ -269,8 +257,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
             isPresent={introsoundUri !== undefined}
             isEdit={isEdit}
             onPlay={() => {
-              console.log(introsoundUri);
-              console.log(soundType);
               playSound(introsoundUri);
             }}
             onPick={() => openAudioModal("intro")}

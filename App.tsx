@@ -36,7 +36,6 @@ import { useDownloadTrackingStore } from "./src/stores/DownloadTrackingStore";
 const Navigator = createNativeStackNavigator<RootStackParamList>();
 // validateDownloadTracker();
 useDownloadTrackingStore.getState().validateDownloadTracker();
-console.log(StatusBar.currentHeight);
 
 const sensitiveTabs = ["Nagraj", "Planuj", "NagrywanieAudio", "EdycjaMap"];
 
@@ -73,9 +72,7 @@ export default function App() {
   };
 
   const handleDynamicLink = (link) => {
-    console.log(navigationRef.current.getCurrentRoute());
 
-    console.log(link);
     const parsedUrl = parse(link.url, true);
     if (link.url) {
       if (parsedUrl.pathname === "/pathes" && parsedUrl.query["id"]) {
@@ -113,10 +110,8 @@ export default function App() {
       Location.hasStartedLocationUpdatesAsync("location_tracking")
         .then((res) => {
           if (!res) return;
-          console.log("stopping tracking");
           Location.stopLocationUpdatesAsync("location_tracking");
         })
-        .catch((e) => console.log(e));
     }
   }, [currentScreen]);
 
@@ -167,11 +162,9 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const setNotSaved = useMapStore.getState().setNotSaved;
   const notSaved = useMapStore.getState().notSaved;
-  console.log("setting not saved", notSaved);
 
   !notSaved && setNotSaved(true); //needed, otherwise we get rerendered xD
   if (error) {
-    console.log("LOCATION_TRACKING task ERROR:", error);
     return;
   }
   if (data) {
@@ -187,11 +180,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
      * do ostatniego począku linii
      * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
      */
-    console.log("highest stamp", stamp);
-    console.log(
-      "stamps",
-      locations.map((n) => n.timestamp)
-    );
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)
@@ -212,6 +200,5 @@ async function getPermsAndSetLocation() {
   const location = await Location.getLastKnownPositionAsync();
   if (!location) return undefined;
   const coords = location.coords as LatLng;
-  console.log("startApp", coords);
   return coords;
 }

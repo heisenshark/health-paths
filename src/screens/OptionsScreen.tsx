@@ -20,7 +20,6 @@ const OptionsScreen = ({ navigation, route }) => {
   const [inactive, setInactive] = useState(false);
 
   useEffect(() => {
-    console.log("navchange options");
     if (DbUser() === undefined) return;
     GoogleSignin.getCurrentUser().then((u) => {
       setUser(u);
@@ -43,10 +42,7 @@ const OptionsScreen = ({ navigation, route }) => {
       setUser(usr);
       setIsLogged(true);
       setInactive(false);
-      console.log("logged");
     } catch (e) {
-      console.log("kecz");
-
       setInactive(false);
       setIsLogged(false);
       if (e.code === statusCodes.SIGN_IN_CANCELLED) return;

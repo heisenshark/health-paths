@@ -42,8 +42,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
   useEffect(() => {
     setSaveAsNew(false);
     if (visible) {
-      console.log(currentMap.imageIcon);
-      console.log(currentMap);
 
       setName(currentMap.name);
       setError("");
@@ -52,7 +50,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
         setImage(getURI(currentMap, currentMap.imageIcon));
         mapIcon.current = currentMap.imageIcon;
       }
-      console.log(mapIcon.current);
     }
   }, [visible]);
 
@@ -71,7 +68,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
         aspect: [1, 1],
         quality: 0.3,
       });
-    console.log(result);
 
     if (result.canceled) return;
 

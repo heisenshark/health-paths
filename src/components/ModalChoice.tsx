@@ -123,7 +123,6 @@ export function useAlertModal(): [
       },
       onRequestClose: () => setState({ ...newState, visible: false }),
     } as ModalChoiceProps;
-    console.log(newState);
     setState(newState);
   }
 

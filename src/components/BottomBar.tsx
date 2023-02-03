@@ -11,14 +11,11 @@ export interface BottomBarProps {
 }
 //TODO dodać jakikolwiek handling screenó innych niż 4 podstawow
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
-  // console.log();
   const [setNavAction] = useMapStore((state) => [state.setNavAction]);
   const tabs = ["Trasy", "Nagraj", "Planuj", "Opcje"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
 
   const tryToNavigate = (route: string, options?: any) => {
-    console.log("routeto: ", route, "current: ", currentRoute);
-    console.log("navigation");
 
     if (route === currentRoute) return;
     if (sensitiveTabs.includes(currentRoute)) {
@@ -42,7 +39,6 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
           uberActive={currentRoute === "Trasy" || !currentRoute}
           onPress={() => {
             tryToNavigate("Trasy");
-            console.log("siema");
           }}
           icon={"home"}
         />

@@ -1,3 +1,4 @@
+import { ToastAndroid } from "react-native";
 // Import the functions you need from the SDKs you need
 import "@react-native-firebase/app";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
@@ -66,7 +67,6 @@ export const stor = firebase.storage();
 if (__DEV__) {
   // firestore().useEmulator("localhost", 8081);
   // firebase.storage().useEmulator("localhost", 9199);
-  // console.log("elo firebase devmode");
 }
 
 export const db = firestore();
@@ -114,11 +114,8 @@ export async function deleteQueryBatch(query, resolve) {
 export const addMap = async (map: MapDocument, webId: string = undefined) => {
   let doc = null;
   let id = "";
-  console.log(map);
 
   if (webId === undefined) {
-    console.log("elo");
-
     doc = await Pathes.add(map);
     id = doc.id;
   } else {
@@ -127,11 +124,9 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
     id = webId;
     doc["id"] = webId;
   }
-  console.log(id);
 
   const userId = firebase.auth().currentUser?.uid;
   const user = await Users.doc(userId).get();
-  console.log(user.data());
   if (user.data()?.maps.length >= 20) throw new Error("You have reached the limit of 20 maps");
   await Users.doc(userId).set(
     {
@@ -139,20 +134,14 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
     },
     { merge: true }
   );
-  console.log("na pewno nie wulgarne słowo");
   return id;
 };
 
 async function deleteFile(fileRef) {
   try {
     await fileRef.delete();
-    console.log("File deleted successfully");
   } catch (error) {
-    if (error.code === "storage/object-not-found") {
-      console.log("File not found");
-    } else {
-      console.log("Error deleting file:", error);
-    }
+    ToastAndroid.show("Error deleting file", ToastAndroid.SHORT);
   }
 }
 
@@ -168,12 +157,10 @@ export const deleteMapWeb = async (webId: string) => {
     await deleteFile(previewRef);
   }
   await docref.delete();
-  console.log("deleted", docref.path);
 };
 
 export const addRating = async (rating: RatingDocument) => {
   const doc = await db.collection("Ratings").add(rating);
-  console.log(doc);
 };
 
 export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
@@ -184,12 +171,9 @@ export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
     { merge: true }
   );
   const doc = await Pathes.doc(mapId).get();
-  // console.log(doc.data(), isPrivate, doc.data().storeRef);
   const task = stor.ref(doc.data().storeRef).updateMetadata({
     customMetadata: { visibility: isPrivate ? "private" : "public" },
   });
 
-  task.then((res) => {
-    console.log(res, isPrivate ? "private" : "public");
-  });
+  task.then((res) => {});
 };

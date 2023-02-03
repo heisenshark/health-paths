@@ -23,11 +23,6 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
   const [mapEditState] = useAtom(mapEditorStateAtom);
   const [zoom] = useAtom(zoomAtom);
 
-  useEffect(() => {
-    // console.log("stoppoints rerendered", mapEditState, showHandles);
-    // console.log(waypoints);
-  });
-
   const StopPoint = ({ waypoint }: { waypoint: Waypoint }) => {
     return (
       <View>

@@ -54,9 +54,6 @@ const MapExplorerScreen = ({ navigation, route }) => {
 
   const refreshMaps = async () => {
     const m = await listAllMaps();
-    m.forEach((map) => {
-      console.log(map.imagePreview);
-    });
     setMaps(m);
   };
 
@@ -64,14 +61,12 @@ const MapExplorerScreen = ({ navigation, route }) => {
 
   const fetchUserMaps = async () => {
     const user = await Users.doc(DbUser()).get();
-    console.log(user.data());
 
     if (user.exists) {
       const maps = user.data().maps;
       const mapsData = await Pathes.where("ownerId", "==", DbUser()).get();
 
       const mapsDocs = mapsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as MapDocument[];
-      console.log(mapsDocs);
 
       setUserMaps(mapsDocs);
     }
@@ -86,7 +81,6 @@ const MapExplorerScreen = ({ navigation, route }) => {
       } else {
         setWebDisabled(false);
       }
-      console.log("aaaaaa");
     }, [])
   );
 
@@ -201,9 +195,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             await togglePrivate(map.id, true);
             map.visibility = "private";
             force();
-          } catch (e) {
-            console.log(e);
-          }
+          } catch (e) {}
         },
         disabled: isPrivate,
       },
@@ -215,9 +207,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
             await togglePrivate(map.id, false);
             map.visibility = "public";
             force();
-          } catch (e) {
-            console.log(e);
-          }
+          } catch (e) {}
         },
         disabled: !isPrivate,
       },
@@ -240,7 +230,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                     },
                     { merge: true }
                   );
-                  console.log("usunieto");
+
                   setUserMaps(userMaps.filter((m) => m.id !== map.id));
                   refreshMaps();
                 },
@@ -309,7 +299,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         isDownloaded={downloadTracker[map.id] !== undefined}
         onPress={() => {
           selectedMap.current = map;
-          console.log({ map, modalVisible });
+
           setAdditionalOptions(webOptions(map, map.visibility === "private"));
           setModalVisible(true);
         }}

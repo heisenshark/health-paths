@@ -43,12 +43,6 @@ const SquareButton = ({
       ]}
       onPress={() => {
         onPress && onPress();
-      }}
-      onLongPress={() => {
-        console.log("long asdsad");
-      }}
-      onPressIn={() => {
-        console.log("in");
       }}>
       <View style={tw`p-1`}>
         {icon !== "" && <Icon name={icon} size={size * 2} color={"black"} />}

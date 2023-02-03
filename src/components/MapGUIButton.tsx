@@ -42,7 +42,6 @@ const MapGUIButton = ({
         onPress && onPress();
       }}
       onLongPress={() => {
-        console.log("long press");
       }}>
       <View style={tw`p-1 flex justify-center items-center w-[${size / 1.5}] h-[${size / 1.5}]`}>
         {icon !== "" && <Icon name={icon} size={size2 / 1.5} color={"black"} />}

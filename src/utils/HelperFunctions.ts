@@ -92,7 +92,6 @@ export async function getRoute(
       destination.longitude
     }&key=${apikey}&mode=${mode.toLowerCase()}`;
   }
-  console.log(url);
 
   const response = await fetch(url);
   const json = await response.json();
@@ -114,30 +113,12 @@ export async function getRoute(
 }
 
 export async function getLocationPermissions(): Promise<boolean> {
-  console.log("permcheck");
-
   let { status } = await Location.requestForegroundPermissionsAsync();
-  console.log("ssssssss");
 
-  console.log(status);
   let ss = await Location.requestBackgroundPermissionsAsync();
-  console.log(ss.status);
+
   if (status !== "granted" || ss.status !== "granted") {
     return false;
   }
   return true;
 }
-
-// console.log("elo from helper functions");
-// getRoute(
-//   {
-//     latitude: 50.23488,
-//     longitude: 19.16162,
-//   },
-//   {
-//     latitude: 50.22781,
-//     longitude: 19.17179,
-//   },
-//   "***REMOVED***",
-//   "WALKING"
-// ).then((res) => console.log(res));

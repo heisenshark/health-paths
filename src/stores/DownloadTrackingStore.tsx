@@ -40,11 +40,9 @@ export const useDownloadTrackingStore = create<DownloadTrackingStore>()(
             const path = value.mapId;
             const mapInfo = await loadMapInfo(path);
             if (mapInfo === undefined) {
-              console.log("MapInfo is undefined");
               delete downloadTracker[key];
             }
           }
-          console.log(downloadTracker);
 
           set(() => ({ downloadTracker: downloadTracker }));
         },

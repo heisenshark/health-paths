@@ -36,7 +36,7 @@ const MapWebPreview = ({ navigation, route }) => {
   const [optionsState, setOptionsState] = useState("download");
   const [disabled, setDisabled] = useState(false);
   const rate = useRef<number>(0);
-  console.log(mapa);
+
   const formatTime = (time: number) => {
     if (time === undefined) return "";
     return format(time * 1000, "do LLLL yyyy", { locale: pl });
@@ -44,7 +44,7 @@ const MapWebPreview = ({ navigation, route }) => {
 
   const fetchMap = async () => {
     const newMap = await Pathes.doc(mapa.id).get();
-    console.log("aaaaaa", newMap.data());
+
     setMapa({ id: mapa.id, ...newMap.data() } as MapDocument);
   };
 
@@ -61,10 +61,8 @@ const MapWebPreview = ({ navigation, route }) => {
       record.downloadDate.seconds + 10 < map.createdAt.seconds
     );
 
-    console.log(map.createdAt.seconds);
-    console.log(record.downloadDate.seconds);
     if (record === undefined) return "download";
-    if (firebase.firestore.Timestamp.now().seconds < map.createdAt.seconds) return "delete";//if the device time is somehow behind the sddition time we default to not doing anything
+    if (firebase.firestore.Timestamp.now().seconds < map.createdAt.seconds) return "delete"; //if the device time is somehow behind the sddition time we default to not doing anything
     if (record.downloadDate.seconds + 10 < map.createdAt.seconds) return "update";
     return "delete";
   };
@@ -72,7 +70,6 @@ const MapWebPreview = ({ navigation, route }) => {
   useEffect(() => {
     const m = route.params.webMap;
     if (!m) {
-      console.log(route.params.id);
       if (!route.params.id) navigation.goBack();
       Pathes.doc(route.params.id)
         .get()
@@ -81,12 +78,10 @@ const MapWebPreview = ({ navigation, route }) => {
             ToastAndroid.show("Mapa nie istnieje", ToastAndroid.SHORT);
             navigation.goBack();
           } else {
-            console.log("Document data:", doc.data());
             setUpMap({ id: doc.id, ...doc.data() } as MapDocument);
           }
         })
         .catch((err) => {
-          console.log(err);
           ToastAndroid.show(
             "Błąd odczytu mapy, upewnij się że czy na pewno jest publiczna",
             ToastAndroid.LONG
@@ -100,23 +95,21 @@ const MapWebPreview = ({ navigation, route }) => {
 
   function setUpMap(m: MapDocument) {
     setMapa(m as MapDocument);
-    console.log(m);
+
     const date = new Date(m.createdAt.seconds * 1000);
     const dateString = format(m.createdAt.seconds * 1000, "do LLLL yyyy", { locale: pl });
-    console.log(dateString, "");
 
     const entry = downloadTracker[m.id];
 
-    console.log("key", entry);
     if (entry !== undefined) {
       const state = compareInfo(m, entry);
-      console.log("state", state);
+
       setOptionsState(state);
     }
   }
 
   async function ratingAdd() {
-    // console.log("rate", rate.current);
+    //
     const r = rate.current as number;
 
     const prevValue = await Ratings.doc(mapa.id + DbUser()).get();
@@ -128,12 +121,11 @@ const MapWebPreview = ({ navigation, route }) => {
       userId: DbUser(),
       rating: r,
     });
-    console.log("ssss");
 
     let ratingSum = rate.current;
     if (dta && dta.rating) ratingSum -= dta.rating;
     const addition = dta ? 0 : 1;
-    console.log("ratingSum", ratingSum, mapa.id);
+
     await Pathes.doc(mapa.id).update({
       rating: firebase.firestore.FieldValue.increment(ratingSum),
       ratingCount: firebase.firestore.FieldValue.increment(addition),

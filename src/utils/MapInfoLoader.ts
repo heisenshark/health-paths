@@ -9,7 +9,6 @@ export async function loadMapInfo(id: string): Promise<HealthPath> {
     const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
     return JSON.parse(mapInfo) as HealthPath;
   } catch (error) {
-    console.log(error);
     return undefined;
   }
 }

@@ -70,7 +70,6 @@ export function Markers<Props>(
           <Marker
             coordinate={n}
             onPress={() => {
-              console.log("marker pressed, initiating edit");
               mapEditState === "Idle" && onWaypointPressed(n);
             }}
             tappable={false}

@@ -28,7 +28,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   const maxDuration = 180000; //3min
   React.useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
-      console.log("beforeRemove");
       stopSound();
       stopRecording();
     });
@@ -45,14 +44,11 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     setSoundmilis(0);
 
     try {
-      console.log("Starting recording..");
       recordingObject.current = new Audio.Recording();
       const status = await recordingObject.current.getStatusAsync();
-      console.log(status);
       if (status.isRecording === true) await recordingObject.current.stopAndUnloadAsync();
       await recordingObject.current.prepareToRecordAsync(Audio.RecordingOptionsPresets.LOW_QUALITY);
       recordingObject.current.setOnRecordingStatusUpdate(async (status) => {
-        // console.log("elo");
 
         if (status.isRecording) setSoundmilis(status.durationMillis);
       });
@@ -61,37 +57,29 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       setStatus(RecordingStatus.RECORDING);
       startResetTimer();
     } catch (error) {
-      console.log(error);
     }
   }
 
   async function pauseRecording() {
     setStatus(RecordingStatus.PAUSED);
-    console.log("Pausing recording..", recordingObject.current);
     stopResetTimer();
     await recordingObject.current.pauseAsync();
-    console.log("Recording paused");
   }
 
   async function resumeRecording() {
     setStatus(RecordingStatus.RECORDING);
-    console.log("Resuming recording..");
     await recordingObject.current.startAsync();
     startResetTimer();
-    console.log("Recording resumed");
   }
 
   async function stopRecording() {
-    console.log("Stopping recording..", recordingObject.current);
     if (!recordingObject.current) return;
     const status = await recordingObject.current.getStatusAsync();
-    console.log(status);
 
     if (status === undefined || status.isDoneRecording) return;
     if (status.canRecord) recordingObject.current.stopAndUnloadAsync();
 
     const uri = recordingObject.current.getURI();
-    console.log("Recording stopped and stored at", uri);
     stopResetTimer();
     setStatus(RecordingStatus.RECORDED);
     setSoundUri(uri);
@@ -102,7 +90,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     const status = await soundObject.current?.getStatusAsync();
     if (status === undefined || !status.isLoaded) return;
     await soundObject.current.getStatusAsync().then((status) => {
-      console.log(status);
     });
     await soundObject.current.pauseAsync();
     return;
@@ -118,9 +105,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       setAudioStatus(result);
     } catch (error) {
       showToast("playSound error");
-      console.log(error);
     }
-    console.log(soundObject);
   }
 
   function showToast(mess: string) {
@@ -226,9 +211,8 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   function startResetTimer() {
     stopResetTimer();
     const elo = setTimeout(async () => {
-      console.log("przekroczono 5 minut");
       stopRecording();
-      ToastAndroid.show("Nagranie zakończone ponieważ przekraczało 5 minut", ToastAndroid.SHORT);
+      ToastAndroid.show("Nagranie zakończone ponieważ przekraczało 3 minuty", ToastAndroid.SHORT);
     }, maxDuration - soundmilis);
     resetTimer.current = elo;
   }

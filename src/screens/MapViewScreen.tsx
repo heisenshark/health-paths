@@ -36,8 +36,6 @@ const MapViewScreen = ({ navigation, route }) => {
   const wpoints = currentMap.waypoints.length > 0 ? currentMap.waypoints : waypointsPlaceholder;
 
   useEffect(() => {
-    console.log(currentMap.path);
-    console.log("uef");
     setTimeout(() => {
       mapRef.current.getCamera().then((c) => {
         setZoom(156543.03392 / Math.pow(2, c.zoom));

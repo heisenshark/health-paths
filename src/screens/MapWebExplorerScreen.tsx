@@ -44,13 +44,10 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
         setShowLoadMore(!querySnapshot.empty && querySnapshot.size === limit);
         if (querySnapshot.empty) track.current = 0;
       })
-      .catch((error) => {
-        console.log("Error getting documents: ", error);
-      });
+      .catch((error) => {});
   };
 
   useEffect(() => {
-    console.log("elo");
     listMaps();
   }, [navigation]);
 
@@ -74,7 +71,6 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
               icon={map.iconRef}
               location={map.location}
               onPress={() => {
-                console.log(map);
                 navigation.navigate("MapWebPreviewScreen", { webMap: map });
               }}
             />

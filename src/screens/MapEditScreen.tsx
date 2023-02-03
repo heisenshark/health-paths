@@ -115,7 +115,6 @@ const MapEditScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (!route.params?.navigateTo) return;
-    console.log("przejdx do ekranu", route.params.navigateTo);
     if (!notSaved && route.params?.navigateTo?.route) {
       navigation.navigate(route.params.navigateTo.route, route.params.navigateTo?.params ?? {});
       return;
@@ -151,12 +150,9 @@ const MapEditScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (currentMap.path === undefined) {
-      console.log("elo");
       if (!currentMap || currentMap.map_id === "") resetCurrentMap();
-      console.log("elo3");
       (async () => {
         const loc = await Location.getCurrentPositionAsync();
-        console.log(loc);
         await new Promise((r) => setTimeout(r, 100));
         if (!mapRef.current) return;
         mapRef.current.animateToRegion(
@@ -172,18 +168,14 @@ const MapEditScreen = ({ navigation, route }) => {
         setZoom(156543.03392 / Math.pow(2, cam.zoom));
       })();
     } else {
-      // console.log("itsrecordedHP", currentMap.waypoints, currentMap.stops, currentMap.path);
+      //
       if (currentMap.waypoints.length === 0 && currentMap?.path?.length > 0)
         setIsRecordedHealthPath(true);
       setWaypoints(currentMap.waypoints);
       setStopPoints(currentMap.stops);
       setFullPath(currentMap.path);
-      console.log("elo2");
-      console.log(currentMap);
 
       setTimeout(async () => {
-        console.log("elo4");
-
         await mapRef.current.fitToCoordinates(currentMap.path, {
           edgePadding: { top: 100, right: 100, bottom: 50, left: 50 },
           animated: false,
@@ -195,11 +187,9 @@ const MapEditScreen = ({ navigation, route }) => {
     }
 
     if (isInRecordingState) {
-      console.log("elo5");
       setInitialRecorddingPrompt(true);
     }
     return () => {
-      console.log("unmounting");
       resetCurrentMap();
       setWaypoints([]);
       setStopPoints([]);
@@ -212,7 +202,6 @@ const MapEditScreen = ({ navigation, route }) => {
     useCallback(() => {
       checkRecording();
       return () => {
-        console.log(route.name, "aaaaaaa");
         if (route.name === "Nagraj" && isInRecordingState) return;
         if (route.name === "Planuj" && !isInRecordingState) return;
         if (route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio") {
@@ -291,7 +280,7 @@ const MapEditScreen = ({ navigation, route }) => {
     let p = [];
     if (isInRecordingState) p = [...useLocationTrackingStore.getState().getOutputLocations()];
     else p = [...fullPath];
-    console.log("plen", p.length, p);
+
     if (p.length <= 0) return "NIE ZAPISANO MAPY, Brak ścieżki...";
 
     let xd = {
@@ -303,10 +292,9 @@ const MapEditScreen = ({ navigation, route }) => {
       stops: [...stopPoints],
       path: [...p],
     } as HealthPath;
-    console.log(p[0]);
 
     const geoCode = await Location.reverseGeocodeAsync(p[0]);
-    console.log(geoCode);
+
     if (geoCode.length > 0 && geoCode[0].city) xd.location = geoCode[0].city;
 
     setShowUserLocation(false);
@@ -326,7 +314,7 @@ const MapEditScreen = ({ navigation, route }) => {
     });
     setShowHandles(true);
     setShowUserLocation(true);
-    console.log("snapshot taken");
+
     xd.imagePreview = {
       media_id: uuid.v4(),
       storage_type: "cache",
@@ -334,23 +322,15 @@ const MapEditScreen = ({ navigation, route }) => {
       path: uri,
     } as MediaFile;
 
-    console.log("reverse geocoding done  for: ", p[0]);
-    console.log("reverse geocoding done  : ", xd.location);
-
-    console.log("printing preview and icon onSaveEvent");
-
-    console.log(xd.imagePreview);
-    console.log(xd.imageIcon);
-
     setCurrentMap(xd);
-    console.log("current map set");
+
     await saveMap(xd);
     return;
   }
 
   async function onPressMap(e: MapPressEvent) {
     e.persist();
-    console.log(mapEditState);
+
     if (mapEditState === "Idle") {
       setPointPivot(e.nativeEvent.coordinate);
       mapEditState === "Idle" && setCurrentModalOpen("AddPoint");
@@ -383,7 +363,6 @@ const MapEditScreen = ({ navigation, route }) => {
     try {
       if (asNew) currentMap.map_id = uuid.v4().toString();
       const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
-      console.log(good);
 
       if (typeof good === "string") {
         ToastAndroid.show(good, ToastAndroid.SHORT);
@@ -391,9 +370,7 @@ const MapEditScreen = ({ navigation, route }) => {
         setBlockInteractability(false);
         return true;
       } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
-    } catch (e) {
-      console.log(e, "AAAAAA");
-    }
+    } catch (e) {}
     setNotSaved(false);
     setBlockInteractability(false);
     return false;
@@ -407,7 +384,6 @@ const MapEditScreen = ({ navigation, route }) => {
           text: "Czyść",
           icon: "trash",
           onPress: () => {
-            console.log("is in recording: ", isInRecordingState);
             if (isInRecordingState) {
               useLocationTrackingStore.getState().clearLocations();
               stopBackgroundTracking();
@@ -463,7 +439,6 @@ const MapEditScreen = ({ navigation, route }) => {
           setSelectedWaypoint(null);
         }}
         onMove={() => {
-          console.log("initiating move sequence");
           setMapEditState("MovingWaypoint");
         }}
       />
@@ -473,7 +448,6 @@ const MapEditScreen = ({ navigation, route }) => {
         hide={() => {
           setPointPivot(null);
           setCurrentModalOpen("None");
-          console.log("popclose");
         }}
         onStopPointAdd={() => {
           setCurrentModalOpen("None");
@@ -666,7 +640,6 @@ const MapEditScreen = ({ navigation, route }) => {
           label={showHandles ? "ukryj" : "pokaż"}
           icon="map-pin"
           onPress={() => {
-            // console.log(showHandles, fullPath, initialRegion);
             setShowHandles((p) => !p);
             force();
           }}
@@ -752,8 +725,6 @@ function useLocationBackground(
   const [isRecording, setIsRecording] = useState(false);
 
   async function startBackgroundTracking() {
-    console.log("startBackgroundTracking");
-
     const startBckg = () =>
       Location.startLocationUpdatesAsync("location_tracking", {
         accuracy: Location.Accuracy.BestForNavigation,
@@ -767,15 +738,10 @@ function useLocationBackground(
         },
       });
 
-    console.log("have permissions?");
     const perms = await getLocationPermissions();
     if (!perms) return;
-    else console.log("not have permissions");
 
     const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
-    if (!startedTracking) console.log("starting tracking");
-
-    console.log("checking distance");
 
     const start = useLocationTrackingStore.getState().currentLine.end;
     let end = {} as LatLng;
@@ -787,8 +753,6 @@ function useLocationBackground(
     }
 
     if (distance > 100) {
-      console.log("distance > 100");
-
       alertShow("wypełnić brakującą trasę?", [
         {
           text: "Tak",
@@ -816,16 +780,11 @@ function useLocationBackground(
   }
 
   async function stopBackgroundTracking() {
-    console.log("stopBackgroundTracking", "isRec: ", isRecording);
-
-    Location.hasStartedLocationUpdatesAsync("location_tracking")
-      .then((res) => {
-        setIsRecording(false);
-        if (!res) return;
-        console.log("stopping tracking");
-        Location.stopLocationUpdatesAsync("location_tracking");
-      })
-      .catch((e) => console.log(e));
+    Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+      setIsRecording(false);
+      if (!res) return;
+      Location.stopLocationUpdatesAsync("location_tracking");
+    });
   }
 
   async function checkRecording() {
