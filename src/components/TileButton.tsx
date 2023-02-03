@@ -4,13 +4,25 @@ import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";
 import Icon from "react-native-vector-icons/FontAwesome5";
 
-type Props = {
+/**
+ * @property {string} label etykieta przycisku
+ * @property {string} [icon] nazwa ikony
+ * @property {Style} [style] dodatkowy styl przycisku
+ * @property {function} [onPress] funkcja wywoływana po naciśnięciu przycisku
+ * @interface Props
+ */
+interface Props {
   label: string;
   icon?: string;
-  onPress?: () => void;
   style?: Style;
-};
-
+  onPress?: () => void;
+}
+/**
+ * Komponent będący przyciskiem z ikoną i tekstem używanym w GUI aplikacji
+ * będący bardziej elastycznym od SquareButton
+ * @param {Props} { onPress, style, label, icon }
+ * @component
+ */
 const TileButton = ({ onPress, style, label, icon }: Props) => {
   return (
     <View

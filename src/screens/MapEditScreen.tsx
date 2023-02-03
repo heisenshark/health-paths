@@ -59,7 +59,6 @@ import { te } from "date-fns/locale";
 export type curmodalOpenType =
   | "None"
   | "MapInfo"
-  | "WaypointsList"
   | "StopPoint"
   | "AddPoint"
   | "EditWaypoint";

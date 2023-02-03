@@ -6,7 +6,18 @@ import { Title } from "react-native-paper";
 import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
 
-export interface ModalChoiceProps {
+/**
+ * @property {boolean} visible Czy modal jest widoczny
+ * @property {string} label Tekst wyświetlany w nagłówku modala
+ * @property {boolean} hideCancel Czy ukryć przycisk anuluj
+ * @property {string[]} titles etykiety wyświetlane na przyciskach
+ * @property {string[]} buttonIcons Ikony wyświetlane na przyciskach
+ * @property {function} actionLeft Funkcja wywoływana po naciśnięciu lewego przycisku
+ * @property {function} actionRight Funkcja wywoływana po naciśnięciu prawego przycisku
+ * @property {function} onRequestClose Funkcja wywoływana w celu zamknięcia modala
+ * @interface ModalChoiceProps
+ */
+interface ModalChoiceProps {
   visible: boolean;
   label: string;
   hideCancel?: boolean;
@@ -16,7 +27,21 @@ export interface ModalChoiceProps {
   actionRight: () => void;
   onRequestClose: () => void;
 }
-
+/**
+ * Modal z dwoma przyciskami, wykorzystywany do wyboru opcji.
+ * @export
+ * @param {ModalChoiceProps} {
+ *   visible,
+ *   label,
+ *   hideCancel,
+ *   titles,
+ *   buttonIcons,
+ *   actionLeft,
+ *   actionRight,
+ *   onRequestClose,
+ * }
+ * @component
+ */
 export function ModalChoice({
   visible,
   label,
@@ -36,11 +61,7 @@ export function ModalChoice({
       animationIn={"zoomIn"}
       animationOut={"zoomOut"}
       style={tw`flex flex-1 justify-center items-center m-0 `}
-      backdropOpacity={0.5}
-      // onSwipeComplete={onRequestClose}
-      // onBackdropPress={onRequestClose}
-      // onBackButtonPress={onRequestClose}
-    >
+      backdropOpacity={0.5}>
       <View style={tw` bg-slate-100 elevation-5 mx-10 p-4`}>
         <Text style={tw`text-center text-2xl md:text-3xl font-bold py-3`}>{label}</Text>
         <View style={tw`flex flex-row w-full justify-evenly mb-4`}>
@@ -70,8 +91,10 @@ export function ModalChoice({
     </Modal>
   );
 }
-
-export function useAlertModal(): [
+/**
+ * Typ zwrotny hooka do wyświetlania modala z dwoma przyciskami
+ */
+type useAlertModalType = [
   ModalChoiceProps,
   (
     label: string,
@@ -83,11 +106,16 @@ export function useAlertModal(): [
     hideCancel?: boolean
   ) => void,
   (ModalChoiceProps) => void
-  ] {
+];
+
+/**
+ * Hook do wyświetlania modala z dwoma przyciskami
+ */
+export function useAlertModal(): useAlertModalType {
   const [state, setState] = useState<ModalChoiceProps>({
     visible: false,
     label: "Modal",
-    titles: ["bigga", "sdfsdf"],
+    titles: ["", ""],
     buttonIcons: [],
     hideCancel: false,
     actionLeft: () => {},

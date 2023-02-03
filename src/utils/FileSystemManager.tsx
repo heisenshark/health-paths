@@ -16,18 +16,8 @@ import uuid from "react-native-uuid";
 import { ToastAndroid } from "react-native";
 import Rating from "../components/Rating";
 import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
-const mapDir = fs.documentDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/files
-const cacheDir = fs.cacheDirectory + "Maps/"; ///data/data/com.anonymous.healthpathes/cache
-/*
-Map "testmap" 
-  Audio/ 
-  Image/
-  waypoints.json
-  mapInfo.json
-  media_files.json
-  features."testmap".geojson
-  features_"testmap"_lines.geojson
-*/
+const mapDir = fs.documentDirectory + "Maps/";
+const cacheDir = fs.cacheDirectory + "Maps/";
 export {
   ensureMapDirExists,
   saveMap,
@@ -39,10 +29,6 @@ export {
   moveMap,
   loadMapInfo,
 };
-
-//[x] upewnić się żeby Maps dir istniało jeśli mamy z niego ładować mapę
-//[x] zrobić tak aby można było ustawić prywatność przed uploadem mapy
-//[x] upewnić się że na pewno usuwamy pliki po edycji mapki takie jak zdjęcia które zostały zedytowane itp
 
 const getNameFromUri = (uri: string) => {
   if (!uri) return undefined;
@@ -453,11 +439,8 @@ async function listAllMaps(): Promise<HealthPath[]> {
     const fileInfo = await fs.getInfoAsync(mapDir + file);
     if (!fileInfo.isDirectory) continue;
     const mapInfo = await fs.readAsStringAsync(mapDir + file + "/mapInfo.json");
-    //
     maps.push(JSON.parse(mapInfo) as HealthPath);
   }
-  //
-
   return maps;
 }
 

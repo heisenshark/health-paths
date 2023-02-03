@@ -3,15 +3,35 @@ import React, { useEffect, useState } from "react";
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from "react-native-reanimated";
 import tw from "../lib/tailwind";
 
-type Props = {
+/**
+ * @property {string} tipMessage wiadomość do wyświetlenia
+ * @property {number} currentStops aktualna liczba przystanków
+ * @property {number} currentPoints aktualna liczba punktów
+ * @property {number} maxStops maksymalna liczba przystanków
+ * @property {number} maxPoints maksymalna liczba punktów
+ * @property {boolean} [hideWaypoints] Czy ukryć liczniki punktów i przystanków
+ * @interface Props
+ */
+interface Props {
   tipMessage: string;
   currentStops: number;
   currentPoints: number;
   maxStops: number;
   maxPoints: number;
   hideWaypoints?: boolean;
-};
-
+}
+/**
+ * Komponent wyświetlający podpowiedzi oraz aktualną liczbę punktów i punktów stopu
+ * @param {Props} {
+ *   tipMessage,
+ *   currentStops,
+ *   currentPoints,
+ *   maxStops,
+ *   maxPoints,
+ *   hideWaypoints,
+ * }
+ * @component
+ */
 const TipDisplay = ({
   tipMessage,
   currentStops,
@@ -28,9 +48,7 @@ const TipDisplay = ({
         entering={FadeInUp}
         exiting={FadeOutUp}>
         <View style={tw`bg-black bg-opacity-70 w-full`}>
-          <Text style={tw`text-white text-lg md:text-3xl text-center p-2 py-4`}>
-            {tipMessage}
-          </Text>
+          <Text style={tw`text-white text-lg md:text-3xl text-center p-2 py-4`}>{tipMessage}</Text>
         </View>
       </Animated.View>
       <Animated.View

@@ -6,6 +6,16 @@ import { Callout, Circle, LatLng, Marker } from "react-native-maps";
 import tw from "../lib/tailwind";
 import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
 import Waypoint from "../utils/interfaces";
+import PropTypes from "prop-types";
+
+/**
+
+@interface MarkersProps
+@property {Array<LatLng>} waypoints Punkty trasy.
+@property {LatLng} [selectedWaypoint] Aktualnie wybrany punkt trasy.
+@property {boolean} [isView=false] Czy Markery są w trybie przeglądania.
+@property {Function} [onWaypointPressed] funkcja callback wywoływana kiedy punkt trasy jest naciśnięty.
+*/
 
 export interface MarkersProps {
   waypoints: LatLng[];
@@ -13,21 +23,24 @@ export interface MarkersProps {
   isView?: boolean;
   onWaypointPressed?: (w: LatLng) => void;
 }
-const SNAPPING_ENABLED = false;
 
-//TODO zmienić wygląd na kółka z numerami
+/**
+ * Komponent wyświetlający punkty trasy. wyświtla punkty trasy w trybie edycji lub przeglądania.
+ *
+ * @param {MarkersProps}
+ * @component
+ */
+function Markers({ waypoints, selectedWaypoint, isView, onWaypointPressed }: MarkersProps) {
+  const [showHandles] = useAtom(showHandlesAtom); // czy wyświetlać punkty trasy
+  const [mapEditState] = useAtom(mapEditorStateAtom); // stan edytora mapy
+  const [zoom] = useAtom(zoomAtom); // zoom mapy
 
-export function Markers<Props>(
-  { waypoints, selectedWaypoint, isView, onWaypointPressed }: MarkersProps = {
-    waypoints: [],
-    onWaypointPressed: () => {},
-  } as MarkersProps
-) {
-  // const [edittedWaypoint, setEdittedWaypoint] = useState(1);
-  const [showHandles] = useAtom(showHandlesAtom);
-  const [mapEditState] = useAtom(mapEditorStateAtom);
-  const [zoom] = useAtom(zoomAtom);
-
+  /**
+   * Funkcja wyświetlająca ikonę początku lub końca trasy.
+   * @param isEnd czy jest to koniec trasy
+   * @param isBegin czy jest to początek trasy
+   * @returns {JSX.Element}
+   */
   const renderImage = (isEnd, isBegin) => {
     if (isEnd)
       return (
@@ -60,7 +73,15 @@ export function Markers<Props>(
     const isBegin = index === 0;
 
     if (isView && !isEnd && !isBegin)
-      return <Circle center={n} radius={Math.min(zoom * 7, 100)} fillColor={"gray"} zIndex={4} />;
+      return (
+        <Circle
+          key={index}
+          center={n}
+          radius={Math.min(zoom * 7, 100)}
+          fillColor={"gray"}
+          zIndex={4}
+        />
+      );
     return (
       <View key={index}>
         {(isBegin ||
@@ -87,6 +108,13 @@ export function Markers<Props>(
 
   return <>{markers}</>;
 }
+
+Markers.defaultProps = {
+  waypoints: [],
+  onWaypointPressed: () => {},
+} as MarkersProps;
+
+export default Markers;
 
 const imageEnd = require("../../assets/map-end-marker.png");
 const imageStart = require("../../assets/map-start-marker.png");

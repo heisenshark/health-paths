@@ -4,14 +4,26 @@ import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
 import { useNavigation } from "@react-navigation/native";
 
-type Props = {
+/**
+ * @property {string} label tytuł nagłówka
+ * @property {boolean} [useBack] czy używać przycisku powrotu
+ * @property {boolean} [removeMargin] czy usuwać margin z dołu
+ * @property {function} [onPress] funkcja wywoływana po naciśnięciu przycisku powrotu
+ * @interface HeaderBarProps
+ */
+interface HeaderBarProps {
   label: string;
   useBack?: boolean;
   removeMargin?: boolean;
   onPress?: () => void;
-};
+}
 
-const HeaderBar = ({ label, useBack, removeMargin, onPress }: Props) => {
+/**
+ * Nagłówek wyświetlany na górze ekranu w aplikacji
+ * @param {HeaderBarProps} { label, useBack, removeMargin, onPress }
+ * @component
+ */
+const HeaderBar = ({ label, useBack, removeMargin, onPress }: HeaderBarProps) => {
   const navigation = useNavigation();
   return (
     <View

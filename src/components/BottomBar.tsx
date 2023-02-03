@@ -5,29 +5,41 @@ import tw from "../lib/tailwind";
 import { useMapStore } from "../stores/store";
 import SquareButton from "./SquareButton";
 
+/**
+ * @property {NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>} navigationRef referencja do obiektu nawigacji
+ * @property {string} currentRoute aktualna ścieżka w nawigacji
+ * @interface BottomBarProps
+ * @export
+ */
 export interface BottomBarProps {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
   currentRoute: string;
 }
-//TODO dodać jakikolwiek handling screenó innych niż 4 podstawow
+
+/**
+ * Komponent paska nawigacyjnego na dole ekranu, wyświetlający przyciski nawigacyjne
+ * @export
+ * @param {BottomBarProps} { navigationRef, currentRoute }
+ * @component
+ */
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
   const [setNavAction] = useMapStore((state) => [state.setNavAction]);
   const tabs = ["Trasy", "Nagraj", "Planuj", "Opcje"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
 
+  /**
+   * Funkcja próbująca nawigować do podanej ścieżki, jeśli
+   * aktualnie użytkownik jest na ekranie planowania lub nagrywania trasy wyświetla na nim modal z pytaniem o zapisanie zmian
+   * @param {string} route trasa do której ma być nawigacja
+   * @param {*} [options] opcje nawigacji
+   */
   const tryToNavigate = (route: string, options?: any) => {
-
     if (route === currentRoute) return;
     if (sensitiveTabs.includes(currentRoute)) {
       navigationRef.setParams({
         ...navigationRef.getCurrentRoute().params,
         navigateTo: { route, params: options },
       });
-      // setNavAction(() => {
-      //   if (sensitiveTabs.includes(route)) {
-      //     navigationRef.dispatch(StackActions.replace(route, options));
-      //   } else navigationRef.navigate(route, options);
-      // });
     } else navigationRef.navigate(route, options);
   };
 
@@ -36,7 +48,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
       <>
         <SquareButton
           label={"Pulpit"}
-          uberActive={currentRoute === "Trasy" || !currentRoute}
+          active={currentRoute === "Trasy" || !currentRoute}
           onPress={() => {
             tryToNavigate("Trasy");
           }}
@@ -44,7 +56,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         />
         <SquareButton
           label={"Nagraj"}
-          uberActive={currentRoute === "Nagraj"}
+          active={currentRoute === "Nagraj"}
           onPress={() =>
             tryToNavigate("Nagraj", {
               isRecording: true,
@@ -54,7 +66,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         />
         <SquareButton
           label={"Planuj"}
-          uberActive={currentRoute === "Planuj"}
+          active={currentRoute === "Planuj"}
           onPress={() =>
             tryToNavigate("Planuj", {
               isRecording: false,
@@ -64,7 +76,7 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
         />
         <SquareButton
           label={"Profil"}
-          uberActive={currentRoute === "Opcje"}
+          active={currentRoute === "Opcje"}
           onPress={() => tryToNavigate("Opcje")}
           icon={"lock"}
         />
@@ -74,24 +86,10 @@ export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
 
   return (
     <>
-      {/* <Text>{currentRoute}</Text> */}
       {tabs.includes(currentRoute) && (
         <View
           style={tw`h-[26] bg-slate-600 flex-row items-center justify-evenly border-t-4 border-t-slate-400`}>
-          {tabs.includes(currentRoute) ? (
-            tabGUI()
-          ) : (
-            <>
-              <SquareButton
-                size={22}
-                style={tw``}
-                label="wróć"
-                icon={"arrow-left"}
-                onPress={() => {
-                  navigationRef.goBack();
-                }}></SquareButton>
-            </>
-          )}
+          {tabGUI()}
         </View>
       )}
     </>

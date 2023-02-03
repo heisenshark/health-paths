@@ -4,23 +4,38 @@ import Modal from "react-native-modal";
 import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
 
-type Props = {
+/**
+ * @property {boolean} visible czy modal jest widoczny
+ * @property {boolean} isRecordingMode czy mapa jest w trybie nagrywania
+ * @property {number} waypointsLength ilość punktów trasy
+ * @property {function(number)} onWaypointAdd funkcja wywoływana po dodaniu punktu trasy
+ * @property {function} onStopPointAdd funkcja wywoływana po dodaniu punktu stopu
+ * @property {function} hide funkcja wywoływana po ukryciu modala
+ * @interface AddPointModalProps
+ */
+interface AddPointModalProps {
   visible: boolean;
   isRecordingMode: boolean;
+  waypointsLength: number;
   onWaypointAdd: (position: number) => void;
   onStopPointAdd: () => void;
   hide: () => void;
-  waypointsLength: number;
-};
+}
 
+/**
+ * Modal odpowiadający za dodawanie punktów, opcje które oferuje zależą
+ * od ilości punktów trasy oraz tego czy mapa jest w trybie edycji
+ * @param {AddPointModalProps}
+ * @component
+ */
 const AddPointModal = ({
   visible,
   isRecordingMode,
-  onWaypointAdd: onWaypointEdit,
-  onStopPointAdd: onStopPointEdit,
-  hide,
   waypointsLength,
-}: Props) => {
+  onWaypointAdd,
+  onStopPointAdd,
+  hide,
+}: AddPointModalProps) => {
   if (!visible) return null;
   return (
     <View>
@@ -46,7 +61,7 @@ const AddPointModal = ({
                 icon="edit"
                 label="Na początek"
                 onPress={() => {
-                  onWaypointEdit(0);
+                  onWaypointAdd(0);
                   hide();
                 }}></SquareButton>
               {waypointsLength >= 2 && (
@@ -56,7 +71,7 @@ const AddPointModal = ({
                   icon="edit"
                   label="Jako punkt Trasy"
                   onPress={() => {
-                    onWaypointEdit(1);
+                    onWaypointAdd(1);
                     hide();
                   }}></SquareButton>
               )}
@@ -67,7 +82,7 @@ const AddPointModal = ({
                   icon="edit"
                   label="Na koniec"
                   onPress={() => {
-                    onWaypointEdit(waypointsLength);
+                    onWaypointAdd(waypointsLength);
                     hide();
                   }}></SquareButton>
               )}
@@ -80,7 +95,7 @@ const AddPointModal = ({
               label="Jako Punkt Stopu"
               icon="edit"
               onPress={() => {
-                onStopPointEdit();
+                onStopPointAdd();
                 hide();
               }}></SquareButton>
 

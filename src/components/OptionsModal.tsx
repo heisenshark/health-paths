@@ -5,15 +5,38 @@ import { TouchableRipple } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
 
+/**
+ * @param {string} label etykieta
+ * @param {string} icon nazwa ikony
+ * @param {function} onPress funkcja wywoływana po naciśnięciu
+ * @param {boolean} disabled czy opcja jest wyłączona
+ * @interface ModalOption
+ */
+interface ModalOption {
+  label: string;
+  icon?: string;
+  onPress: () => void;
+  disabled?: boolean;
+}
+
+/**
+ * @param {boolean} visible
+ * @param {string} label
+ * @param {Array<ModalOption>} actions
+ * @param {(function | async function)} onRequestClose
+ * @interface OptionsModalProps
+ */
 interface OptionsModalProps {
   visible: boolean;
   label?: string;
   actions: { label: string; icon?: string; onPress: () => void; disabled?: boolean }[];
   onRequestClose: () => void | Promise<void>;
 }
-
-//TODO przejżeć dokumentację react-native-vector-icons i zrobić lepszy build czy coś xD
-
+/**
+ * Komponent wyświetlający modal z listą opcji
+ * @param {OptionsModalProps} { onRequestClose, actions, visible, label }
+ * @component
+ */
 const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalProps) => {
   return (
     <Modal
@@ -25,17 +48,14 @@ const OptionsModal = ({ onRequestClose, actions, visible, label }: OptionsModalP
       swipeThreshold={100}
       onBackdropPress={onRequestClose}
       onSwipeComplete={onRequestClose}
-      onBackButtonPress={onRequestClose}
-      >
+      onBackButtonPress={onRequestClose}>
       <View style={tw`bg-slate-100 border-slate-300 w-full`}>
         <View style={tw`bg-white w-full`}>
           <View style={tw`h-1  bg-gray-300 rounded-full`}></View>
           <View style={tw`flex flex-row items-center w-full h-12`}>
             <Text style={tw`text-gray-700 text-2xl mx-4 font-bold`}>{label}</Text>
           </View>
-
           <View style={tw`h-[0.5] bg-gray-300 rounded-full`}></View>
-
           {actions.map((action, index) => {
             if (action.disabled === true) return null;
             return (

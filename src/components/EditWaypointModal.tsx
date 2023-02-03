@@ -4,14 +4,26 @@ import Modal from "react-native-modal";
 import tw from "../lib/tailwind";
 import SquareButton from "./SquareButton";
 
-type Props = {
+/**
+ * @property {boolean} visible czy modal ma być widoczny
+ * @property {Function} onMove funkcja wywoływana po kliknięciu na przycisk przeniesienia
+ * @property {Function} onDelete  funkcja wywoływana po kliknięciu na przycisk usunięcia
+ * @property {Function} hide funkcja ukrywająca modal
+ * @interface EditWaypointModalProps
+ */
+interface EditWaypointModalProps {
   visible: boolean;
   onMove: () => void;
   onDelete: () => void;
   hide: () => void;
-};
+}
 
-const EditWaypointModal = ({ visible, hide, onDelete, onMove }: Props) => {
+/**
+ * Modal do edycji punktu, wyświetla się po kliknięciu na punkt na mapie
+ * @param {EditWaypointModalProps} { visible, hide, onDelete, onMove }
+ * @component
+ */
+const EditWaypointModal = ({ visible, hide, onDelete, onMove }: EditWaypointModalProps) => {
   if (!visible) return null; //tak, to jest potrzebne, inaczej laguje cały ekran
   return (
     <View>

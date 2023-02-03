@@ -7,7 +7,17 @@ import { MapDocument } from "../config/firebase";
 import { HealthPath } from "../utils/interfaces";
 import { getURI } from "../utils/FileSystemManager";
 
-type Props = {
+/**
+ * @property {string} [id] id mapy
+ * @property {string} icon ikona mapy
+ * @property {("public" | "private")} [visibility] widoczność mapy
+ * @property {string} name nazwa mapy
+ * @property {string} location lokalizacja mapy
+ * @property {boolean} [isDownloaded] czy mapa jest pobrana
+ * @property {function} onPress funkcja wywoływana po naciśnięciu mapy
+ * @interface Props
+ */
+interface Props {
   id?: string;
   icon: string;
   visibility?: "public" | "private";
@@ -15,8 +25,13 @@ type Props = {
   location: string;
   isDownloaded?: boolean;
   onPress: () => void;
-};
+}
 
+/**
+ * Komponent wyświetlający mapę w liście map.
+ * @param {Props} { id, icon, visibility, name, location, isDownloaded, onPress }
+ * @component
+ */
 const MapCard = ({ id, icon, visibility, name, location, isDownloaded, onPress }: Props) => {
   return (
     <TouchableOpacity
@@ -51,12 +66,6 @@ const MapCard = ({ id, icon, visibility, name, location, isDownloaded, onPress }
               )}
             </Text>
           )}
-
-          {/* {id !== undefined && (
-            <Text style={tw`text-xl`} numberOfLines={1}>
-              {id}
-            </Text>
-          )} */}
         </View>
       </View>
     </TouchableOpacity>

@@ -23,7 +23,6 @@ import OptionsScreen from "./src/screens/OptionsScreen";
 import MapWebExplorerScreen from "./src/screens/MapWebExplorerScreen";
 import MapWebPreview from "./src/screens/MapWebPreviewScreen";
 import { initialRegionAtom } from "./src/config/AtomsState";
-import AppText from "./src/components/AppText";
 import tw from "./src/lib/tailwind";
 import { useDeviceContext } from "twrnc/dist/esm/hooks";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
@@ -33,57 +32,48 @@ import OtherSettingsScreen from "./src/screens/OtherSettingsScreen";
 import { getLocationPermissions } from "./src/utils/HelperFunctions";
 import { useDownloadTrackingStore } from "./src/stores/DownloadTrackingStore";
 
-const Navigator = createNativeStackNavigator<RootStackParamList>();
-// validateDownloadTracker();
+const Navigator = createNativeStackNavigator();
+
 useDownloadTrackingStore.getState().validateDownloadTracker();
 
 const sensitiveTabs = ["Nagraj", "Planuj", "NagrywanieAudio", "EdycjaMap"];
 
-type RootStackParamList = {
-  Trasy: undefined;
-  Opcje: undefined;
-  Nagraj: undefined;
-  Planuj: undefined;
-  EdycjaMap: undefined;
-  NagrywanieAudio: undefined;
-  PrzegladanieMap: undefined;
-  PrzegladanieWebMap: undefined;
-  MapWebPreviewScreen: undefined;
-  PodgladMap: undefined;
-  LogIn: undefined;
-  Pomoc: undefined;
-  Settings: undefined;
-};
-
+/**
+ * Główny komponent, punkt wejścia aplikacji
+ * @component App
+ */
 export default function App() {
-  const navigationRef = useNavigationContainerRef<RootStackParamList>();
+  const navigationRef = useNavigationContainerRef();
   useDeviceContext(tw);
 
   const [currentScreen, setCurrentScreen] = useState("Trasy");
   const [, setInitialRegion] = useAtom(initialRegionAtom);
 
-  const handleNav = (to: string, options: object) => {
+  /**
+   *
+   * @param to ekran do której ma być przekierowany użytkownik
+   * @param options opcje przekazywane do ekranu
+   */
+  function handleNav(to: string, options: object) {
     const route = navigationRef.getCurrentRoute().name;
-    if (sensitiveTabs.includes(route))
-      useMapStore.getState().setNavAction(() => {
-        navigationRef.dispatch(StackActions.replace(to, options));
-      });
+    if (sensitiveTabs.includes(route)) return;
     else navigationRef.navigate(to, options);
-  };
-
-  const handleDynamicLink = (link) => {
-
+  }
+  /**
+   * Funckja przekierowująca użytkownika do ekranu z mapą na podstawie linku
+   * @param link link dynamiczny
+   */
+  function handleDynamicLink(link: any) {
     const parsedUrl = parse(link.url, true);
     if (link.url) {
       if (parsedUrl.pathname === "/pathes" && parsedUrl.query["id"]) {
         handleNav("MapWebPreviewScreen", { id: parsedUrl.query["id"] });
       }
     }
-  };
+  }
 
   useEffect(() => {
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
-    // When the component is unmounted, remove the listener
     return () => unsubscribe();
   }, []);
 
@@ -107,31 +97,19 @@ export default function App() {
 
   useEffect(() => {
     if (!["NagrywanieAudio", "EdycjaMap", "Nagraj"].includes(currentScreen)) {
-      Location.hasStartedLocationUpdatesAsync("location_tracking")
-        .then((res) => {
-          if (!res) return;
-          Location.stopLocationUpdatesAsync("location_tracking");
-        })
+      Location.hasStartedLocationUpdatesAsync("location_tracking").then((res) => {
+        if (!res) return;
+        Location.stopLocationUpdatesAsync("location_tracking");
+      });
     }
   }, [currentScreen]);
 
   return (
-    //TODO finish settings screen
-    //[x] finish mapselect screen
-    //[x] finish info screen
-    //[x] finish mymaps screen
-    //[x] add tracking position and making tracks by gps
-    //[x] dodać możliwość eksportu mapy
-    //[x] dodać możliwość udostępnienia mapy przez watsapp
     <>
-      {/* <Provider> */}
-      {/* {isTunnel && <StatusBar style="auto" />} */}
-      {/* <Text style={{ fontFamily: "OpenSans_700Bold", fontSize: 20 }}>Inter Black</Text> */}
-
       <NavigationContainer
         ref={navigationRef}
         onStateChange={(key) => setCurrentScreen(key.routes[key.index].name)}
-        fallback={<AppText>Ładowanie...</AppText>}>
+        fallback={<Text>Ładowanie...</Text>}>
         <Navigator.Navigator
           screenOptions={{
             headerShown: false,
@@ -151,19 +129,22 @@ export default function App() {
         </Navigator.Navigator>
       </NavigationContainer>
       <BottomBar navigationRef={navigationRef} currentRoute={currentScreen} />
-
-      {/* </Provider> */}
     </>
   );
 }
 
+/* 
+ wywołanie funkcji które rejestruje zadanie które można wywołać w tle
+ jest to śledzenie lokalizacji użytkownika
+ śledzi jego pozycje poprzez zapamiętywanie jego kierunku ruchu i konwertowanie jego kolejne współrzędne do lini
+*/
 TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   const addLocations = useLocationTrackingStore.getState().addLocations;
   const stamp = useLocationTrackingStore.getState().highestTimestamp;
   const setNotSaved = useMapStore.getState().setNotSaved;
   const notSaved = useMapStore.getState().notSaved;
 
-  !notSaved && setNotSaved(true); //needed, otherwise we get rerendered xD
+  !notSaved && setNotSaved(true);
   if (error) {
     return;
   }
@@ -172,14 +153,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
     let lat = locations[0].coords.latitude;
     let long = locations[0].coords.longitude;
     const newLocation = { latitude: lat, longitude: long } as LatLng;
-    /**
-     * Załatwimy upraszcznie mapy w ten sposób że będziemy trzymać
-     * kierunek użytkownika(kierunek rucho, względem poprzedniej lokacji
-     * będziemy liczyć kąt od ostatniego puntku, oraz ostatiego początku linii
-     * jeśli kąt lokalny przekroczy 5 stopni to zaczniemy nową linię tak samo z kątem
-     * do ostatniego począku linii
-     * also jeśli linia jest dłuższa niż 100m to automatycznie zaczynamy następną
-     */
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)
@@ -194,6 +167,10 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   }
 });
 
+/**
+ * Funkcja prosząca użytkownika o dostęp do lokalizacji oraz zwracająca aktualną lokalizację użytkownika
+ * @return {LatLng | undefined} aktualna lokacja użytkownika | brak
+ */
 async function getPermsAndSetLocation() {
   const perms = await getLocationPermissions();
   if (!perms) return undefined;

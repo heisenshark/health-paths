@@ -5,37 +5,62 @@ import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";
 import Icon from "react-native-vector-icons/FontAwesome5";
 
-type SquareButtonProps = {
+/**
+ * @property {string} label etykieta przycisku
+ * @property {number} [size] rozmiar przycisku
+ * @property {Style} [style] dodatkowy styl przycisku
+ * @property {Style} [labelStyle] dodatkowy styl etykiety
+ * @property {string} [icon] nazwa ikony
+ * @property {boolean} [disabled] czy przycisk jest wyłączony
+ * @property {string} colorOverride nadpisanie koloru przycisku
+ * @property {function} onPress funkcja wywoływana po naciśnięciu przycisku
+ * @interface SquareButtonProps
+ */
+interface SquareButtonProps {
   children?: any;
   label: string;
   size?: number;
-  uberActive: boolean;
+  active: boolean;
   style?: Style;
   labelStyle?: Style;
   icon?: string;
   onPress?: () => any;
-  disabled: boolean;
-};
-
+  disabled?: boolean;
+}
+/**
+ * Komponent będący przyciskiem z ikoną i tekstem używanym w GUI aplikacji
+ * @param {SquareButtonProps} {
+ *   children,
+ *   label,
+ *   size,
+ *   active,
+ *   style,
+ *   labelStyle,
+ *   icon,
+ *   onPress,
+ *   disabled,
+ * }
+ * @component
+ */
 const SquareButton = ({
   children,
   label,
   size,
-  uberActive,
+  active,
   style,
   labelStyle,
   icon,
   onPress,
   disabled,
 }: SquareButtonProps) => {
-  const uberplus = uberActive ? 1 : 0;
+  const uberplus = active ? 1 : 0;
   return (
     <TouchableOpacity
       disabled={disabled}
       style={[
         [
           tw`w-[${size}] h-[${size}] flex items-center justify-center rounded-lg border-2 bg-main-${
-            disabled ? 900 : uberActive ? "400" : "200"
+            disabled ? 900 : active ? "400" : "200"
           }`,
           style,
         ],

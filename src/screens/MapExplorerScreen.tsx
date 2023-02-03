@@ -335,7 +335,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
       <View style={tw`flex flex-row border-b-2 border-slate-700`}>
         <SquareButton
           style={tw`flex flex-1 h-14 rounded-none border-b-0 border-r-0 border-main-700 rounded-tl-3xl`}
-          uberActive={mapsState === "local"}
+          active={mapsState === "local"}
           label="lokalne"
           labelStyle={tw`text-3xl`}
           onPress={() => {
@@ -345,7 +345,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
         <View style={tw`border-l-2 border-main-700`}></View>
         <SquareButton
           style={tw`flex flex-1 h-14 rounded-none border-b-0 border-l-0 border-main-700 rounded-tr-3xl `}
-          uberActive={mapsState === "web"}
+          active={mapsState === "web"}
           label="w chmurze"
           labelStyle={tw`text-3xl`}
           disabled={webDisabled}

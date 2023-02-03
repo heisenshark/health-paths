@@ -5,12 +5,23 @@ import { LatLng, Marker, Polyline } from "react-native-maps";
 import tw from "../lib/tailwind";
 import { useLocationTrackingStore } from "../stores/store";
 
+/**
+ * @property {boolean} isRecordingFinished Czy nagrywanie jest zakończone
+ * @property {boolean} isEdit Czy jesteśmy w trybie edycji
+ * @property {Array<LatLng>} [coords] Tablica współrzędnych trasy
+ * @export
+ * @interface TrackLineProps
+ */
 export interface TrackLineProps {
   isRecordingFinished: boolean;
   isEdit: boolean;
   coords?: LatLng[];
 }
-
+/**
+ * Komponent wyświetlający ścieżkę trasy podczas nagrywania.
+ * @param {TrackLineProps} { isRecordingFinished, isEdit, coords }
+ * @component
+ */
 const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
   const [line, outLocations] = useLocationTrackingStore((state) => {
     return [state.currentLine, state.outputLocations];
@@ -22,7 +33,6 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
         coordinates={isEdit ? coords : outLocations ? outLocations : []}
         strokeColor={isRecordingFinished ? "yellow" : "rgba(0,0,0,0)"}
         strokeWidth={8}
-        // lineDashPattern={isRecordingFinished ? [10,3,10,3,10] : null}
         zIndex={5}
         lineJoin="bevel"
         miterLimit={100}
@@ -34,7 +44,6 @@ const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
         zIndex={4}
         lineJoin="bevel"
         miterLimit={100}
-        // lineDashPattern={isRecordingFinished ? [10,3,10,3,10] : null}
       />
       <Polyline
         coordinates={isEdit ? coords : outLocations ? outLocations : []}

@@ -6,6 +6,14 @@ import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";
 import TileButton from "./TileButton";
 
+/**
+ * @property {boolean} disabled czy komponent wyłączony
+ * @property {Style} style dodatkowy styl
+ * @property {number} size rozmiar ikon
+ * @property {function} onSubmit funkcja wywoływana po zatwierdzeniu oceny
+ * @property {function(number)} onRatingChange funkcja wywoływana po zmianie oceny
+ * @interface RatingProps
+ */
 interface RatingProps {
   disabled?: boolean;
   style?: Style;
@@ -13,7 +21,11 @@ interface RatingProps {
   onSubmit?: () => void;
   onRatingChange?: (rating: number) => void;
 }
-
+/**
+ * Komponent służący do oceniania ścieżek
+ * @param {RatingProps} { onRatingChange, onSubmit, size = 50, style, disabled = false }
+ * @component
+ */
 const Rating = ({ onRatingChange, onSubmit, size = 50, style, disabled = false }: RatingProps) => {
   const [number, setNumber] = useState(1);
   return (

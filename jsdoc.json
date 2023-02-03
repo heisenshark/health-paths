@@ -1,0 +1,23 @@
+{
+ "plugins": [
+  "node_modules/better-docs/typescript",
+  "node_modules/better-docs/component"
+ ],
+ "source": {
+  "include": [
+   "src",
+   "app.tsx"
+  ],
+  "includePattern": "\\.(jsx|js|ts|tsx)$",
+  "excludePattern": "(node_modules/|docs)"
+ },
+ "opts": {
+  "destination": "./jsdoc",
+  "recurse": true,
+  "readme": "./readme.md",
+  "template": "node_modules/better-docs"
+ },
+ "tags": {
+  "allowUnknownTags": true
+ }
+}

@@ -12,10 +12,12 @@ import { MediaFile } from "../utils/interfaces";
 import { getURI } from "./../utils/FileSystemManager";
 import Modal from "react-native-modal/dist/modal";
 
-//[x] dodać limity na nazwę i opis, nazwa 40 opis 300 imo
-//[x] opis multiline
-//[x] animować modal
-
+/**
+ * @property {boolean} visible Czy modal powinien być widoczny
+ * @property {function} onRequestClose funkcja wywoływana w celu zamknięcia modala
+ * @property {function(name: string, description: string, asNew: boolean, mapIcon: MediaFile): Promise<boolean>} onSave funkcja zapisu mapy
+ * @interface MapInfoModalProps
+ */
 interface MapInfoModalProps {
   visible: boolean;
   onRequestClose: () => void;
@@ -30,6 +32,11 @@ interface MapInfoModalProps {
 const nameLimit = 40;
 const descLimit = 300;
 
+/**
+ * Komponent będący modalem do edycji informacji o mapie, oraz zapisu mapy.
+ * @param {MapInfoModalProps} { visible, onRequestClose, onSave }
+ * @component
+ */
 const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) => {
   const [currentMap] = useMapStore((state) => [state.currentMap]);
   const [name, setName] = useState("");
@@ -42,7 +49,6 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
   useEffect(() => {
     setSaveAsNew(false);
     if (visible) {
-
       setName(currentMap.name);
       setError("");
       setDesc(currentMap.description);
@@ -133,10 +139,10 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
               if (text !== "" && error !== "") {
                 setError("");
               }
-              if (text.length > 40) setError("Nazwa nie może być dłuższa niż 40 znaków");
+              if (text.length > nameLimit) setError("Nazwa nie może być dłuższa niż 40 znaków");
               setName(text);
             }}
-            error={name.length <= 0 || name.length > 40}
+            error={name.length <= 0 || name.length > nameLimit}
             activeUnderlineColor={tw.color("slate-700")}
           />
           <TextInput
@@ -145,10 +151,10 @@ const MapInfoModal = ({ visible, onRequestClose, onSave }: MapInfoModalProps) =>
             value={desc}
             multiline={true}
             onChangeText={(text) => {
-              if (text.length > 300) setError("Opis nie może być dłuższy niż 300 znaków");
+              if (text.length > descLimit) setError("Opis nie może być dłuższy niż 300 znaków");
               setDesc(text);
             }}
-            error={desc.length > 300}
+            error={desc.length > descLimit}
             activeUnderlineColor={tw.color("slate-700")}
           />
           <View style={tw`mx-5 my-2 flex flex-row justify-center`}>
