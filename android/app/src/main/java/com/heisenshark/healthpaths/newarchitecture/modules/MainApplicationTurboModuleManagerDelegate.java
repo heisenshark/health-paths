@@ -1,4 +1,4 @@
-package com.anonymous.healthpathes.newarchitecture.modules;
+package com.heisenshark.healthpaths.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

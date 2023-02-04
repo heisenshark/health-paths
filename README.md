@@ -1,2 +1,2 @@
-# health-pathes
-siema
+# health-paths
+Dokumentacja projektu inżynierskiego

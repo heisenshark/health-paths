@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Text, View, StyleSheet, Image } from "react-native";
 import { Callout, Circle, MapMarker, Marker } from "react-native-maps";
-import Waypoint from "./../utils/interfaces";
+import {Waypoint} from "./../utils/interfaces";
 import SquareButton from "./SquareButton";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useEffect, useRef } from "react";
@@ -33,27 +33,31 @@ const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsPro
   const [mapEditState] = useAtom(mapEditorStateAtom);
   const [zoom] = useAtom(zoomAtom);
 
-  return waypoints.map((waypoint, index) => (
-    <View key={index}>
-      {((showHandles && mapEditState === "Idle") ||
-        (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
-        <Marker
-          coordinate={waypoint.coordinates}
-          pinColor={"green"}
-          opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
-          onPress={() => {
-            showHandles && stopPointPressed(waypoint);
-          }}
-        />
-      )}
-      <Circle
-        center={waypoint.coordinates}
-        radius={Math.min(zoom * 7, 100)}
-        fillColor={"yellow"}
-        zIndex={4}
-      />
-    </View>
-  ));
+  return (
+    <>
+      {waypoints.map((waypoint, index) => (
+        <View key={index}>
+          {((showHandles && mapEditState === "Idle") ||
+            (selectedStop === waypoint && mapEditState === "MovingStopPoint")) && (
+            <Marker
+              coordinate={waypoint.coordinates}
+              pinColor={"green"}
+              opacity={selectedStop === waypoint && mapEditState === "MovingStopPoint" ? 0.5 : 0.9}
+              onPress={() => {
+                showHandles && stopPointPressed(waypoint);
+              }}
+            />
+          )}
+          <Circle
+            center={waypoint.coordinates}
+            radius={Math.min(zoom * 7, 100)}
+            fillColor={"yellow"}
+            zIndex={4}
+          />
+        </View>
+      ))}
+    </>
+  );
 };
 
 export default StopPoints;

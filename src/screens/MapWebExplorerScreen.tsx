@@ -1,33 +1,28 @@
-import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View, Image, TextInput } from "react-native";
-import { Card } from "react-native-paper";
+import { ScrollView, Text, View } from "react-native";
 import HeaderBar from "../components/HeaderBar";
 import MapCard from "../components/MapCard";
 import SquareButton from "../components/SquareButton";
-import { db, Pathes, MapDocument, togglePrivate, DbUser } from "../config/firebase";
-import { useForceUpdate } from "../hooks/useForceUpdate";
+import { Pathes, MapDocument } from "../config/firebase";
 import tw from "../lib/tailwind";
-import { useMapStore } from "../stores/store";
-import { downloadMap } from "../utils/FileSystemManager";
-import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
-
-//[x] przemyśleć czy na serio chcę robić to w zipkach z całymi mapkami czy nie lepiej byłoby to załatwić jeszcze dodając jakieś szajsy, ale w sumie to zawsze można zrobić pobieranie mapy, ew tylko robię image preview i wyjebane elo
-//[x] jak dodawać lokację do bazy w suuumie XD
-//[x] zrobić pobieranie i odzipowanie
-//[x] zrobić obsługę manadżera pobrań
 
 const limit = 10;
-
+/**
+ * Komponent ekranu przeglądania map z chmury, wyświetla listę map
+ * @category Ekrany
+ * @param {*} navigation_props { navigation, route }
+ * @component
+ */
 const MapWebExplorerScreen = ({ navigation, route }) => {
   const [maps, setMaps] = useState<MapDocument[]>([]);
   const [showLoadMore, setShowLoadMore] = useState(false);
   const track = useRef(null);
-  const listMaps = () => {
-    let query = Pathes.where("visibility", "==", "public")
-      // .orderBy("createdAt", "desc")
-      .limit(limit);
+  /**
+   * Funkcja pobierająca listę map z bazy danych i dodająca ją do stanu komponentu
+   */
+  function listMaps() {
+    let query = Pathes.where("visibility", "==", "public").limit(limit);
     if (track.current !== null) query = query.startAfter(track.current);
     query
       .get()
@@ -45,7 +40,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
         if (querySnapshot.empty) track.current = 0;
       })
       .catch((error) => {});
-  };
+  }
 
   useEffect(() => {
     listMaps();

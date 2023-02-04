@@ -110,6 +110,10 @@ type useAlertModalType = [
 
 /**
  * Hook do wyświetlania modala z dwoma przyciskami
+ *
+ * @category hooks
+ * @export
+ * @return {useAlertModalType}  zwraca tablicę z obiektem stanu modala, funkcją do wyświetlania modala oraz funkcją do zmiany stanu modala
  */
 export function useAlertModal(): useAlertModalType {
   const [state, setState] = useState<ModalChoiceProps>({

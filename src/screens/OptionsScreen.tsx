@@ -1,17 +1,21 @@
 import { GoogleSignin, statusCodes, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid } from "react-native";
-import { Button } from "react-native-elements";
+import { Text, View, Image, ToastAndroid } from "react-native";
 import tw from "../lib/tailwind";
-import firestore from "@react-native-firebase/firestore";
-import { db, DbUser, deleteQueryBatch, Pathes, RatingDocument } from "./../config/firebase";
+import { DbUser } from "./../config/firebase";
 import { firebase } from "@react-native-firebase/auth";
 import auth from "@react-native-firebase/auth";
 import { imagePlaceholder } from "../utils/HelperFunctions";
 import TileButton from "../components/TileButton";
 import HeaderBar from "../components/HeaderBar";
 
+/**
+ * Ekran ustawień aplikacji
+ * @category Ekrany
+ * @param {*} navigation_prop { navigation, route }
+ * @component
+ */
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState(undefined as User | undefined);
@@ -27,16 +31,18 @@ const OptionsScreen = ({ navigation, route }) => {
     });
   }, [route.key, DbUser()]);
 
+  /**
+   * Funkcja realizująca logowanie do aplikacji za pomocą konta Google
+   * @return {*}
+   */
   const logIn = async () => {
     try {
       setInactive(true);
       const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const { idToken } = await GoogleSignin.signIn();
-      // Create a Google credential with the token
       const googleCredential = await auth.GoogleAuthProvider.credential(idToken);
       await GoogleSignin.clearCachedAccessToken(idToken);
       await GoogleSignin.getTokens();
-      // Sign-in the user with the credential
       await auth().signInWithCredential(googleCredential);
       const usr = await GoogleSignin.getCurrentUser();
       setUser(usr);
@@ -57,7 +63,9 @@ const OptionsScreen = ({ navigation, route }) => {
       ToastAndroid.show("Błąd logowania " + e, ToastAndroid.LONG);
     }
   };
-
+  /**
+   * Funkcja realizująca wylogowanie z konta google
+   */
   async function logOut() {
     setIsLogged(false);
     await firebase.auth().signOut();

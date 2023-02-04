@@ -1,15 +1,24 @@
 import { LatLng } from "react-native-maps";
 import * as Location from "expo-location";
+import { GOOGLE_API_KEY } from "@env";
+import { gApiKey } from "../config/firebase";
 
-export const calculateDistance = (path: LatLng[]) => {
+/**
+ * Funkcja obliczająca odległość całej ścieżki
+ *
+ * @export
+ * @param {LatLng[]} path
+ * @return {*}
+ */
+export function calculateDistance(path: LatLng[]) {
   let distance = 0;
   for (let i = 0; i < path.length - 1; i++) {
     const lat1 = path[i].latitude;
     const lon1 = path[i].longitude;
     const lat2 = path[i + 1].latitude;
     const lon2 = path[i + 1].longitude;
-    const R = 6371e3; // metres
-    const f1 = (lat1 * Math.PI) / 180; // φ, λ in radians
+    const R = 6371000;
+    const f1 = (lat1 * Math.PI) / 180;
     const f2 = (lat2 * Math.PI) / 180;
     const df = ((lat2 - lat1) * Math.PI) / 180;
     const dl = ((lon2 - lon1) * Math.PI) / 180;
@@ -18,29 +27,29 @@ export const calculateDistance = (path: LatLng[]) => {
       Math.sin(df / 2) * Math.sin(df / 2) +
       Math.cos(f1) * Math.cos(f2) * Math.sin(dl / 2) * Math.sin(dl / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c; // in metres
+    const d = R * c;
     distance += d;
   }
   return distance;
-};
-export const imagePlaceholder =
-  "https://cdn.discordapp.com/attachments/989095141874749470/1060571824385163384/800px-Question_mark_28black29.png";
+}
 
-export const getCityAdress = (location: string) => {
-  if (location === undefined) return "";
-  const trimnumbers = (str: string) => {
-    return str.replace(/\d{2}-\d{3}/g, "").trim();
-  };
-  const arr = location.split(", ");
-  if (arr.length > 2) return trimnumbers(arr[1]);
-  return "";
-};
-
-export const formatDistance = (distance: number) => {
+/**
+ * Funkcja formatująca odległość
+ * @export
+ * @param {number} distance
+ * @return {string} zwraca string z odległością w metrach lub kilometrach
+ */
+export function formatDistance(distance: number): string {
   if (distance < 1000) return `${Math.round(distance)} m`;
   return `${(distance / 1000).toFixed(2)} km`;
-};
+}
 
+/**
+ * Funkcja dekodująca punkty z API Google Directions, zapożyczona z
+ * react-native-maps-directions
+ * @param {*} t
+ * @return {*}
+ */
 function decode(t) {
   let points = [];
   for (let step of t) {
@@ -76,11 +85,20 @@ function decode(t) {
   }
   return points;
 }
-
+/**
+ * Funkcja pobierająca trasę z API Google Directions
+ *
+ * @export
+ * @param {LatLng} origin punkt początkowy
+ * @param {LatLng} destination  punkt końcowy
+ * @param {string} [apikey=GOOGLE_API_KEY] klucz API
+ * @param {string} [mode="WALKING"] tryb trasy
+ * @return {*}
+ */
 export async function getRoute(
   origin: LatLng,
   destination: LatLng,
-  apikey = "***REMOVED***",
+  apikey = gApiKey,
   mode = "WALKING"
 ) {
   const directionsServiceBaseUrl = "https://maps.googleapis.com/maps/api/directions/json";
@@ -111,7 +129,11 @@ export async function getRoute(
     return Promise.reject();
   }
 }
-
+/**
+ * Funkcja prosząca o zezwolenie na użycie lokalizacji urządzenia
+ * @export
+ * @return {*}  {Promise<boolean>} zwraca true jeśli użytkownik zezwolił na użycie lokalizacji
+ */
 export async function getLocationPermissions(): Promise<boolean> {
   let { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -122,3 +144,6 @@ export async function getLocationPermissions(): Promise<boolean> {
   }
   return true;
 }
+
+export const imagePlaceholder =
+  "https://cdn.discordapp.com/attachments/989095141874749470/1060571824385163384/800px-Question_mark_28black29.png";

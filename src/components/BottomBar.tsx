@@ -23,7 +23,6 @@ export interface BottomBarProps {
  * @component
  */
 export function BottomBar({ navigationRef, currentRoute }: BottomBarProps) {
-  const [setNavAction] = useMapStore((state) => [state.setNavAction]);
   const tabs = ["Trasy", "Nagraj", "Planuj", "Opcje"];
   const sensitiveTabs = ["Nagraj", "Planuj"];
 

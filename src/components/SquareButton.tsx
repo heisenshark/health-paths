@@ -20,7 +20,7 @@ interface SquareButtonProps {
   children?: any;
   label: string;
   size?: number;
-  active: boolean;
+  active?: boolean;
   style?: Style;
   labelStyle?: Style;
   icon?: string;

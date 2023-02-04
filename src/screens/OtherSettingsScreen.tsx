@@ -5,8 +5,12 @@ import TileButton from "../components/TileButton";
 import { getLocationPermissions } from "../utils/HelperFunctions";
 import HeaderBar from "../components/HeaderBar";
 
-type Props = {};
-
+/**
+ * Ekran ustawień aplikacji, wyświetla przycisk do poproszenia o uprawnienia do lokalizacji oraz autora aplikacji
+ * @category Ekrany
+ * @param {*} navigation_props { route, navigation }
+ * @component
+ */
 const OtherSettingsScreen = ({ route, navigation }) => {
   return (
     <View style={tw`flex bg-slate-100 h-full`}>

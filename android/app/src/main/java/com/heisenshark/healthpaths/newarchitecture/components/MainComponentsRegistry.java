@@ -1,4 +1,4 @@
-package com.anonymous.healthpathes.newarchitecture.components;
+package com.heisenshark.healthpaths.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

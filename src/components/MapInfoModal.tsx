@@ -15,7 +15,7 @@ import Modal from "react-native-modal/dist/modal";
 /**
  * @property {boolean} visible Czy modal powinien być widoczny
  * @property {function} onRequestClose funkcja wywoływana w celu zamknięcia modala
- * @property {function(name: string, description: string, asNew: boolean, mapIcon: MediaFile): Promise<boolean>} onSave funkcja zapisu mapy
+ * @property {function(string, string, boolean, MediaFile): Promise<boolean>} onSave funkcja zapisu mapy
  * @interface MapInfoModalProps
  */
 interface MapInfoModalProps {

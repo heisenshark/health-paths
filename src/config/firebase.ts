@@ -1,3 +1,4 @@
+import { log } from "react-native-reanimated";
 import { ToastAndroid } from "react-native";
 // Import the functions you need from the SDKs you need
 import "@react-native-firebase/app";
@@ -14,10 +15,9 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
 } from "@env";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
+export const gApiKey = "***REMOVED***";
+
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
@@ -27,6 +27,26 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
 };
 
+/**
+ * Interfejs mapy w bazie danych
+ * @property {string} id Identyfikator mapy
+ * @property {string} ownerId Identyfikator właściciela mapy
+ * @property {string} ownerName Nazwa właściciela mapy
+ * @property {string} description Opis mapy
+ * @property {string} name Nazwa mapy
+ * @property {number} rating suma ocen mapy
+ * @property {number} ratingCount Liczba ocen mapy
+ * @property {number} distance Odległość od użytkownika
+ * @property {string} location Lokalizacja mapy
+ * @property {"public" | "private"} visibility Widoczność mapy
+ * @property {string} storeRef Ścieżka do pliku z mapą
+ * @property {string} previewRef Ścieżka do pliku z podglądem mapy
+ * @property {string} iconRef Ścieżka do pliku z ikoną mapy
+ * @property {FirebaseFirestoreTypes.Timestamp} createdAt Data utworzenia mapy
+ * @export
+ * @interface MapDocument
+ * @category firebase
+ */
 export interface MapDocument {
   id?: string;
   ownerId: string;
@@ -42,17 +62,19 @@ export interface MapDocument {
   previewRef: string;
   iconRef: string;
   createdAt: FirebaseFirestoreTypes.Timestamp;
-  lastEditedAt?: FirebaseFirestoreTypes.Timestamp;
 }
+/**
+ * @property {string} id Identyfikator użytkownika
+ * @property {number} rating ocena
+ * @property {string} mapId Identyfikator mapy
+ * @export
+ * @interface RatingDocument
+ * @category firebase
+ */
 export interface RatingDocument {
-  id?: string;
-  pathRef: string;
-  pathOwnerId: string;
+  mapId?: string;
   rating: number;
-  comment: string;
-  createdAt: FirebaseFirestoreTypes.Timestamp;
   userId: string;
-  userName: string;
 }
 
 // Initialize Firebase
@@ -62,56 +84,33 @@ GoogleSignin.configure({
 });
 
 export const stor = firebase.storage();
-// set the host and the port property to connect to the emulator
-// set these before any read/write operations occur to ensure it doesn't affect your Cloud Firestore data!
+/*Odkomentować jeśli chcemy korzystać z emulatora*/
 if (__DEV__) {
   // firestore().useEmulator("localhost", 8081);
   // firebase.storage().useEmulator("localhost", 9199);
 }
 
+/*referencja do bazy*/
 export const db = firestore();
-
+/*referencja do ścieżek*/
 export const Pathes = db.collection("Pathes");
+/*referencja do użytkowników*/
 export const Users = db.collection("Users");
+/*referencja do ocen*/
 export const Ratings = db.collection("Ratings");
-
+/*zalogowany użytkownik*/
 export const DbUser = () => firebase.auth().currentUser?.uid;
 db.settings({ persistence: false });
 
-async function deleteCollection(collectionPath, batchSize) {
-  const collectionRef = db.collection(collectionPath);
-  const query = collectionRef.orderBy("__name__").limit(batchSize);
-
-  return new Promise((resolve, reject) => {
-    deleteQueryBatch(db, query, resolve).catch(reject);
-  });
-}
-
-export async function deleteQueryBatch(query, resolve) {
-  const snapshot = await query.get();
-
-  const batchSize = snapshot.size;
-  if (batchSize === 0) {
-    // When there are no documents left, we are done
-    resolve();
-    return;
-  }
-
-  // Delete documents in a batch
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-  await batch.commit();
-
-  // Recurse on the next process tick, to avoid
-  // exploding the stack.
-  process.nextTick(() => {
-    deleteQueryBatch(query, resolve);
-  });
-}
-
-export const addMap = async (map: MapDocument, webId: string = undefined) => {
+/**
+ * Funckja dodająca ścieżkę do bazy
+ * @export
+ * @param {MapDocument} map ścieżka
+ * @param {string} [webId=undefined] id ścieżki, jeśli znajduje się uprzednio w bazie
+ * @return {Promise<string>} id ścieżki
+ * @category firebase
+ */
+export async function addPath(map: MapDocument, webId: string = undefined): Promise<string> {
   let doc = null;
   let id = "";
 
@@ -135,35 +134,59 @@ export const addMap = async (map: MapDocument, webId: string = undefined) => {
     { merge: true }
   );
   return id;
-};
-
+}
+/**
+ * Funkcja usuwająca plik z chmury
+ * @param {*} fileRef
+ * @category firebase
+ */
 async function deleteFile(fileRef) {
   try {
     await fileRef.delete();
   } catch (error) {
-    ToastAndroid.show("Error deleting file", ToastAndroid.SHORT);
+    ToastAndroid.show("Błąd z usuwaniem plików", ToastAndroid.SHORT);
   }
 }
-
-export const deleteMapWeb = async (webId: string) => {
+/**
+ * Funkcja usuwająca ścieżkę z bazy oraz chmury
+ * @export
+ * @param {string} webId id ścieżki
+ * @category firebase
+ */
+export async function deleteMapWeb(webId: string) {
   const docref = Pathes.doc(webId);
   let doc = await docref.get();
   if (!doc.exists) return;
+
   await deleteFile(stor.ref(doc.data().storeRef));
-  if (!__DEV__) {
+  if (doc.data().iconRef !== undefined && doc.data().iconRef !== "") {
     const iconRef = stor.refFromURL(doc.data().iconRef);
-    const previewRef = stor.refFromURL(doc.data().previewRef);
     await deleteFile(iconRef);
+  }
+  if (doc.data().previewRef !== undefined && doc.data().previewRef !== "") {
+    const previewRef = stor.refFromURL(doc.data().previewRef);
     await deleteFile(previewRef);
   }
+
   await docref.delete();
-};
-
-export const addRating = async (rating: RatingDocument) => {
+}
+/**
+ * Funkcja dodająca ocenę do ścieżki
+ * @export
+ * @param {RatingDocument} rating ocena
+ * @category firebase
+ */
+export async function addRating(rating: RatingDocument) {
   const doc = await db.collection("Ratings").add(rating);
-};
-
-export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
+}
+/**
+ * Funkcja zmieniająca widoczność ścieżki
+ * @export
+ * @param {string} mapId id ścieżki
+ * @param {boolean} isPrivate czy jest prywatna
+ * @category firebase
+ */
+export async function togglePrivate(mapId: string, isPrivate: boolean) {
   await Pathes.doc(mapId).set(
     {
       visibility: isPrivate ? "private" : "public",
@@ -176,4 +199,4 @@ export const togglePrivate = async (mapId: string, isPrivate: boolean) => {
   });
 
   task.then((res) => {});
-};
+}

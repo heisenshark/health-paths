@@ -1,4 +1,4 @@
-package com.anonymous.healthpathes.newarchitecture;
+package com.heisenshark.healthpaths.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -20,9 +20,9 @@ import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.anonymous.healthpathes.BuildConfig;
-import com.anonymous.healthpathes.newarchitecture.components.MainComponentsRegistry;
-import com.anonymous.healthpathes.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.heisenshark.healthpaths.BuildConfig;
+import com.heisenshark.healthpaths.newarchitecture.components.MainComponentsRegistry;
+import com.heisenshark.healthpaths.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.anonymous.healthpathes;
+package com.heisenshark.healthpaths;
 
 import android.os.Build;
 import android.os.Bundle;

@@ -6,10 +6,10 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "../lib/tailwind";
 
 /**
- * @param {string} label etykieta
- * @param {string} icon nazwa ikony
- * @param {function} onPress funkcja wywoływana po naciśnięciu
- * @param {boolean} disabled czy opcja jest wyłączona
+ * @property {string} label etykieta
+ * @property {string} icon nazwa ikony
+ * @property {function} onPress funkcja wywoływana po naciśnięciu
+ * @property {boolean} disabled czy opcja jest wyłączona
  * @interface ModalOption
  */
 interface ModalOption {
@@ -20,16 +20,16 @@ interface ModalOption {
 }
 
 /**
- * @param {boolean} visible
- * @param {string} label
- * @param {Array<ModalOption>} actions
- * @param {(function | async function)} onRequestClose
+ * @property {boolean} visible
+ * @property {string} label
+ * @property {Array<ModalOption>} actions
+ * @property {function} onRequestClose
  * @interface OptionsModalProps
  */
 interface OptionsModalProps {
   visible: boolean;
   label?: string;
-  actions: { label: string; icon?: string; onPress: () => void; disabled?: boolean }[];
+  actions: ModalOption[];
   onRequestClose: () => void | Promise<void>;
 }
 /**

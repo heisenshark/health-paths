@@ -2,9 +2,9 @@ import { ActivityIndicator, BackHandler, Text, ToastAndroid, View } from "react-
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Marker, Polyline } from "react-native-maps";
 import { mapstyleSilver } from "../providedfiles/Export";
-import { Markers } from "../components/Markers";
+import Markers from "../components/Markers";
 import MapViewDirections from "react-native-maps-directions";
-import Waypoint, { HealthPath, MediaFile } from "../utils/interfaces";
+import { Waypoint, HealthPath, MediaFile } from "../utils/interfaces";
 import SquareButton from "../components/SquareButton";
 import tw from "../lib/tailwind";
 import StopPoints from "../components/StopPoints";
@@ -14,12 +14,7 @@ import uuid from "react-native-uuid";
 
 import * as Location from "expo-location";
 import TrackLine from "../components/TrackLine";
-import {
-  CommonActions,
-  StackActions,
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
+import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import MapInfoModal from "./../components/MapInfoModal";
 import { headingDistanceTo } from "geolocation-utils";
 import { getLocationPermissions, getRoute } from "../utils/HelperFunctions";
@@ -45,28 +40,25 @@ import MapGUIButton from "../components/MapGUIButton";
 import { useShowable } from "../hooks/useShowable";
 import { useForceUpdate } from "../hooks/useForceUpdate";
 import { ModalChoice, useAlertModal } from "../components/ModalChoice";
-import { te } from "date-fns/locale";
-//[x] make the alert for saving the map normal and functional
-//[x] make option to fill the path with google directions if the path was stopped and resumed
-//[x] make is moving stoppoint and is movingwaypoint into state machine
-//[x] Dodać przyciski powiększania dodawania itp
-//[x] Dodać logikę komponentu na tryby edycji ścieżek i inne
-//TODO Rozdzielić na kilka pure komponentów
-//[x] fix the bug with the map animate camera on start
-//[x] Dodać możliwość tworzenia waypointów
-//[x] zrobić jakiś pseudo enum stan który będzie decydował o tym który modal jest otwarty
+import { gApiKey } from "../config/firebase";
+import ZoomGUI from "../components/ZoomGUI";
 
 export type curmodalOpenType =
   | "None"
   | "MapInfo"
   | "StopPoint"
   | "AddPoint"
-  | "EditWaypoint";
+  | "EditWaypoint"
+  | "WaypointsList";
 
 const [maxWaypoints, maxStops] = [10, 20];
 
-const API_KEY = "***REMOVED***";
-
+/**
+ * Ekran edycji ścieżki ekran w któym znajduje się ścieżka i można ją tworzyć poprzez nagrywanie i planowanie
+ * @category Ekrany
+ * @param {*} navigation_props { navigation, route }
+ * @component
+ */
 const MapEditScreen = ({ navigation, route }) => {
   const isInRecordingState = route.params.isRecording as boolean;
   const force = useForceUpdate();
@@ -103,13 +95,6 @@ const MapEditScreen = ({ navigation, route }) => {
     ]
   );
 
-  //[x] uprościć funkcje zooma na początku mapy
-  //[x] zmienić to na komponent który generuje markery trasy( chodziło mi o to żeby nie było tak że trzeba było wyciągać markery z waypointsApp)
-  //[x] dodać możliwość rozpoczęcia od czystej karty na mapie, bez żadnej trasy
-
-  //[x] dodać automatyczne robienie cover photo dla mapy
-  //[x] Kliknięcie w mapęautomatycznie przenosi do edycji stoppointa
-
   usePreventBack(alertShow);
 
   useEffect(() => {
@@ -119,7 +104,7 @@ const MapEditScreen = ({ navigation, route }) => {
       return;
     }
     alertShow(
-      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+      "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie ścieżki?",
       [
         {
           text: "Tak",
@@ -204,26 +189,34 @@ const MapEditScreen = ({ navigation, route }) => {
         if (route.name === "Nagraj" && isInRecordingState) return;
         if (route.name === "Planuj" && !isInRecordingState) return;
         if (route.name !== "EdycjaMap" && route.name !== "NagrywanieAudio") {
-          console.log(
-            " ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR ONBLUR"
-          );
           setAlertState({ ...alertModalState, visible: false });
           setCurrentModalOpen("None");
           if (isRecording) {
             useLocationTrackingStore.getState().clearLocations();
           }
-          resetCurrentMap(); //HACK, mogą być problemy jak przenosisz się do innrgo ekranu
+          resetCurrentMap();
         }
       };
     }, [navigation, route])
   );
 
+  /**
+   * Funkcja zmieniające współrzędne punktów początkowego i końcowego trasy na takie które trzymają się drogi
+   * @param {LatLng[]} cords
+   */
   function snapEnds(cords: LatLng[]) {
     if (waypoints.length < 2) return;
     waypoints[0] = cords[0];
     waypoints[waypoints.length - 1] = cords[cords.length - 1];
   }
 
+  /**
+   * Funkcja dodająca nowy punkt do trasy
+   * @param {LatLng} cords współrzędne punktu
+   * @param {("waypoint" | "stop")} type typ punktu
+   * @param {number} [position=waypoints.length] pozycja w tablicy
+   * @return {(null|Waypoint)} jeśli dodany punkt jest punktem stopu to go zwraca
+   */
   function addNewWaypoint(
     cords: LatLng,
     type: "waypoint" | "stop",
@@ -263,24 +256,35 @@ const MapEditScreen = ({ navigation, route }) => {
     }
     return null;
   }
-
+  /**
+   * Funkcja animująca kamerę do punktu
+   * @param {LatLng} point współrzędne punktu
+   * @param {number} [zoom=undefined] zoom
+   * @param {number} [time=300] czas animacji
+   */
   async function animateToPoint(point: LatLng, zoom: number = undefined, time: number = 300) {
     mapRef.current.animateCamera({ center: point, zoom: zoom ?? undefined }, { duration: time });
     await new Promise((resolve) => setTimeout(resolve, time));
   }
-
+  /**
+   * Funkcja zapisująca ścieżkę
+   * @param {string} name nazwa ścieżki
+   * @param {string} description opis ścieżki
+   * @param {MediaFile} mapIcon ikona ścieżki
+   * @return {(string | null)} zwraca null jeśli zapisano poprawnie, w przeciwnym wypadku zwraca string z błędem
+   */
   async function saveMapEvent(
     name: string,
     description: string,
     mapIcon: MediaFile
   ): Promise<string | void> {
     if (!isInRecordingState && waypoints.length < 2)
-      return "NIE ZAPISANO MAPY, Dodaj przynajmniej dwa punkty do trasy";
+      return "NIE ZAPISANO ŚCIEŻKI, Dodaj przynajmniej dwa punkty do trasy";
     let p = [];
     if (isInRecordingState) p = [...useLocationTrackingStore.getState().getOutputLocations()];
     else p = [...fullPath];
 
-    if (p.length <= 0) return "NIE ZAPISANO MAPY, Brak ścieżki...";
+    if (p.length <= 0) return "NIE ZAPISANO ŚCIEŻKI, Brak trasy...";
 
     let xd = {
       ...currentMap,
@@ -326,7 +330,10 @@ const MapEditScreen = ({ navigation, route }) => {
     await saveMap(xd);
     return;
   }
-
+  /**
+   * Funkcja wywoływana przy naciśnięciu na ścieżkę
+   * @param {MapPressEvent} e zdarzenie naciśnięcia na mapę
+   */
   async function onPressMap(e: MapPressEvent) {
     e.persist();
 
@@ -351,7 +358,14 @@ const MapEditScreen = ({ navigation, route }) => {
     setMapEditState("Idle");
     force();
   }
-
+  /**
+   * Funkcja wywoływana przy naciśnięciu Zapisz w modalu zapisu ścieżki
+   * @param {string} name nazwa ścieżki
+   * @param {string} description
+   * @param {boolean} asNew
+   * @param {MediaFile} mapIcon
+   * @return {*}  {Promise<boolean>}
+   */
   async function onSave(
     name: string,
     description: string,
@@ -361,20 +375,22 @@ const MapEditScreen = ({ navigation, route }) => {
     setBlockInteractability(true);
     try {
       if (asNew) currentMap.map_id = uuid.v4().toString();
-      const good = await saveMapEvent(name, description, mapIcon); //[x] mordo tutaj trzeba to zamienić na asynca
+      const good = await saveMapEvent(name, description, mapIcon);
 
       if (typeof good === "string") {
         ToastAndroid.show(good, ToastAndroid.SHORT);
         setNotSaved(true);
         setBlockInteractability(false);
         return true;
-      } else ToastAndroid.show("Zapisano Mapę!", ToastAndroid.SHORT);
+      } else ToastAndroid.show("Zapisano Ścieżkę!", ToastAndroid.SHORT);
     } catch (e) {}
     setNotSaved(false);
     setBlockInteractability(false);
     return false;
   }
-
+  /**
+   * Funckja wywoływana przy czyszczeniu mapy, pyta się użytkownika czy na pewno chce wyczyścić trasę
+   */
   function onClear() {
     alertShow(
       "Czy na pewno chcesz wyczyścić trasę?",
@@ -403,6 +419,11 @@ const MapEditScreen = ({ navigation, route }) => {
     );
   }
 
+  /**
+   * Funkcja wywoływana przy naciśnięciu na przycisk pauzy/wznowienia
+   * w przypadku gdy jest nagrywana ścieżka, pyta użytkownika czy na pewno chce zatrzymać nagrywanie
+   * w przeciwnym wypadku rozpoczyna nagrywanie
+   */
   function onPausePress() {
     isRecording
       ? alertShow(
@@ -551,7 +572,7 @@ const MapEditScreen = ({ navigation, route }) => {
                 destination={waypoints[waypoints.length - 1]}
                 waypoints={waypoints.slice(1, -1)}
                 mode={"WALKING"}
-                apikey={API_KEY}
+                apikey={gApiKey}
                 strokeWidth={8}
                 strokeColor="#ffc800"
                 precision={"low"}
@@ -676,40 +697,10 @@ const MapEditScreen = ({ navigation, route }) => {
 
 export default MapEditScreen;
 
-function ZoomGUI({ mapRef }) {
-  const [zoom] = useAtom(zoomAtom);
-
-  return (
-    <Animated.View
-      style={tw`absolute flex flex-row left-2 bottom-2 rounded-2xl border-black border-2 overflow-hidden`}
-      entering={FadeInLeft}
-      exiting={FadeOutLeft}>
-      <MapGUIButton
-        disabled={zoom <= 0.1493}
-        style={tw`self-end border-r-2 mt-auto`}
-        size={tw.prefixMatch("md") ? 20 : 15}
-        label={"przybliż"}
-        icon="search-plus"
-        onPress={async () => {
-          const cam = await mapRef.current.getCamera();
-          mapRef.current.animateCamera({ zoom: cam.zoom + 1 });
-        }}
-      />
-      <MapGUIButton
-        disabled={zoom >= 1222}
-        style={tw`self-end mt-auto`}
-        size={tw.prefixMatch("md") ? 20 : 15}
-        label={"oddal"}
-        icon="search-minus"
-        onPress={async () => {
-          const cam = await mapRef.current.getCamera();
-          mapRef.current.animateCamera({ zoom: cam.zoom - 1 });
-        }}
-      />
-    </Animated.View>
-  );
-}
-
+/**
+ * Hook do obsługi lokalizacji w tle, wywietla alert o wypenieniu trasy
+ * @return {*} [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] - funkcja do uruchomienia w tle, funkcja do zatrzymania w tle, czy nagrywanie się odbywa, funkcja do sprawdzenia czy nagrywanie się odbywa
+ */
 function useLocationBackground(
   alertShow: (
     label: string,
@@ -792,7 +783,10 @@ function useLocationBackground(
   }
   return [startBackgroundTracking, stopBackgroundTracking, isRecording, checkRecording] as const;
 }
-
+/**
+ * Hook do zapobiegania wyjściu z ekranu bez zapisania, wyświetla alert
+ * @param {*} alertShow funkcja do wyświetlania alertów
+ */
 function usePreventBack(
   alertShow: (
     label: string,
@@ -811,7 +805,7 @@ function usePreventBack(
       if (!useMapStore.getState().notSaved) return false;
       if (!navigation.isFocused()) return false;
       alertShow(
-        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie mapy?",
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić tworzenie ścieżki?",
         [
           {
             text: "Tak",

@@ -9,34 +9,55 @@ import auth, { firebase } from "@react-native-firebase/auth";
 import { DbUser } from "../config/firebase";
 import { devtools } from "zustand/middleware";
 
+/**
+ * @category stores
+ * @property {function} setCurrentMap funkcja ustawiająca aktualną mapę
+ * @property {function} resetCurrentMap funkcja resetująca aktualną mapę
+ * @property {function} setNotSaved funkcja ustawiająca flagę notSaved
+ * @property {boolean} notSaved funkcja zwracająca flagę notSaved
+ * @property {HealthPath} currentMap aktualna mapa
+ * @interface MapStore
+ */
 interface MapStore {
   setCurrentMap: (map: HealthPath) => void;
   resetCurrentMap: () => void;
-  clearMap: () => void;
-  getUUID: () => string;
-  setCurrentCamera: (camera: Camera) => void;
-  getCurrentMediaURI: (media: MediaFile) => string;
-  navAction: () => void | null;
   setNotSaved: (saved: boolean) => void;
-  currentCamera: Camera;
   notSaved: boolean;
   currentMap: HealthPath;
 }
-
-interface MapArray {
-  [key: string]: HealthPath;
+/**
+ * @category stores
+ * @property {LatLng} start początek linii
+ * @property {LatLng} end koniec linii
+ * @property {number} distance długość linii
+ * @property {number} headingDelta różnica kątów
+ * @property {number} headingLast ostatni kąt
+ * @interface LineCurrent
+ */
+interface LineCurrent {
+  start: LatLng;
+  end: LatLng;
+  distance: number;
+  headingDelta: number;
+  headingLast: number;
 }
-
+/**
+ * @category stores
+ * @property {Array<LatLng>} locations lokalizacje
+ * @property {Array<LatLng>} outputLocations lokalizacje do wyświetlenia
+ * @property {LineCurrent} currentLine aktualna linia
+ * @property {number} highestTimestamp najwyższy timestamp
+ * @property {function(Array<LatLng>,number)} addLocations funkcja dodająca tablicę lokalizacji do tablicy lokalizacji jeśli timestamp jest wystarczająco świeży
+ * @property {function} clearLocations funkcja czyszcząca lokalizacje
+ * @property {function} setHighestTimestamp funkcja ustawiająca najwyższy timestamp, przyjmuje numer
+ * @property {function} getOutputLocations funkcja zwracająca lokalizacje do wyświetlenia
+ *
+ * @interface LocationTrackingStore
+ */
 interface LocationTrackingStore {
-  locations: { coords: LatLng[] };
+  locations: LatLng[];
   outputLocations: LatLng[];
-  currentLine: {
-    start: LatLng;
-    end: LatLng;
-    distance: number;
-    headingDelta: number;
-    headingLast: number;
-  };
+  currentLine: LineCurrent;
   highestTimestamp: number;
   addLocations: (location: LatLng[], timestamp: number) => void;
   clearLocations: () => void;
@@ -44,84 +65,57 @@ interface LocationTrackingStore {
   getOutputLocations: () => LatLng[];
 }
 
-interface UserStore {
-  user: User | undefined;
-  logIn: () => Promise<void>;
-  logOut: () => Promise<void>;
-  checkLogged: () => Promise<boolean>;
-}
-
-const storemap = (set, get) => ({
-  currentMap: {
-    name: "",
-    map_id: "",
-    description: "",
-    location: "",
-    waypoints: [],
-    stops: [],
-  } as HealthPath,
-  navAction: null,
-  currentCamera: {
-    center: { latitude: 51.60859530883762, longitude: 14.77514784783125 },
-    heading: 0,
-    pitch: 0,
-    zoom: 5.757617473602295,
-  } as Camera,
-  notSaved: false,
-  setCurrentMap: (map: HealthPath) =>
-    set(() => {
-      if (map === undefined)
-        return {
+export const useMapStore = create<MapStore>()(
+  devtools(
+    (set, get) => ({
+      currentMap: {
+        name: "",
+        map_id: "",
+        description: "",
+        location: "",
+        waypoints: [],
+        stops: [],
+      } as HealthPath,
+      notSaved: false,
+      setCurrentMap: (map: HealthPath) =>
+        set(() => {
+          if (map === undefined)
+            return {
+              currentMap: {
+                name: "",
+                map_id: "",
+                description: "",
+                location: "",
+                waypoints: [],
+                stops: [],
+              },
+            };
+          if (map.map_id === undefined || map.map_id === "") map.map_id = uuid.v4().toString();
+          return { currentMap: map };
+        }),
+      resetCurrentMap: () => {
+        set(() => ({
           currentMap: {
-            name: "",
-            map_id: "",
-            description: "",
+            name: "nienazwana mapa",
+            map_id: uuid.v4().toString(),
+            description: "opis",
             location: "",
             waypoints: [],
             stops: [],
           },
-        };
-      if (map.map_id === undefined || map.map_id === "") map.map_id = uuid.v4().toString();
-      return { currentMap: map };
-    }),
-  resetCurrentMap: () => {
-    set(() => ({
-      currentMap: {
-        name: "nienazwana mapa",
-        map_id: uuid.v4().toString(),
-        description: "opis",
-        location: "",
-        waypoints: [],
-        stops: [],
+        }));
       },
-    }));
-  },
-  getUUID: () => uuid.v4().toString(),
-
-  setCurrentCamera: (camera: Camera) => set(() => ({ currentCamera: camera })),
-  getCurrentMediaURI: (media: MediaFile) => {
-    const state = get();
-
-    return getURI(state.currentMap, media);
-  },
-  clearMap: () =>
-    set(() => ({
-      currentMap: { name: "", map_id: "", description: "", location: "", waypoints: [], stops: [] },
-    })),
-  setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
-});
-
-export const useMapStore = create<MapStore>()(
-  devtools(storemap, { name: "mapstore", store: "Store Containing map" })
+      setNotSaved: (saved: boolean) => set(() => ({ notSaved: saved })),
+    }),
+    { name: "mapstore", store: "Store Containing map" }
+  )
 );
 
 export const useLocationTrackingStore = create<LocationTrackingStore>()(
   devtools(
     (set, get) => ({
-      locations: { coords: [] },
+      locations: [],
       addLocations: (location: LatLng[], timestamp: number) => {
-        //function is optimizing the path generation by removing points that are in a straight line
-        //or are close to each other
         set((state) => {
           const line = state.currentLine;
           let recDistance = 0;
@@ -149,7 +143,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
               //end line and start new one
               recDistance += line.distance;
 
-              state.locations.coords.push(line.start);
+              state.locations.push(line.start);
               line.start = line.end;
               line.end = location[i];
               line.distance = line.headingDelta = 0;
@@ -162,17 +156,14 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
           }
 
           return {
-            locations: { coords: state.locations.coords },
-            outputLocations: [...state.locations.coords, line.start, line.end],
+            locations: state.locations,
+            outputLocations: [...state.locations, line.start, line.end],
             currentLine: {
               start: line.start,
               end: line.end,
               distance: line.distance,
               headingDelta: line.headingDelta,
               headingLast: line.headingLast,
-            },
-            currentRecording: {
-              distance: state.currentRecording.distance + recDistance,
             },
             highestTimestamp: timestamp,
           };
@@ -181,7 +172,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
       clearLocations: () => {
         set(() => {
           return {
-            locations: { coords: [] },
+            locations: [],
             outputLocations: [],
             currentLine: {
               start: undefined,
@@ -189,9 +180,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
               distance: 0,
               headingDelta: undefined,
               headingLast: undefined,
-            },
-            currentRecording: {
-              distance: 0,
             },
           };
         });
@@ -208,9 +196,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
         headingDelta: undefined,
         headingLast: undefined,
       },
-      currentRecording: {
-        distance: 0,
-      },
       highestTimestamp: 0,
       setHighestTimestamp: (timestamp: number) => {
         set((state) => {
@@ -221,36 +206,3 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
     { name: "locationTrackingStore", store: "Store Containing location tracking info" }
   )
 );
-
-export const useUserStore = create<UserStore>((set, get) => ({
-  user: undefined,
-  logIn: async () => {
-    try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      // Get the users ID token
-      const { idToken } = await GoogleSignin.signIn();
-      // Create a Google credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await GoogleSignin.clearCachedAccessToken(idToken);
-      await GoogleSignin.getTokens();
-      // Sign-in the user with the credential
-      await auth().signInWithCredential(googleCredential);
-      const usr = await GoogleSignin.getCurrentUser();
-      set(() => ({ user: usr }));
-    } catch (e) {
-      return;
-    }
-  },
-  logOut: async () => {
-    set(() => {
-      GoogleSignin.signOut();
-      firebase.auth().signOut();
-      return { user: undefined };
-    });
-  },
-  checkLogged: async () => {
-    const usr = DbUser();
-    if (!usr) set(() => ({ user: undefined }));
-    return usr == undefined;
-  },
-}));

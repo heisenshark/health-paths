@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import SquareButton from "./../components/SquareButton";
 import tw from "../lib/tailwind";
-import Waypoint, { MediaFile } from "./../utils/interfaces";
+import { Waypoint, MediaFile } from "./../utils/interfaces";
 import { useEffect, useRef, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import DocumentPicker, {
@@ -34,16 +34,16 @@ import { imagePlaceholder } from "../utils/HelperFunctions";
 import HeaderBar from "../components/HeaderBar";
 import { getURI } from "../utils/FileSystemManager";
 
-//TODO make this component use less hooks and improve functions
-//TODO use expo document picker instead of react-native-document-picker
+/**
+ * Ekran edycji punktu stopu
+ * @category Ekrany
+ * @param {*} navigation_props { navigation, route }
+ * @component
+ */
 const StopPointEditScreen = ({ navigation, route }) => {
   const isEdit = route.params.isEdit;
   const map = route.params.map;
-  const [currentMap, getCurrentMediaURI, setNotSaved] = useMapStore((state) => [
-    state.currentMap,
-    state.getCurrentMediaURI,
-    state.setNotSaved,
-  ]);
+  const [currentMap, setNotSaved] = useMapStore((state) => [state.currentMap, state.setNotSaved]);
   let { editedWaypoint } = route.params as { editedWaypoint: Waypoint };
   const [introsoundUri, setIntroSoundUri] = useState<string>();
   const [navigationSoundUri, setNavigationSoundUri] = useState<string>();
@@ -58,6 +58,10 @@ const StopPointEditScreen = ({ navigation, route }) => {
   const [soundType, setSoundType] = useState("");
   const sound = useRef(new Audio.Sound());
 
+  /**
+   * Funkcja odtwarzająca dźwięk z podanego uri
+   * @param {string} uri uri dźwięku
+   */
   async function playSound(uri: string) {
     if (uri === undefined) return;
     try {
@@ -69,7 +73,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
       ToastAndroid.show("Nastąpił problem z odtwarzaniem dźwięku", ToastAndroid.SHORT);
     }
   }
-
+  /**
+   * Funkcja zwracająca uri z MediaFile
+   * @param {MediaFile} mf
+   * @return {*}
+   */
   function getU(mf: MediaFile) {
     if (map === undefined) return getURI(currentMap, mf);
     return getURI(map, mf);
@@ -77,7 +85,6 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      //tutaj ustawqiamy sound uri, trzeba wybrać czy intro czy navigation
       if (route.params.soundUri === undefined) return;
 
       let soundObject = {
@@ -95,6 +102,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
         setNavigationSoundUri(route.params.soundUri);
         editedWaypoint.navigation_audio = soundObject;
       }
+      setNotSaved(true);
     }, [route.params])
   );
 
@@ -106,6 +114,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
       setIntroSoundUri(getU(editedWaypoint?.introduction_audio));
     if (editedWaypoint.navigation_audio)
       setNavigationSoundUri(getU(editedWaypoint?.navigation_audio));
+    setNotSaved(true);
   }, []);
 
   useEffect(() => {
@@ -116,19 +125,24 @@ const StopPointEditScreen = ({ navigation, route }) => {
 
   useEffect(() => {}, [result]);
 
+  /**
+   * Funkcja obsługująca błędy podczas wybierania pliku
+   * @param {unknown} err błąd
+   */
   const handleError = (err: unknown) => {
     setAudioModalVisible(false);
-
     if (DocumentPicker.isCancel(err)) {
       console.warn("cancelled");
-      // User cancelled the picker, exit any dialogs or menus and move on
     } else if (isInProgress(err)) {
       console.warn("multiple pickers were opened, only the last will be considered");
     } else {
       throw err;
     }
   };
-
+  /**
+   * Funkcja zatrzymująca odtwarzany dźwięk
+   * @return {*}
+   */
   async function stopSound() {
     if (sound.current === undefined) return;
     const status = await sound.current?.getStatusAsync();
@@ -136,10 +150,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
     await sound.current.pauseAsync();
     return;
   }
-
+  /**
+   * Funkcja wybierająca obrazek z galerii lub aparatu
+   * @param {{ isCamera: boolean }} { isCamera } czy wybrać z aparatu
+   */
   const pickImage = async ({ isCamera }: { isCamera: boolean }) => {
-    // No permissions request is necessary for launching the image library
-
     setImageModalVisible(false);
     let result = isCamera
       ? await ImagePicker.launchCameraAsync({
@@ -166,11 +181,17 @@ const StopPointEditScreen = ({ navigation, route }) => {
       storage_type: "cache",
     } as MediaFile;
   };
-
+  /**
+   * Funkcja wyświetlająca modal do wyboru dźwięku
+   * @param {("intro" | "navigation")} type typ dźwięku
+   */
   function openAudioModal(type: "intro" | "navigation") {
     setAudioModalVisible(true);
     setSoundType(type);
   }
+  /**
+   * Funkcja wybierająca dźwięk z plików
+   */
   function onAudioPick() {
     DocumentPicker.pickSingle({
       presentationStyle: "fullScreen",
@@ -307,7 +328,11 @@ const StopPointEditScreen = ({ navigation, route }) => {
 };
 
 export default StopPointEditScreen;
-
+/**
+ * Komponent wyświetlający przyciski do wyboru audio i odtwarzania
+ * @param {{string,boolean,boolean,function,function}} { label, isEdit, isPresent, onPlay, onPick } - propsy komponentu
+ * @component
+ */
 const AudioPickPlay = ({ label, isEdit, isPresent, onPlay, onPick }) => {
   return (
     <View

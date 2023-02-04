@@ -7,17 +7,19 @@ import { Tile } from "react-native-elements";
 import TileButton from "../components/TileButton";
 import HeaderBar from "../components/HeaderBar";
 
-type Props = {};
-type pages = (string | JSX.Element)[];
-const content: (string | JSX.Element)[] = [];
-
+/**
+ * Ekran pomocy
+ * @category Ekrany
+ * @param {*} props { route, navigation }
+ * @component
+ */
 const HelpScreen = ({ route, navigation }) => {
   const [currentState, setCurrentState] = useState("Select");
-  const [forward, back, setMaxPages, pageNumber, maxPages] = usePagination(
-    // contentObject[currentState].arr.length
-    2
-  );
+  const [forward, back, setMaxPages, pageNumber, maxPages] = usePagination(2);
 
+  /**
+   * Funkcja renderująca przyciski na początku ekranu w zależności od tego, co znajduje się w contentObject
+   */
   function renderButtons() {
     const elo = [];
     for (const [key, value] of Object.entries(contentObject)) {
@@ -91,7 +93,7 @@ const HelpScreen = ({ route, navigation }) => {
             />
           </View>
           <ScrollView style={tw`flex-1 flex flex-col p-2`}>
-            {renderPage(contentObject[currentState].arr[pageNumber - 1])}
+            {contentObject[currentState].arr[pageNumber - 1]}
             <View style={tw`h-10`} />
           </ScrollView>
         </>
@@ -101,7 +103,11 @@ const HelpScreen = ({ route, navigation }) => {
 };
 
 export default HelpScreen;
-
+/**
+ * Hook do przełączania stron w ekranie pomocy
+ * @param {number} max liczba stron
+ * @return {*}  {[() => void, () => void, (c: number) => void, number, number]} funkcje do nawigacji w naprzód i wstecz, funkcja ustawiająca maksymalną ilość stron, numer aktualnej strony, liczba stron
+ */
 function usePagination(max: number): [() => void, () => void, (c: number) => void, number, number] {
   const [pageNumber, setPageNumber] = useState(1);
   const [maxPages, setMaxPages] = useState(max);
@@ -121,8 +127,10 @@ function usePagination(max: number): [() => void, () => void, (c: number) => voi
     maxPages,
   ];
 }
-
-const contentObject: { [index: string]: { icon: string; label: string; arr: pages } } = {
+/**
+ * Obiekt zawierający wszystkie poradniki
+ */
+const contentObject: { [index: string]: { icon: string; label: string; arr: JSX.Element[] } } = {
   Screens: {
     icon: "book",
     label: "Ekrany aplikacji",
@@ -397,5 +405,3 @@ const contentObject: { [index: string]: { icon: string; label: string; arr: page
     ],
   },
 };
-const renderPage = (page: string | JSX.Element) =>
-  typeof page === "string" ? <Text>{page}</Text> : page;

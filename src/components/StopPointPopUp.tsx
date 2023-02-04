@@ -4,7 +4,7 @@ import Modal from "react-native-modal";
 import tw from "../lib/tailwind";
 import { useState } from "react";
 import SquareButton from "./SquareButton";
-import Waypoint from "../utils/interfaces";
+import {Waypoint} from "../utils/interfaces";
 import { useNavigation } from "@react-navigation/native";
 type Props = {
   visible: boolean;

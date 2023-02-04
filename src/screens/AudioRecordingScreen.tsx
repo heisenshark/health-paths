@@ -7,21 +7,30 @@ import { Audio } from "expo-av";
 import { Recording, Sound } from "expo-av/build/Audio";
 import { useNavigation } from "@react-navigation/native";
 import HeaderBar from "../components/HeaderBar";
+import { log } from "react-native-reanimated";
 interface AudioRecordingScreenProps {}
 //Ok, ten screen dostaje route z stoppoints, nagrywa audio i zwraca route
 //właśnie do stoppoints tylko ze ścieżką do audio
 //ewentualnie zrobię ten komponent jako modal
 //[x] naprawić buga który uniemożliwia zastopowanie nagrywania audio
 //[x] zrobi nagrywanie w niszej jakoci
+
+/**
+ * Ekran nagrywania audio z możliwością zatrzymania i wznowienia nagrywania oraz zapisania nagrania do punktu stopu
+ * @category Ekrany
+ * @param {*} props { navigation, route }
+ * @component
+ */
 const AudioRecordingScreen = ({ navigation, route }) => {
   const nav = useNavigation();
-  const [status, setStatus] = useRecordingState(RecordingStatus.NO_RECORD);
+  const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>(
+    RecordingStatus.NO_RECORD
+  );
   const [soundUri, setSoundUri] = useState<string>();
   const soundObject = useRef<Sound>(new Audio.Sound());
   const recordingObject = useRef<Recording>(new Audio.Recording());
   const [soundmilis, setSoundmilis] = useState(0);
   const [audioStatus, setAudioStatus] = useState({});
-  const [recordingStatus, setRecordingStatus] = useState();
   const resetTimer = useRef<any>();
   //stany aplikacji
   //brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
@@ -33,7 +42,9 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     });
     return unsub;
   }, [navigation]);
-
+  /**
+   *Funkcja rozpoczynająca nagrywanie
+   */
   async function startRecording() {
     await stopSound();
     const elo = await Audio.requestPermissionsAsync(); //może przenieść to gdzie indziej
@@ -49,52 +60,60 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       if (status.isRecording === true) await recordingObject.current.stopAndUnloadAsync();
       await recordingObject.current.prepareToRecordAsync(Audio.RecordingOptionsPresets.LOW_QUALITY);
       recordingObject.current.setOnRecordingStatusUpdate(async (status) => {
-
         if (status.isRecording) setSoundmilis(status.durationMillis);
       });
       recordingObject.current.setProgressUpdateInterval(16);
       await recordingObject.current.startAsync();
-      setStatus(RecordingStatus.RECORDING);
+      setRecordingStatus(RecordingStatus.RECORDING);
       startResetTimer();
-    } catch (error) {
-    }
+    } catch (error) {}
   }
-
+  /**
+   *Funkcja pauzująca nagrywanie
+   */
   async function pauseRecording() {
-    setStatus(RecordingStatus.PAUSED);
+    setRecordingStatus(RecordingStatus.PAUSED);
     stopResetTimer();
     await recordingObject.current.pauseAsync();
   }
-
+  /**
+   * Funkcja wznawiająca nagrywanie
+   */
   async function resumeRecording() {
-    setStatus(RecordingStatus.RECORDING);
+    setRecordingStatus(RecordingStatus.RECORDING);
     await recordingObject.current.startAsync();
     startResetTimer();
   }
-
+  /**
+   * Funkcja zatrzymująca nagrywanie
+   */
   async function stopRecording() {
     if (!recordingObject.current) return;
     const status = await recordingObject.current.getStatusAsync();
-
+    console.log(status);
     if (status === undefined || status.isDoneRecording) return;
     if (status.canRecord) recordingObject.current.stopAndUnloadAsync();
 
     const uri = recordingObject.current.getURI();
     stopResetTimer();
-    setStatus(RecordingStatus.RECORDED);
+    setRecordingStatus(RecordingStatus.RECORDED);
     setSoundUri(uri);
     setSoundmilis(0);
   }
-
+  /**
+   * funkcja zatrzymująca odtwarzany dźwięk
+   */
   async function stopSound() {
     const status = await soundObject.current?.getStatusAsync();
     if (status === undefined || !status.isLoaded) return;
-    await soundObject.current.getStatusAsync().then((status) => {
-    });
+    await soundObject.current.getStatusAsync().then((status) => {});
     await soundObject.current.pauseAsync();
     return;
   }
-
+  /**
+   * Funkcja odtwarzająca nagranie
+   * @return {*}
+   */
   async function playSound() {
     if (soundUri === undefined) return;
     try {
@@ -104,14 +123,14 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       await soundObject.current.playAsync();
       setAudioStatus(result);
     } catch (error) {
-      showToast("playSound error");
+      ToastAndroid.show("playSound error", ToastAndroid.SHORT);
     }
   }
-
-  function showToast(mess: string) {
-    ToastAndroid.show(mess, ToastAndroid.SHORT);
-  }
-
+  /**
+   * Funkcja formatująca milisekundy na minuty i sekundy
+   * @param {number} milis milisekundy
+   * @return {*}
+   */
   function milisToMinutesAndSeconds(milis: number) {
     let minutes = Math.floor(milis / 60000);
     let seconds = Math.floor(milis / 1000);
@@ -119,11 +138,14 @@ const AudioRecordingScreen = ({ navigation, route }) => {
     let secdisplay = (seconds + "").padStart(2, "0");
     return mindisplay + ":" + secdisplay;
   }
-  //Write function that converts milis to minutes and seconds and display it
 
+  /**
+   * Funkcja zwracająca GUI w zależności od statusu nagrywania
+   * @component
+   */
   const recordingGui = () => {
     const size = 25;
-    switch (status) {
+    switch (recordingStatus) {
     case RecordingStatus.NO_RECORD:
       return (
         <>
@@ -245,15 +267,17 @@ const AudioRecordingScreen = ({ navigation, route }) => {
 };
 
 export default AudioRecordingScreen;
-
+/**
+ * Enum z statusami nagrywania
+ * @property {number} NO_RECORD brak nagrywania
+ * @property {number} RECORDING - nagrywanie
+ * @property {number} PAUSED - nagrywanie wstrzymane
+ * @property {number} RECORDED - nagranie zakończone
+ * @enum {number}
+ */
 enum RecordingStatus {
   NO_RECORD,
   RECORDING,
   PAUSED,
   RECORDED,
-}
-
-function useRecordingState(s: RecordingStatus) {
-  const [status, setStatus] = useState(s);
-  return [status, setStatus] as const;
 }

@@ -1,15 +1,14 @@
 import * as fs from "expo-file-system";
-import Waypoint, { HealthPath, MediaFile } from "./interfaces";
+import { Waypoint, HealthPath, MediaFile } from "./interfaces";
 import { cloneDeep } from "lodash";
 import { copyAsync } from "expo-file-system";
-import { mediaFiles } from "../providedfiles/Export";
 import { zip, unzip, unzipAssets, subscribe } from "react-native-zip-archive";
 import { firebase } from "@react-native-firebase/auth";
 import storage from "@react-native-firebase/storage";
-import { loadMapInfo } from "./MapInfoLoader";
+import { loadMapInfo, loadMapInfoDir } from "./MapInfoLoader";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import { db, stor, addMap, MapDocument, Pathes, Users } from "../config/firebase";
+import { db, stor, addPath, MapDocument, Pathes, Users } from "../config/firebase";
 import { calculateDistance } from "./HelperFunctions";
 import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
@@ -29,7 +28,12 @@ export {
   moveMap,
   loadMapInfo,
 };
-
+/**
+ *Funkcja zwracająca nazwę pliku z URI
+ * @category System plików
+ * @param {string} uri
+ * @return {*}
+ */
 const getNameFromUri = (uri: string) => {
   if (!uri) return undefined;
   if (uri.endsWith("/")) {
@@ -40,8 +44,15 @@ const getNameFromUri = (uri: string) => {
   }
   return uri.substring(uri.lastIndexOf("/") + 1);
 };
-
-export function getURI(map: HealthPath, media: MediaFile) {
+/**
+ * Funkcja zwracająca ścieżkę do pliku multimedialnego z URI
+ * @category System plików
+ * @export
+ * @param {HealthPath} map mapa pliku
+ * @param {MediaFile} media plik multimedialny
+ * @return {(string | undefined)} zwraca ścieżkę do pliku albo undefined jeśli nie istnieje
+ */
+export function getURI(map: HealthPath, media: MediaFile): string | undefined {
   if (!media) return undefined;
   if (media.storage_type === "cache") return media.path;
   return `${mapDir}_${map.map_id}/${media.path}`;
@@ -50,6 +61,13 @@ async function ensureMapDirExists() {
   await createIfNotExists(mapDir, { isFile: false });
 }
 
+/**
+ * Funkcja Tworząca plik lub folder jeśli nie istnieje
+ * @category System plików
+ * @param {string} path ścieżka do pliku lub folderu
+ * @param {*} [{ isFile = false, content = "" }={ isFile: false }] czy plik czy folder, jeśli to plik to zawartość
+ * @return {*} zwraca informacje o utworzonym lub istniejącym pliku/folderze
+ */
 async function createIfNotExists(
   path: string,
   { isFile = false, content = "" }: { isFile: boolean; content?: string } = { isFile: false }
@@ -62,11 +80,23 @@ async function createIfNotExists(
   } else await fs.makeDirectoryAsync(path, { intermediates: true });
   return await fs.getInfoAsync(path);
 }
-
+/**
+ * Funkcja zapisująca tekst do pliku
+ * @category System plików
+ * @param {string} path ścieżka do pliku
+ * @param {string} [data=""] tekst do zapisania
+ */
 async function writeToFile(path: string, data: string = "") {
   const aaaa = await fs.writeAsStringAsync(path, data);
 }
-
+/**
+ * Funkcja przenosząca istniejący plik multimedialny do lokalnego miejsca zapisu mapy
+ * @category System plików
+ * @param {MediaFile} file plik multimedialny
+ * @param {string} mapNameDir ścieżka do folderu mapy
+ * @param {string} path ścieżka do folderu w którym ma być przeniesiony plik
+ * @return {*}
+ */
 async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path: string) {
   if (!file || file.media_id === undefined || file.path === undefined) return undefined;
 
@@ -86,7 +116,12 @@ async function copyExistingFileToMedia(file: MediaFile, mapNameDir: string, path
     return;
   }
 }
-
+/**
+ * Funkcja sprawdzająca czy pliki multimedialne w danym punkcie stopu istnieją
+ * @category System plików
+ * @param {Waypoint} stop punkt stopu
+ * @param {string} mapNameDir ścieżka do folderu mapy
+ */
 async function checkExistanceOfMedia(stop: Waypoint, mapNameDir: string) {
   const checkMedia = async (med: MediaFile) => {
     if (med) {
@@ -100,7 +135,13 @@ async function checkExistanceOfMedia(stop: Waypoint, mapNameDir: string) {
     await checkMedia(med);
   });
 }
-
+/**
+ * Funkcja kopiująca istniejące pliki multimedialne do lokalnego miejsca zapisu mapy
+ * @category System plików
+ * @param {Waypoint} stop punkt stopu
+ * @param {string} mapNameDir ścieżka do folderu mapy
+ * @return {MediaFile[]}  {Promise<MediaFile[]>} zwraca tablicę z plikami multimedialnymi
+ */
 async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<MediaFile[]> {
   let medias = [];
   const elo: [MediaFile, string][] = [
@@ -112,7 +153,12 @@ async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<Medi
     (await copyExistingFileToMedia(media, mapNameDir, path)) && medias.push(media);
   return medias;
 }
-
+/**
+ * Funkcja zapisująca mapę do lokalnego miejsca zapisu mapy
+ * @category System plików
+ * @param {HealthPath} map mapa
+ * @return {*}
+ */
 async function saveMap(map: HealthPath) {
   const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;
@@ -141,7 +187,6 @@ async function saveMap(map: HealthPath) {
     imageIcon: map.imageIcon,
     description: map.description,
     location: map.location,
-    duration: map.duration,
     distance: map.distance,
     waypoints: [...map.waypoints],
     ...webFields,
@@ -233,6 +278,14 @@ async function saveMap(map: HealthPath) {
   return mapNameDir;
 }
 
+/**
+ * Funkcja wczytująca mapę z lokalnego miejsca zapisu mapy
+ * @category System plików
+ * @param {string} name nazwa mapy
+ * @param {string} id id mapy
+ * @returns {Promise<HealthPath>} obiekt mapy
+ * @async
+ */
 async function loadMap(name: string, id: string): Promise<HealthPath> {
   const mapNameDir = `${mapDir}_${id}/`;
   const mapInfo = await fs.readAsStringAsync(mapNameDir + "mapInfo.json");
@@ -264,11 +317,12 @@ async function loadMap(name: string, id: string): Promise<HealthPath> {
 
   return map;
 }
-
-async function loadMapInfoDir(id: string): Promise<HealthPath> {
-  return loadMapInfo(id.substring(1));
-}
-
+/*
+@category System plików*
+ * Funkcja zmieniająca id ścieżki
+ * @param {string} id id ścieżki
+ * @param {string} idTo id ścieżki po zmianie
+ */
 async function moveMap(id: string, idTo: string) {
   const mapNameDir = `${mapDir}_${id}/`;
   const info = await loadMapInfo(id);
@@ -279,7 +333,13 @@ async function moveMap(id: string, idTo: string) {
   await fs.moveAsync({ from: mapNameDir, to: desiredMapNameDir });
   await saveMapInfo(info, idTo);
 }
-
+/*
+@category System plików*
+ * Funkcja zapisująca informacje o ścieżce w pliku mapInfo.json
+ * @param {HealthPath} data
+ * @param {string} id
+ * @return {*}  {Promise<boolean>}
+ */
 async function saveMapInfo(data: HealthPath, id: string): Promise<boolean> {
   try {
     const mapNameDir = `${mapDir}_${id}/`;
@@ -289,7 +349,11 @@ async function saveMapInfo(data: HealthPath, id: string): Promise<boolean> {
     return false;
   }
 }
-
+/*
+@category System plików*
+ * Funkcja usuwająca ścieżkę z lokalnego miejsca zapisu mapy
+ * @param {string} id id ścieżki
+ */
 async function deleteMap(id: string) {
   const mapNameDir = `${mapDir}_${id}/`;
   const info = await loadMapInfo(id);
@@ -299,7 +363,13 @@ async function deleteMap(id: string) {
   }
   await fs.deleteAsync(mapNameDir);
 }
-
+/**
+ * Funkcja przesyłająca ścieżkę do chmury
+ * @category System plików
+ * @param {string} id lokalne id ścieżki
+ * @param {("public" | "private")} [privacy="public"] prywatność ścieżki
+ * @return {*}  {Promise<boolean>}
+ */
 async function UploadMapFolder(
   id: string,
   privacy: "public" | "private" = "public"
@@ -312,7 +382,7 @@ async function UploadMapFolder(
     //Tutaj jest kawałek kodu odopowiadający za sprawdzenie wlasciciela mapy
     //jeśli właścicielem jest użytkownik uploadujący mapę to updateujemy ją
     //jeśli nie to tworzymy nową mapę i uploadujemy
-    //jeśli nie ma webId to zakładamy że wszystko git
+    //jeśli nie ma webId to zakładamy że wszystko ok
 
     let isPresentInWeb = mapinfo.webId !== undefined;
     let createNewInstance = true;
@@ -323,8 +393,6 @@ async function UploadMapFolder(
         const md = m.data() as MapDocument;
         if (md && md.ownerId === DbUser()) {
           createNewInstance = false;
-        } else {
-          // przypadek jeśli user nie jest właścicielem
         }
       }
     }
@@ -360,7 +428,7 @@ async function UploadMapFolder(
     // stor.getActiveUploadTasks();
     const reference = stor.ref(`Maps/${DbUser()}/_${id}`);
     const task = reference.putFile(zipPath, {
-      cacheControl: "no-store", // disable caching
+      cacheControl: "no-store",
       customMetadata: { visibility: privacy },
     });
     await task;
@@ -370,14 +438,14 @@ async function UploadMapFolder(
     if (icon) {
       const iconRef = stor.ref(`Maps/${DbUser()}/icons/_${id}_icon`);
       await iconRef.putFile(icon, {
-        cacheControl: "no-store", // disable caching
+        cacheControl: "no-store",
       });
       iconURL = await iconRef.getDownloadURL();
     }
     if (preview) {
       const previewRef = stor.ref(`Maps/${DbUser()}/previews/_${id}_icon`);
       await previewRef.putFile(preview, {
-        cacheControl: "no-store", // disable caching
+        cacheControl: "no-store",
       });
       previewURL = await previewRef.getDownloadURL();
     }
@@ -409,8 +477,8 @@ async function UploadMapFolder(
 
     let docid = undefined;
     if (mapinfo.webId) {
-      docid = await addMap(data, mapinfo.webId);
-    } else docid = await addMap(data);
+      docid = await addPath(data, mapinfo.webId);
+    } else docid = await addPath(data);
 
     await saveMapInfo({ ...mapinfo, webId: docid }, id);
 
@@ -428,7 +496,11 @@ async function UploadMapFolder(
     return false;
   }
 }
-
+/**
+ * Funkcja pobierająca wszystkie ścieżki z pamięci lokalnej
+ * @category System plików
+ * @return {*}  {Promise<HealthPath[]>} tablica obiektów HealthPath
+ */
 async function listAllMaps(): Promise<HealthPath[]> {
   const dirInfo = await fs.getInfoAsync(mapDir);
   if (!dirInfo.exists) return [];
@@ -444,6 +516,11 @@ async function listAllMaps(): Promise<HealthPath[]> {
   return maps;
 }
 
+/**
+ * Funkcja pobierająca ścieżkę z chmury do pamięci lokalnej
+ * @category System plików
+ * @param {MapDocument} map obiekt ścieżki
+ */
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
   const cacheInfo = await createIfNotExists(cacheDir);
@@ -479,7 +556,12 @@ async function downloadMap(map: MapDocument) {
   };
   useDownloadTrackingStore.getState().addRecord(map.id, record);
 }
-
+/**
+ * Funkcja usuwająca niechciane pliki z folderu
+ * @category System plików
+ * @param {string} directory ścieżka do folderu
+ * @param {string[]} allowedNames tablica nazw plików do zachowania
+ */
 async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {
   const info = await fs.getInfoAsync(directory);
   if (!info.exists) return;
@@ -491,7 +573,11 @@ async function deleteUnwantedFiles(directory: string, allowedNames: string[]) {
     await fs.deleteAsync(`${directory}/${file}`);
   }
 }
-
+/**
+ * Funkcja usuwająca niechciane pliki ścieżki z pamięci lokalnej
+ * @category System plików
+ * @param {HealthPath} map ścieżka
+ */
 async function clearMapDir(map: HealthPath) {
   const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;

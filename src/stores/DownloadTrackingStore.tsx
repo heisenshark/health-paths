@@ -4,16 +4,32 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { loadMapInfo } from "../utils/MapInfoLoader";
 
+/**
+ * @property {string} mapId lokalne id mapy
+ * @property {string} webId id mapy w bazie danych
+ * @property {FirebaseFirestoreTypes.Timestamp} downloadDate data pobrania mapy
+ * @export
+ * @interface DownloadTrackerRecord
+ */
 export interface DownloadTrackerRecord {
   mapId: string;
   webId: string;
   downloadDate: FirebaseFirestoreTypes.Timestamp;
 }
-
+/**
+ * @property {string} id globalne id mapy
+ */
 export type DownloadTracker = {
   [id: string]: DownloadTrackerRecord;
 };
 
+/**
+ * @property {DownloadTracker} downloadTracker obiekt przechowujący informacje o pobranych mapach
+ * @property {function} addRecord dodaje nowy rekord do obiektu downloadTracker
+ * @property {function} deleteRecord usuwa rekord z obiektu downloadTracker
+ * @property {function} validateDownloadTracker sprawdza czy wszystkie mapy z obiektu downloadTracker istnieją w pamięci urządzenia
+ * @interface DownloadTrackingStore
+ */
 interface DownloadTrackingStore {
   downloadTracker: DownloadTracker;
   addRecord: (key: string, value: DownloadTrackerRecord) => void;

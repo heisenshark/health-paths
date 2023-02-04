@@ -1,16 +1,16 @@
 {
   "expo": {
     "jsEngine": "hermes",
-    "name": "health-pathes",
+    "name": "Ścieżki zdrowia",
     "slug": "health-pathes",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/ico.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/spl.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#43595a"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,11 +22,11 @@
       "supportsTablet": true
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/adaptive.png",
+        "backgroundColor": "#43595a"
       },
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.heisenshark.healthpaths"
     },

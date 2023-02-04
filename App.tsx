@@ -106,6 +106,10 @@ export default function App() {
 
   return (
     <>
+      <StatusBar
+        barStyle={tw.prefixMatch("dark") ? "light-content" : "dark-content"}
+        backgroundColor={tw.prefixMatch("dark") ? "black" : "white"}
+      />
       <NavigationContainer
         ref={navigationRef}
         onStateChange={(key) => setCurrentScreen(key.routes[key.index].name)}
@@ -159,11 +163,6 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
         .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
       Math.max(...locations.map((n) => n.timestamp))
     );
-    if (locations.length > 1)
-      console.log(
-        "Received new locations",
-        locations.map((l) => [l.coords.longitude, l.coords.latitude])
-      );
   }
 });
 

@@ -1,11 +1,8 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import React from "react";
 import tw from "../lib/tailwind";
-import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
+import { imagePlaceholder } from "../utils/HelperFunctions";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { MapDocument } from "../config/firebase";
-import { HealthPath } from "../utils/interfaces";
-import { getURI } from "../utils/FileSystemManager";
 
 /**
  * @property {string} [id] id mapy

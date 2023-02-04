@@ -5,16 +5,14 @@ import HeaderBar from "../components/HeaderBar";
 import TileButton from "../components/TileButton";
 import tw from "../lib/tailwind";
 
-const HomeScreen = ({ navigation }) =>
-//[x] przycisk podłóżny
-{
-  useEffect(() => {
-    // navigation.navigate("NagrywanieAudio");
-  }, []);
-
-  const [lol, setLol] = useState(1);
-  //generate random number
-
+/**
+ *
+ * Ekran główny aplikacji - wyświetla przyciski do przejścia do innych ekranów
+ * @category Ekrany
+ * @param {*}  navigation_prop { navigation }
+ * @component
+ */
+const HomeScreen = ({ navigation }) => {
   const data = [
     {
       id: 1,
@@ -41,10 +39,6 @@ const HomeScreen = ({ navigation }) =>
       onPress: () => BackHandler.exitApp(),
     },
   ];
-
-  const renderItem = ({ label, onPress, icon }) => {
-    return <TileButton label={label} icon={icon} onPress={onPress}></TileButton>;
-  };
 
   return (
     <View style={tw`flex h-full`}>

@@ -29,11 +29,15 @@ import {
   loadMap,
   zipUploadMapFolder,
 } from "../utils/FileSystemManager";
-import { getCityAdress, imagePlaceholder } from "../utils/HelperFunctions";
+import { imagePlaceholder } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
-//[x] uprościć menu wyboru co chcemy zrobić z mapą do prostego modala
-//[x] dodać lepsze prompty do usuwania mapy i innych
+/**
+ * Ekran wyświetlający listę map użytkownika
+ * @category Ekrany
+ * @param {*} navigation_props { navigation, route }
+ * @component
+ */
 const MapExplorerScreen = ({ navigation, route }) => {
   const [downloadTracker] = useDownloadTrackingStore((state) => [state.downloadTracker]);
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
@@ -50,24 +54,29 @@ const MapExplorerScreen = ({ navigation, route }) => {
   const [alertState, showAlert] = useAlertModal();
 
   const force = useForceUpdate();
+  const selectedMap = useRef(null);
+  /**
+   * Funkcja wywoływana przy zmianie wartości pola wyszukiwania
+   * @param query nowa wartość pola wyszukiwania
+   */
   const onChangeSearch = (query: string) => setSearchQuery(query);
-
+  /**
+   * Funkcja w celu odświeżenia listy ścieżek
+   */
   const refreshMaps = async () => {
     const m = await listAllMaps();
     setMaps(m);
   };
-
-  const selectedMap = useRef(null);
-
+  /**
+   * Funkcja w celu pobrania ścieżek użytkownika z bazy danych
+   */
   const fetchUserMaps = async () => {
     const user = await Users.doc(DbUser()).get();
 
     if (user.exists) {
       const maps = user.data().maps;
       const mapsData = await Pathes.where("ownerId", "==", DbUser()).get();
-
       const mapsDocs = mapsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as MapDocument[];
-
       setUserMaps(mapsDocs);
     }
   };
@@ -92,6 +101,10 @@ const MapExplorerScreen = ({ navigation, route }) => {
 
   const options = [] as { label: string; icon?: string; disabled?: boolean; onPress: () => void }[];
 
+  /**
+   * Funkcja zwracająca opcje dla ścieżek lokalnych
+   * @return {*} opcje dla ścieżek lokalnych
+   */
   function localOptions() {
     const isOwner = DbUser() != undefined;
     return [
@@ -168,7 +181,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                   refreshMaps();
                 },
               },
-              { text: "Anuluj", icon: "arrow-left", onPress: () => console.log("Anulowano") },
+              { text: "Anuluj", icon: "arrow-left", onPress: () => {} },
             ],
             true
           );
@@ -178,6 +191,12 @@ const MapExplorerScreen = ({ navigation, route }) => {
     ];
   }
 
+  /**
+   * Funkcja zwracająca opcje dla ścieżki z serwera
+   * @param {MapDocument} map dokument ścieżki
+   * @param {boolean} isPrivate czy ścieżka jest prywatna
+   * @return {*} opcje dla ścieżki z serwera
+   */
   function webOptions(map: MapDocument, isPrivate: boolean) {
     return [
       {
@@ -235,7 +254,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
                   refreshMaps();
                 },
               },
-              { text: "Anuluj", icon: "arrow-left", onPress: () => console.log("Anulowano") },
+              { text: "Anuluj", icon: "arrow-left", onPress: () => {} },
             ],
             true
           );
@@ -245,6 +264,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
     ];
   }
 
+  /**
+   * Funkcja renderująca listę ścieżek lokalnych
+   */
   function renderMaps() {
     if (maps.length === 0)
       return (
@@ -277,7 +299,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
         />
       ));
   }
-
+  /**
+   * Funkcja renderująca listę ścieżek udostępnionych przez użytkownika
+   */
   function renderUserMaps() {
     if (userMaps.length === 0)
       return (

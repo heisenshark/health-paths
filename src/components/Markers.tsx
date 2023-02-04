@@ -5,7 +5,7 @@ import { View, Text, Image } from "react-native";
 import { Callout, Circle, LatLng, Marker } from "react-native-maps";
 import tw from "../lib/tailwind";
 import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
-import Waypoint from "../utils/interfaces";
+import {Waypoint} from "../utils/interfaces";
 import PropTypes from "prop-types";
 
 /**
@@ -31,9 +31,9 @@ export interface MarkersProps {
  * @component
  */
 function Markers({ waypoints, selectedWaypoint, isView, onWaypointPressed }: MarkersProps) {
-  const [showHandles] = useAtom(showHandlesAtom); // czy wyświetlać punkty trasy
-  const [mapEditState] = useAtom(mapEditorStateAtom); // stan edytora mapy
-  const [zoom] = useAtom(zoomAtom); // zoom mapy
+  const [showHandles] = useAtom(showHandlesAtom);
+  const [mapEditState] = useAtom(mapEditorStateAtom);
+  const [zoom] = useAtom(zoomAtom);
 
   /**
    * Funkcja wyświetlająca ikonę początku lub końca trasy.
