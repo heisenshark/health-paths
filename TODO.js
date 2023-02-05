@@ -1,1 +1,0 @@
-//TODO wstawić ikonę do aplikacji oraz załatwić jakąś lepszą nazwę

@@ -19,7 +19,6 @@ import HeaderBar from "../components/HeaderBar";
 const OptionsScreen = ({ navigation, route }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState(undefined as User | undefined);
-  const [pathes, setPathes] = useState([]);
 
   const [inactive, setInactive] = useState(false);
 

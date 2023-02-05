@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Text, View, StyleSheet, Image } from "react-native";
 import { Callout, Circle, MapMarker, Marker } from "react-native-maps";
-import {Waypoint} from "./../utils/interfaces";
+import { Waypoint } from "./../utils/interfaces";
 import SquareButton from "./SquareButton";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useEffect, useRef } from "react";

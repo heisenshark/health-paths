@@ -154,15 +154,14 @@ TaskManager.defineTask("location_tracking", async ({ data, error }) => {
   }
   if (data) {
     const { locations } = data;
-    let lat = locations[0].coords.latitude;
-    let long = locations[0].coords.longitude;
-    const newLocation = { latitude: lat, longitude: long } as LatLng;
     addLocations(
       locations
         .filter((n) => n.timestamp > stamp)
+        .sort((a, b) => a.timestamp - b.timestamp)
         .map((n) => ({ latitude: n.coords.latitude, longitude: n.coords.longitude })),
       Math.max(...locations.map((n) => n.timestamp))
     );
+        
   }
 });
 

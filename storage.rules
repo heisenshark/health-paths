@@ -1,17 +1,15 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // match /{allPaths=**} {
-    //   allow read, write: if
-    //       request.time < timestamp.date(2023, 1, 29);
-    // }
 
-    match /Maps/{userId}/{allPaths=**} {
+	match /Maps/{userId}/{allPaths=**} {
       allow read: if
           resource.metadata.visibility == "public"||
           request.auth.uid == userId;
       allow write: if
-          request.auth.uid == userId&&request.resource.size < 40 * 1024 * 1024 ;
+          request.auth.uid == userId&&request.resource.size < 40 * 1024 * 1024;
+      allow delete: if
+      		request.auth.uid == userId;
     }
 
   }

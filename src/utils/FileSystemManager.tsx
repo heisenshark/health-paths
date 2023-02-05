@@ -235,7 +235,7 @@ async function saveMap(map: HealthPath) {
     path_id: map.map_id,
     path_icon: map.imageIcon?.media_id,
     displayed_name: map.name,
-    approximate_distance_in_meters: map.distance * 1000, //HACK elo to powinno być zawsze w metrach tbh
+    approximate_distance_in_meters: map.distance, 
     is_cyclic: false,
     map_url: "mapbox://styles/polslrau6/cl4fw1x8i001t14lih34jtkhz",
     waypoints: [...waypoints.map((x) => x.waypoint_id)],
@@ -274,7 +274,6 @@ async function saveMap(map: HealthPath) {
   await writeToFile(mapNameDir + "media_files.json", JSON.stringify(medias));
   await writeToFile(mapNameDir + "urban_paths.json", JSON.stringify(urban));
   clearMapDir(map);
-  //[x] write code that clears the rest of files in mapdir, to stop local storage from leaking
   return mapNameDir;
 }
 

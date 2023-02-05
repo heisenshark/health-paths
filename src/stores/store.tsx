@@ -132,7 +132,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
               continue;
             }
             if (line.headingLast === undefined) {
-              //when the line does have only one point
               line.headingLast = hdt.heading;
               line.headingDelta = 0;
               line.end = location[i];
@@ -140,7 +139,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             }
             line.headingDelta += hdt.heading - line.headingLast;
             if (Math.abs(line.headingDelta) > 5 || Math.abs(line.headingLast - hdt.heading) > 2.5) {
-              //end line and start new one
               recDistance += line.distance;
 
               state.locations.push(line.start);

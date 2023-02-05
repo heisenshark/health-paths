@@ -70,7 +70,7 @@ const MapEditScreen = ({ navigation, route }) => {
   const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
   const [mapEditState, setMapEditState] = useAtom(mapEditorStateAtom);
   const [initialRegion] = useAtom(initialRegionAtom);
-  const [zoom, setZoom] = useAtom(zoomAtom);
+  const [, setZoom] = useAtom(zoomAtom);
   const [isRecordedHealthPath, setIsRecordedHealthPath] = useState(false);
   const [blockInteractability, setBlockInteractability] = useState(false);
   const [tipVisible, showTip] = useShowable(2000);
@@ -664,10 +664,6 @@ const MapEditScreen = ({ navigation, route }) => {
             force();
           }}
         />
-        {/* <Text>{currentModalOpen}</Text>
-        <Text>{notSaved ? "not Saved" : "saved"}</Text>
-        <Text>{isInRecordingState ? "recstate" : "not recstate"}</Text>
-        <Text>{isRecording ? "rec" : "not rec"}</Text> */}
       </Animated.View>
 
       <ZoomGUI mapRef={mapRef} />

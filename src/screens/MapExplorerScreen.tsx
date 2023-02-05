@@ -363,6 +363,7 @@ const MapExplorerScreen = ({ navigation, route }) => {
           label="lokalne"
           labelStyle={tw`text-3xl`}
           onPress={() => {
+            refreshMaps();
             setMapsState("local");
           }}
         />

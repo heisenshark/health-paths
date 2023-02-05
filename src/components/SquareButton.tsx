@@ -53,7 +53,6 @@ const SquareButton = ({
   onPress,
   disabled,
 }: SquareButtonProps) => {
-  const uberplus = active ? 1 : 0;
   return (
     <TouchableOpacity
       disabled={disabled}
