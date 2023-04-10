@@ -16,3 +16,4 @@ template/
 # macOS
 .DS_Store
 replacements.txt
+git-filter-repo.py
