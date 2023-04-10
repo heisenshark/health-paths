@@ -17,3 +17,5 @@ template/
 .DS_Store
 replacements.txt
 git-filter-repo.py
+android/app/google-services.json
+google-services.json
