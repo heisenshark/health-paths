@@ -2,10 +2,8 @@ import { View, Text } from "react-native";
 import * as React from "react";
 import Modal from "react-native-modal";
 import tw from "../lib/tailwind";
-import { useState } from "react";
 import SquareButton from "./SquareButton";
-import {Waypoint} from "../utils/interfaces";
-import { useNavigation } from "@react-navigation/native";
+import { Waypoint } from "../utils/interfaces";
 type Props = {
   visible: boolean;
   stopPoint: Waypoint;
@@ -15,8 +13,7 @@ type Props = {
   hide: () => void;
 };
 
-const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide, stopPoint }: Props) => {
-  const navigationRef = useNavigation();
+const StopPointPopUp = ({ visible, onEdit, onDelete, onMove, hide }: Props) => {
   if (!visible) return null;
   return (
     <View>

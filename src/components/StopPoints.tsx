@@ -1,13 +1,8 @@
 import * as React from "react";
-import { Text, View, StyleSheet, Image } from "react-native";
-import { Callout, Circle, MapMarker, Marker } from "react-native-maps";
+import { View } from "react-native";
+import { Circle, Marker } from "react-native-maps";
 import { Waypoint } from "./../utils/interfaces";
-import SquareButton from "./SquareButton";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { useEffect, useRef } from "react";
-import tw from "../lib/tailwind";
-import { useNavigation } from "@react-navigation/native";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
 
 /**
@@ -27,9 +22,7 @@ interface StopPointsProps {
  * @component
  */
 const StopPoints = ({ waypoints, selectedStop, stopPointPressed }: StopPointsProps) => {
-  const navigationRef = useNavigation();
-
-  const [showHandles, setShowHandles] = useAtom(showHandlesAtom);
+  const showHandles = useAtomValue(showHandlesAtom);
   const [mapEditState] = useAtom(mapEditorStateAtom);
   const [zoom] = useAtom(zoomAtom);
 

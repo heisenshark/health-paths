@@ -14,7 +14,7 @@ const limit = 10;
  * @param {*} navigation_props { navigation, route }
  * @component
  */
-const MapWebExplorerScreen = ({ navigation, route }) => {
+const MapWebExplorerScreen = ({ navigation }) => {
   const [maps, setMaps] = useState<MapDocument[]>([]);
   const [showLoadMore, setShowLoadMore] = useState(false);
   const track = useRef(null);
@@ -39,7 +39,7 @@ const MapWebExplorerScreen = ({ navigation, route }) => {
         setShowLoadMore(!querySnapshot.empty && querySnapshot.size === limit);
         if (querySnapshot.empty) track.current = 0;
       })
-      .catch((error) => {});
+      .catch(() => {});
   }
 
   useEffect(() => {

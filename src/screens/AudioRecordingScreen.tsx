@@ -1,14 +1,12 @@
+/* eslint-disable react-native/split-platform-components */
 import * as React from "react";
-import { Text, View, ToastAndroid } from "react-native";
+import { Text, ToastAndroid, View } from "react-native";
 import tw from "../lib/tailwind";
 import SquareButton from "./../components/SquareButton";
 import { useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { Recording, Sound } from "expo-av/build/Audio";
-import { useNavigation } from "@react-navigation/native";
 import HeaderBar from "../components/HeaderBar";
-import { log } from "react-native-reanimated";
-interface AudioRecordingScreenProps {}
 //Ok, ten screen dostaje route z stoppoints, nagrywa audio i zwraca route
 //właśnie do stoppoints tylko ze ścieżką do audio
 //ewentualnie zrobię ten komponent jako modal
@@ -22,7 +20,6 @@ interface AudioRecordingScreenProps {}
  * @component
  */
 const AudioRecordingScreen = ({ navigation, route }) => {
-  const nav = useNavigation();
   const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>(
     RecordingStatus.NO_RECORD
   );
@@ -30,7 +27,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   const soundObject = useRef<Sound>(new Audio.Sound());
   const recordingObject = useRef<Recording>(new Audio.Recording());
   const [soundmilis, setSoundmilis] = useState(0);
-  const [audioStatus, setAudioStatus] = useState({});
   const resetTimer = useRef<any>();
   //stany aplikacji
   //brak poprzedniego nagrania, nagrywanie trwa, nagranie zakończone, nagrywanie pauzowane
@@ -48,6 +44,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   async function startRecording() {
     await stopSound();
     const elo = await Audio.requestPermissionsAsync(); //może przenieść to gdzie indziej
+    if (elo.status !== "granted") return;
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
       playsInSilentModeIOS: true,
@@ -66,7 +63,9 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       await recordingObject.current.startAsync();
       setRecordingStatus(RecordingStatus.RECORDING);
       startResetTimer();
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
   /**
    *Funkcja pauzująca nagrywanie
@@ -106,7 +105,7 @@ const AudioRecordingScreen = ({ navigation, route }) => {
   async function stopSound() {
     const status = await soundObject.current?.getStatusAsync();
     if (status === undefined || !status.isLoaded) return;
-    await soundObject.current.getStatusAsync().then((status) => {});
+    await soundObject.current.getStatusAsync().then(() => {});
     await soundObject.current.pauseAsync();
     return;
   }
@@ -121,7 +120,6 @@ const AudioRecordingScreen = ({ navigation, route }) => {
       if (result.isLoaded) await soundObject.current.unloadAsync();
       result = await soundObject.current.loadAsync({ uri: soundUri });
       await soundObject.current.playAsync();
-      setAudioStatus(result);
     } catch (error) {
       ToastAndroid.show("playSound error", ToastAndroid.SHORT);
     }

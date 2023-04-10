@@ -1,6 +1,5 @@
 import { LatLng } from "react-native-maps";
 import * as Location from "expo-location";
-import { GOOGLE_API_KEY } from "@env";
 import { gApiKey } from "../config/firebase";
 
 /**

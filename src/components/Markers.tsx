@@ -1,12 +1,9 @@
 import { useAtom } from "jotai";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
-import { Callout, Circle, LatLng, Marker } from "react-native-maps";
+import { View, Image } from "react-native";
+import { Circle, LatLng, Marker } from "react-native-maps";
 import tw from "../lib/tailwind";
 import { mapEditorStateAtom, showHandlesAtom, zoomAtom } from "../config/AtomsState";
-import {Waypoint} from "../utils/interfaces";
-import PropTypes from "prop-types";
 
 /**
 
@@ -118,5 +115,4 @@ export default Markers;
 
 const imageEnd = require("../../assets/map-end-marker.png");
 const imageStart = require("../../assets/map-start-marker.png");
-const imageCircle = require("../../assets/marker.png");
 // const marker = require("../../assets/map-marker.png");

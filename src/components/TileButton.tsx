@@ -1,4 +1,4 @@
-import { View, Text, Touchable, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";

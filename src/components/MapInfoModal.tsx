@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Text, View, StyleSheet, ScrollView, Image, ToastAndroid } from "react-native";
+import { Text, View, Image } from "react-native";
 import { Checkbox } from "react-native-paper";
 import { TextInput } from "react-native-paper";
 import tw from "../lib/tailwind";

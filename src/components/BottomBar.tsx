@@ -1,10 +1,8 @@
 import { NavigationContainerRefWithCurrent } from "@react-navigation/native";
 import * as React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import tw from "../lib/tailwind";
-import { useMapStore } from "../stores/store";
 import SquareButton from "./SquareButton";
-
 /**
  * @property {NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>} navigationRef referencja do obiektu nawigacji
  * @property {string} currentRoute aktualna ścieżka w nawigacji

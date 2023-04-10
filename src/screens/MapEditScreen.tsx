@@ -1,4 +1,4 @@
-import { ActivityIndicator, BackHandler, Text, ToastAndroid, View } from "react-native";
+import { ActivityIndicator, BackHandler, ToastAndroid, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, { LatLng, MapPressEvent, Marker, Polyline } from "react-native-maps";
 import { mapstyleSilver } from "../providedfiles/Export";
@@ -22,12 +22,7 @@ import StopPointPopUp from "../components/StopPointPopUp";
 import AddPointModal from "../components/AddPointModal";
 import EditWaypointModal from "../components/EditWaypointModal";
 
-import Animated, {
-  FadeInLeft,
-  FadeInRight,
-  FadeOutLeft,
-  FadeOutRight,
-} from "react-native-reanimated";
+import Animated, { FadeInRight, FadeOutRight } from "react-native-reanimated";
 import TipDisplay from "../components/TipDisplay";
 import { useAtom } from "jotai";
 import {
@@ -222,9 +217,8 @@ const MapEditScreen = ({ navigation, route }) => {
     type: "waypoint" | "stop",
     position: number = waypoints.length
   ): null | Waypoint {
-    //HACK may not work propertly
     switch (type) {
-    case "waypoint":
+    case "waypoint": {
       if (waypoints.length >= maxWaypoints) {
         ToastAndroid.show(
           "Nie dodano, maksymalna ilość punktów trasy została osiągnięta",
@@ -236,7 +230,8 @@ const MapEditScreen = ({ navigation, route }) => {
       setNotSaved(true);
       force();
       break;
-    case "stop":
+    }
+    case "stop": {
       if (stopPoints.length >= maxStops) {
         ToastAndroid.show(
           "Nie dodano, maksymalna ilość punktów stopu została osiągnięta",
@@ -253,6 +248,7 @@ const MapEditScreen = ({ navigation, route }) => {
       stopPoints.push(newStop);
       setNotSaved(true);
       return newStop;
+    }
     }
     return null;
   }
@@ -383,7 +379,9 @@ const MapEditScreen = ({ navigation, route }) => {
         setBlockInteractability(false);
         return true;
       } else ToastAndroid.show("Zapisano Ścieżkę!", ToastAndroid.SHORT);
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
     setNotSaved(false);
     setBlockInteractability(false);
     return false;
@@ -579,7 +577,6 @@ const MapEditScreen = ({ navigation, route }) => {
                 optimizeWaypoints
                 zIndex={2}
                 onReady={(n) => {
-                  const adress = n.legs[0].start_address;
                   snapEnds(n.coordinates);
                   setFullPath(n.coordinates);
                   currentMap.distance = n.distance * 1000;
@@ -727,7 +724,7 @@ function useLocationBackground(
     const perms = await getLocationPermissions();
     if (!perms) return;
 
-    const startedTracking = await Location.hasStartedLocationUpdatesAsync("location_tracking");
+    await Location.hasStartedLocationUpdatesAsync("location_tracking");
 
     const start = useLocationTrackingStore.getState().currentLine.end;
     let end = {} as LatLng;

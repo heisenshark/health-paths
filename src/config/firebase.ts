@@ -1,10 +1,9 @@
-import { log } from "react-native-reanimated";
 import { ToastAndroid } from "react-native";
 // Import the functions you need from the SDKs you need
 import "@react-native-firebase/app";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { firebase, storage } from "@react-native-firebase/storage";
+import { firebase } from "@react-native-firebase/storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 import {
@@ -14,9 +13,11 @@ import {
   FIREBASE_STORAGE_BUCKET,
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
+  GOOGLE_MAPS_API_KEY,
+  WEB_CLIENT_ID,
 } from "@env";
 
-export const gApiKey = "***REMOVED***";
+export const gApiKey = GOOGLE_MAPS_API_KEY;
 
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
@@ -78,9 +79,9 @@ export interface RatingDocument {
 }
 
 // Initialize Firebase
-const signinApp = initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 GoogleSignin.configure({
-  webClientId: "***REMOVED***-hnrvujupc8dlvnkro5nslrobk7m2bdbk.apps.googleusercontent.com",
+  webClientId: WEB_CLIENT_ID,
 });
 
 export const stor = firebase.storage();
@@ -177,7 +178,7 @@ export async function deleteMapWeb(webId: string) {
  * @category firebase
  */
 export async function addRating(rating: RatingDocument) {
-  const doc = await db.collection("Ratings").add(rating);
+  await db.collection("Ratings").add(rating);
 }
 /**
  * Funkcja zmieniająca widoczność ścieżki
@@ -198,5 +199,5 @@ export async function togglePrivate(mapId: string, isPrivate: boolean) {
     customMetadata: { visibility: isPrivate ? "private" : "public" },
   });
 
-  task.then((res) => {});
+  task.then(() => {});
 }

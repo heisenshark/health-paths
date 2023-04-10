@@ -11,7 +11,7 @@ import HeaderBar from "../components/HeaderBar";
  * @param {*} navigation_props { route, navigation }
  * @component
  */
-const OtherSettingsScreen = ({ route, navigation }) => {
+const OtherSettingsScreen = () => {
   return (
     <View style={tw`flex bg-slate-100 h-full`}>
       <HeaderBar label={"USTAWIENIA"} useBack />

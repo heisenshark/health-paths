@@ -3,7 +3,6 @@ import React from "react";
 import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { color } from "react-native-elements/dist/helpers";
 
 /**
  * @property {string} label etykieta przycisku

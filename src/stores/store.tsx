@@ -1,12 +1,8 @@
 import { create } from "zustand";
-import { HealthPath, MediaFile } from "../utils/interfaces";
+import { HealthPath } from "../utils/interfaces";
 import uuid from "react-native-uuid";
-import { Camera, LatLng } from "react-native-maps";
-import { getURI } from "../utils/FileSystemManager";
+import { LatLng } from "react-native-maps";
 import { headingDistanceTo } from "geolocation-utils";
-import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
-import auth, { firebase } from "@react-native-firebase/auth";
-import { DbUser } from "../config/firebase";
 import { devtools } from "zustand/middleware";
 
 /**
@@ -67,7 +63,7 @@ interface LocationTrackingStore {
 
 export const useMapStore = create<MapStore>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       currentMap: {
         name: "",
         map_id: "",
@@ -118,7 +114,6 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
       addLocations: (location: LatLng[], timestamp: number) => {
         set((state) => {
           const line = state.currentLine;
-          let recDistance = 0;
           if (location.length === 0) return {};
           if (line.start === undefined) {
             line.start = line.end = location[0];
@@ -139,17 +134,13 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
             }
             line.headingDelta += hdt.heading - line.headingLast;
             if (Math.abs(line.headingDelta) > 5 || Math.abs(line.headingLast - hdt.heading) > 2.5) {
-              recDistance += line.distance;
-
               state.locations.push(line.start);
               line.start = line.end;
               line.end = location[i];
               line.distance = line.headingDelta = 0;
             }
             line.headingLast = hdt.heading;
-
             line.distance += hdt.distance;
-            recDistance += hdt.distance;
             line.end = location[i];
           }
 
@@ -196,7 +187,7 @@ export const useLocationTrackingStore = create<LocationTrackingStore>()(
       },
       highestTimestamp: 0,
       setHighestTimestamp: (timestamp: number) => {
-        set((state) => {
+        set(() => {
           return { highestTimestamp: timestamp };
         });
       },

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from "react";
-import { Text, View, Button, FlatList, BackHandler } from "react-native";
+import React from "react";
+import { View, BackHandler } from "react-native";
 import HeaderBar from "../components/HeaderBar";
 import TileButton from "../components/TileButton";
 import tw from "../lib/tailwind";

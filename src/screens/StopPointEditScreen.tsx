@@ -1,17 +1,5 @@
 import * as React from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Button,
-  Modal,
-  Pressable,
-  Alert,
-  KeyboardAvoidingView,
-  ToastAndroid,
-} from "react-native";
+import { Text, View, ScrollView, Image, KeyboardAvoidingView, ToastAndroid } from "react-native";
 import SquareButton from "./../components/SquareButton";
 import tw from "../lib/tailwind";
 import { Waypoint, MediaFile } from "./../utils/interfaces";
@@ -29,7 +17,6 @@ import { ModalChoice } from "../components/ModalChoice";
 import { TextInput } from "react-native-paper";
 import uuid from "react-native-uuid";
 import { useMapStore } from "../stores/store";
-import TileButton from "../components/TileButton";
 import { imagePlaceholder } from "../utils/HelperFunctions";
 import HeaderBar from "../components/HeaderBar";
 import { getURI } from "../utils/FileSystemManager";
@@ -121,6 +108,7 @@ const StopPointEditScreen = ({ navigation, route }) => {
     const unsub = navigation.addListener("blur", () => {
       stopSound();
     });
+    return unsub;
   }, [navigation]);
 
   useEffect(() => {}, [result]);

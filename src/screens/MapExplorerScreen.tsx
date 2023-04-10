@@ -2,9 +2,8 @@ import { firebase } from "@react-native-firebase/firestore";
 import { useFocusEffect } from "@react-navigation/native";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Text, View, Image, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { Card, Searchbar } from "react-native-paper";
-import Icon from "react-native-vector-icons/FontAwesome5";
+import { Text, View, ScrollView } from "react-native";
+import { Searchbar } from "react-native-paper";
 import HeaderBar from "../components/HeaderBar";
 import MapCard from "../components/MapCard";
 import { ModalChoice, useAlertModal } from "../components/ModalChoice";
@@ -29,7 +28,6 @@ import {
   loadMap,
   zipUploadMapFolder,
 } from "../utils/FileSystemManager";
-import { imagePlaceholder } from "../utils/HelperFunctions";
 import { HealthPath } from "../utils/interfaces";
 
 /**
@@ -38,7 +36,7 @@ import { HealthPath } from "../utils/interfaces";
  * @param {*} navigation_props { navigation, route }
  * @component
  */
-const MapExplorerScreen = ({ navigation, route }) => {
+const MapExplorerScreen = ({ navigation }) => {
   const [downloadTracker] = useDownloadTrackingStore((state) => [state.downloadTracker]);
   const [setCurrentMap] = useMapStore((state) => [state.setCurrentMap]);
 
@@ -74,7 +72,6 @@ const MapExplorerScreen = ({ navigation, route }) => {
     const user = await Users.doc(DbUser()).get();
 
     if (user.exists) {
-      const maps = user.data().maps;
       const mapsData = await Pathes.where("ownerId", "==", DbUser()).get();
       const mapsDocs = mapsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as MapDocument[];
       setUserMaps(mapsDocs);
@@ -106,7 +103,6 @@ const MapExplorerScreen = ({ navigation, route }) => {
    * @return {*} opcje dla ścieżek lokalnych
    */
   function localOptions() {
-    const isOwner = DbUser() != undefined;
     return [
       {
         label: "Pokaż ścieżkę",
@@ -214,7 +210,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
             await togglePrivate(map.id, true);
             map.visibility = "private";
             force();
-          } catch (e) {}
+          } catch (e) {
+            console.log(e);
+          }
         },
         disabled: isPrivate,
       },
@@ -226,7 +224,9 @@ const MapExplorerScreen = ({ navigation, route }) => {
             await togglePrivate(map.id, false);
             map.visibility = "public";
             force();
-          } catch (e) {}
+          } catch (e) {
+            console.log(e);
+          }
         },
         disabled: !isPrivate,
       },

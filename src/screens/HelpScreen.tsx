@@ -1,9 +1,7 @@
 import { View, Text, BackHandler, ScrollView, Image } from "react-native";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import tw from "../lib/tailwind";
 import SquareButton from "../components/SquareButton";
-import HomeScreen from "./HomeScreen";
-import { Tile } from "react-native-elements";
 import TileButton from "../components/TileButton";
 import HeaderBar from "../components/HeaderBar";
 
@@ -13,7 +11,7 @@ import HeaderBar from "../components/HeaderBar";
  * @param {*} props { route, navigation }
  * @component
  */
-const HelpScreen = ({ route, navigation }) => {
+const HelpScreen = ({ navigation }) => {
   const [currentState, setCurrentState] = useState("Select");
   const [forward, back, setMaxPages, pageNumber, maxPages] = usePagination(2);
 
@@ -130,6 +128,7 @@ function usePagination(max: number): [() => void, () => void, (c: number) => voi
 /**
  * Obiekt zawierający wszystkie poradniki
  */
+// eslint-disable-next-line no-undef
 const contentObject: { [index: string]: { icon: string; label: string; arr: JSX.Element[] } } = {
   Screens: {
     icon: "book",

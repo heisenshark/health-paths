@@ -37,7 +37,7 @@ const OptionsScreen = ({ navigation, route }) => {
   const logIn = async () => {
     try {
       setInactive(true);
-      const elo = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const { idToken } = await GoogleSignin.signIn();
       const googleCredential = await auth.GoogleAuthProvider.credential(idToken);
       await GoogleSignin.clearCachedAccessToken(idToken);

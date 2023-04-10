@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View } from "react-native";
 import Modal from "react-native-modal/dist/modal";
 import { TouchableRipple } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";

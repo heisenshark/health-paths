@@ -5,6 +5,6 @@ import { useState } from "react";
  * @returns funkcja wymuszająca odświeżenie komponentu
  */
 export function useForceUpdate() {
-  const [value, setValue] = useState(0);
+  const [, setValue] = useState(0);
   return () => setValue((value) => value + 1);
 }

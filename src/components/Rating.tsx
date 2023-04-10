@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Style } from "twrnc/dist/esm/types";
 import tw from "../lib/tailwind";

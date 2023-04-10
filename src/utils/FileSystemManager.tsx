@@ -1,19 +1,15 @@
 import * as fs from "expo-file-system";
 import { Waypoint, HealthPath, MediaFile } from "./interfaces";
-import { cloneDeep } from "lodash";
-import { copyAsync } from "expo-file-system";
-import { zip, unzip, unzipAssets, subscribe } from "react-native-zip-archive";
+import { zip, unzip } from "react-native-zip-archive";
 import { firebase } from "@react-native-firebase/auth";
-import storage from "@react-native-firebase/storage";
 import { loadMapInfo, loadMapInfoDir } from "./MapInfoLoader";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import { db, stor, addPath, MapDocument, Pathes, Users } from "../config/firebase";
+import firestore from "@react-native-firebase/firestore";
+import { stor, addPath, MapDocument, Pathes, Users } from "../config/firebase";
 import { calculateDistance } from "./HelperFunctions";
 import { DbUser } from "./../config/firebase";
 import uuid from "react-native-uuid";
 import { ToastAndroid } from "react-native";
-import Rating from "../components/Rating";
 import { useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 const mapDir = fs.documentDirectory + "Maps/";
 const cacheDir = fs.cacheDirectory + "Maps/";
@@ -87,7 +83,7 @@ async function createIfNotExists(
  * @param {string} [data=""] tekst do zapisania
  */
 async function writeToFile(path: string, data: string = "") {
-  const aaaa = await fs.writeAsStringAsync(path, data);
+  await fs.writeAsStringAsync(path, data);
 }
 /**
  * Funkcja przenosząca istniejący plik multimedialny do lokalnego miejsca zapisu mapy
@@ -162,7 +158,7 @@ async function copycachedMedia(stop: Waypoint, mapNameDir: string): Promise<Medi
 async function saveMap(map: HealthPath) {
   const foldername = `_${map.map_id}`;
   const mapNameDir = `${mapDir}${foldername}/`;
-  const dirInfo = await createIfNotExists(mapNameDir, { isFile: false });
+  await createIfNotExists(mapNameDir, { isFile: false });
   const currentUser = await GoogleSignin.getCurrentUser();
   const isUserLogged = DbUser() !== undefined;
 
@@ -235,7 +231,7 @@ async function saveMap(map: HealthPath) {
     path_id: map.map_id,
     path_icon: map.imageIcon?.media_id,
     displayed_name: map.name,
-    approximate_distance_in_meters: map.distance, 
+    approximate_distance_in_meters: map.distance,
     is_cyclic: false,
     map_url: "mapbox://styles/polslrau6/cl4fw1x8i001t14lih34jtkhz",
     waypoints: [...waypoints.map((x) => x.waypoint_id)],
@@ -417,11 +413,11 @@ async function UploadMapFolder(
 
     saveMapInfo({ ...mapinfo }, id);
 
-    const dirInfo = await createIfNotExists(cacheDir, { isFile: false });
+    await createIfNotExists(cacheDir, { isFile: false });
 
     const zipPath = await zip(mapNameDir, target);
 
-    const u = Users.doc(DbUser()).get();
+    Users.doc(DbUser()).get();
 
     const stor = firebase.storage();
     // stor.getActiveUploadTasks();
@@ -522,7 +518,7 @@ async function listAllMaps(): Promise<HealthPath[]> {
  */
 async function downloadMap(map: MapDocument) {
   if (map.id === undefined) return;
-  const cacheInfo = await createIfNotExists(cacheDir);
+  await createIfNotExists(cacheDir);
   const reference = stor.ref(map.storeRef);
   let refName = reference.name;
 

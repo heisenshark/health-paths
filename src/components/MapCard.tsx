@@ -52,11 +52,10 @@ const MapCard = ({ id, icon, visibility, name, location, isDownloaded, onPress }
 
           {visibility !== undefined && (
             <Text style={tw`text-xl text-right`}>
-              <Icon name={visibility === "public" ? "eye" : "eye-slash"}></Icon>{" "}
+              <Icon name={visibility === "public" ? "eye" : "eye-slash"}></Icon>
               {visibility === "private" ? "prywatna" : "publiczna"}
               {isDownloaded && (
                 <>
-                  {"  "}
                   <Icon name={"download"}></Icon>
                   <Text> pobrana</Text>
                 </>

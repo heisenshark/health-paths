@@ -1,6 +1,5 @@
 import * as React from "react";
-import { useEffect } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Image } from "react-native";
 import { LatLng, Marker, Polyline } from "react-native-maps";
 import tw from "../lib/tailwind";
 import { useLocationTrackingStore } from "../stores/store";
@@ -23,8 +22,8 @@ export interface TrackLineProps {
  * @component
  */
 const TrackLine = ({ isRecordingFinished, isEdit, coords }: TrackLineProps) => {
-  const [line, outLocations] = useLocationTrackingStore((state) => {
-    return [state.currentLine, state.outputLocations];
+  const [outLocations] = useLocationTrackingStore((state) => {
+    return [state.outputLocations];
   });
 
   return (

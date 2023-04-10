@@ -1,15 +1,13 @@
-import { useAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import { View } from "react-native";
 import MapView, { Polyline, Region } from "react-native-maps";
-import Animated, { FadeInLeft, FadeOutLeft } from "react-native-reanimated";
-import MapGUIButton from "../components/MapGUIButton";
 import Markers from "../components/Markers";
 import SquareButton from "../components/SquareButton";
 import StopPoints from "../components/StopPoints";
 import ZoomGUI from "../components/ZoomGUI";
-import { showHandlesAtom, zoomAtom } from "../config/AtomsState";
+import { zoomAtom } from "../config/AtomsState";
 import tw from "../lib/tailwind";
 import { mapstyleSilver } from "../providedfiles/Export";
 import { useMapStore } from "../stores/store";
@@ -30,8 +28,7 @@ const MapViewScreen = ({ navigation, route }) => {
 
   const mapRef = useRef<MapView>();
   const [resetCurrentMap] = useMapStore((state) => [state.resetCurrentMap]);
-  const [zoom, setZoom] = useAtom(zoomAtom);
-  const [, setShowHandles] = useAtom(showHandlesAtom);
+  const setZoom = useSetAtom(zoomAtom);
 
   const currentMap = route.params.map;
 
@@ -60,7 +57,7 @@ const MapViewScreen = ({ navigation, route }) => {
         customMapStyle={mapstyleSilver}
         maxZoomLevel={20}
         minZoomLevel={7}
-        onRegionChangeComplete={(e, { isGesture }) =>
+        onRegionChangeComplete={() =>
           mapRef.current.getCamera().then((c) => {
             setZoom(156543.03392 / Math.pow(2, c.zoom));
           })

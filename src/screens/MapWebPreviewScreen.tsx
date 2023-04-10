@@ -1,30 +1,16 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  Button,
-  Image,
-  ToastAndroid,
-  Share,
-  Alert,
-} from "react-native";
+import { Text, View, ScrollView, Image, ToastAndroid, Share } from "react-native";
 import tw from "../lib/tailwind";
-import { db, DbUser, MapDocument, Ratings } from "./../config/firebase";
+import { DbUser, MapDocument, Ratings } from "./../config/firebase";
 import SquareButton from "./../components/SquareButton";
-import { FirebaseStorageTypes } from "@react-native-firebase/storage";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { formatDistance, imagePlaceholder } from "./../utils/HelperFunctions";
-import { map } from "@firebase/util";
 import { firebase } from "@react-native-firebase/auth";
-import { Card } from "react-native-paper";
 import Rating from "../components/Rating";
 import { Pathes } from "../config/firebase";
 import { deleteMap, downloadMap, loadMap } from "../utils/FileSystemManager";
-import { useMapStore } from "../stores/store";
 import TileButton from "../components/TileButton";
 import { DownloadTrackerRecord, useDownloadTrackingStore } from "../stores/DownloadTrackingStore";
 import HeaderBar from "../components/HeaderBar";
@@ -86,7 +72,7 @@ const MapWebPreview = ({ navigation, route }) => {
             setUpMap({ id: doc.id, ...doc.data() } as MapDocument);
           }
         })
-        .catch((err) => {
+        .catch(() => {
           ToastAndroid.show(
             "Błąd odczytu mapy, upewnij się że czy na pewno jest publiczna",
             ToastAndroid.LONG
@@ -104,10 +90,6 @@ const MapWebPreview = ({ navigation, route }) => {
    */
   function setUpMap(m: MapDocument) {
     setMapa(m as MapDocument);
-
-    const date = new Date(m.createdAt.seconds * 1000);
-    const dateString = format(m.createdAt.seconds * 1000, "do LLLL yyyy", { locale: pl });
-
     const entry = downloadTracker[m.id];
 
     if (entry !== undefined) {
@@ -127,7 +109,7 @@ const MapWebPreview = ({ navigation, route }) => {
 
     const dta = prevValue.data();
 
-    const elo = await Ratings.doc(map.id + DbUser()).set({
+    await Ratings.doc(map.id + DbUser()).set({
       mapId: map.id,
       userId: DbUser(),
       rating: r,
