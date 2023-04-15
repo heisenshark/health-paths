@@ -9,7 +9,7 @@ App for tracking GPS location targeted for seniors, it allows for tracking path 
 - TailwindCSS(TWClassNames) 
 
 #### Run locally
-before running you should fill in .env file according to .env.example file already existing in the repo, you should have **firebase project**, some google sign in project/option and google maps api key.
+before running you should fill in .env file according to .env.example file already existing in the repo, you should have **firebase project**, some google sign in project/option and google maps api key. also enter the maps api key in android/app/main/AndroidManifest.xml in metadata tag with value of "com.google.android.geo.API_KEY"
 ```bash
 #It's also important to add google-services.json to android/app directory for google login
 #If you have any problems reference the documentations of libraries used like

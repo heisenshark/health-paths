@@ -30,7 +30,7 @@
     <meta-data android:name="expo.modules.updates.EXPO_UPDATE_URL"
       android:value="https://exp.host/@heisenshark/health-pathes" />
     <meta-data android:name="com.google.android.geo.API_KEY"
-      android:value="AIzaSyBdQoZst_6AUWBz79PL4E3c5SMsVdaCZKs" />
+      android:value="Enter_Api_Key_Here" />
 
     <activity android:name=".MainActivity" android:label="@string/app_name"
       android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
